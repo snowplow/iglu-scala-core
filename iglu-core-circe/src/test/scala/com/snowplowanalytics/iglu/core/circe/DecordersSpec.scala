@@ -29,6 +29,8 @@ class DecordersSpec extends Specification { def is = s2"""
   Circe decoders
     decode SelfDescribingSchema $e1
     decode SelfDescribingData $e2
+    decode SchemaList $e3
+    decode produces valid SchemaList-specific error $e4
   """
 
   def e1 = {
@@ -80,5 +82,32 @@ class DecordersSpec extends Specification { def is = s2"""
     )
 
     input.as[SelfDescribingData[Json]] must beRight(expected)
+  }
+
+  def e3 = {
+    val input: Json =
+      json"""
+        ["iglu:com.acme/example/jsonschema/1-0-0", "iglu:com.acme/example/jsonschema/1-0-1"]
+      """
+
+    val expected = SchemaList(List(
+      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1,0,0)),
+      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1,0,1))))
+
+    input.as[SchemaList] must beRight(expected)
+  }
+
+  def e4 = {
+    import cats.syntax.show._
+
+    val input: Json =
+      json"""
+        ["iglu:com.acme/example/jsonschema/1-0-0", "iglu:com.nonacme/example/jsonschema/1-0-1"]
+      """
+
+    val expected = "DecodingFailure at : Cannot parse list of strings into SchemaList. " +
+      "SchemaKey iglu:com.nonacme/example/jsonschema/1-0-1 does not match previous vendor (com.nonacme) or name (example)"
+
+    input.as[SchemaList].leftMap(_.show) must beLeft(expected)
   }
 }
