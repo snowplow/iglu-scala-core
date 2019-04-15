@@ -1,20 +1,27 @@
 # Scala Iglu Core
 
-[![Release][release-image]][releases] [![License][license-image]][license]
+[![Maven Central][maven-badge]][maven-link]
+[![Build Status][travis-image]][travis] 
+[![License][license-image]][license]
 
 Core entities for working with Iglu in Scala.
 
 Recent documentation can be found on dedicated wiki page: **[Iglu Scala Core][techdocs]**.
 
-## Developer quickstart
+## Quickstart
 
-Assuming git, **[Vagrant][vagrant-install]** and **[VirtualBox][virtualbox-install]** installed:
+Assuming git, JVM and [SBT][sbt-site] are installed:
 
 ```bash
- host> git clone https://github.com/snowplow/iglu
- host> vagrant up && vagrant ssh
-guest> cd /vagrant/0-common/scala-core
-guest> sbt compile
+$ git clone https://github.com/snowplow-incubator/iglu-scala-core
+$ cd iglu-scala-core
+$ sbt compile
+```
+
+In order to include Iglu Scala Core into your project, add following to your `build.sbt`:
+
+```scala
+libraryDependencies += "com.snowplowanalytics" % "iglu-core" % "0.5.0"
 ```
 
 ## Find out more
@@ -40,11 +47,13 @@ limitations under the License.
 [license-image]: http://img.shields.io/badge/license-Apache--2-blue.svg?style=flat
 [license]: http://www.apache.org/licenses/LICENSE-2.0
 
-[release-image]: http://img.shields.io/badge/release-0.2.0-blue.svg?style=flat
-[releases]: https://github.com/snowplow/iglu/releases
+[maven-badge]: https://maven-badges.herokuapp.com/maven-central/com.snowplowanalytics/iglu-core_2.12/badge.svg
+[maven-link]: https://maven-badges.herokuapp.com/maven-central/com.snowplowanalytics/iglu-core_2.12
 
-[vagrant-install]: http://docs.vagrantup.com/v2/installation/index.html
-[virtualbox-install]: https://www.virtualbox.org/wiki/Downloads
+[travis]: https://travis-ci.org/snowplow-incubator/iglu-scala-core
+[travis-image]: https://travis-ci.org/snowplow-incubator/iglu-scala-core.png?branch=master
+
+[sbt-site]: https://www.scala-sbt.org/
 
 [techdocs]: https://github.com/snowplow/iglu/wiki/Scala-iglu-core
 [roadmap]: https://github.com/snowplow/iglu/wiki/Product-roadmap
