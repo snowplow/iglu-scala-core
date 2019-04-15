@@ -44,7 +44,7 @@ object BuildSettings {
   lazy val mavenCentralExtras = Seq[Setting[_]](
     pomIncludeRepository := { x => false },
     homepage := Some(url("http://snowplowanalytics.com")),
-    scmInfo := Some(ScmInfo(url("https://github.com/snowplow/iglu"), "scm:git@github.com:snowplow/iglu.git")),
+    scmInfo := Some(ScmInfo(url("https://github.com/snowplow-incubator/iglu-scala-core"), "scm:git@github.com:snowplow-incubator/iglu-scala-core.git")),
     pomExtra := (
       <developers>
         <developer>

@@ -1,0 +1,32 @@
+Version 0.4.0 (2019-01-16)
+--------------------------
+Bump sbt-bintray to 0.5.4 (snowplow/iglu#469)
+Bump SBT to 1.2.8 (snowplow/iglu#465)
+Add ParseError type (snowplow/iglu#369)
+Unify SchemaKey and SchemaMap (snowplow/iglu#450)
+Remove syntax extensions (snowplow/iglu#449)
+Add circe Decoder instance for SelfDescribingData (snowplow/iglu#448)
+Swap SelfDescribingData member names (snowplow/iglu#394)
+Bump circe to 0.10.1 (snowplow/iglu#447)
+
+Version 0.3.0 (2018-08-24)
+--------------------------
+Add separate SchemaKey with explicit version (snowplow/iglu#364)
+Bump Scala versions to 2.11.12 and 2.12.6 (snowplow/iglu#414)
+Drop 2.10 (snowplow/iglu#389)
+Bump SBT to 1.2.1 (snowplow/iglu#385)
+Add Encoder and Decoder instances (snowplow/iglu#361)
+Bump circe to 0.9.3 (snowplow/iglu#411)
+
+Version 0.2.0 (2017-12-27)
+--------------------------
+Downgrade json4s to 3.2.11 (snowplow/iglu#268)
+Add support for Unversioned Schema (snowplow/iglu#147)
+Bump sbt-bintray to 0.5.1 (snowplow/iglu#285)
+Add Scala 2.12 support (snowplow/iglu#276)
+Bump SBT to 1.0.4 (snowplow/iglu#180)
+Add json4s to test scope (snowplow/iglu#236)
+
+Version 0.1.0 (2016-05-22)
+--------------------------
+Initial commit (snowplow/iglu#135)
