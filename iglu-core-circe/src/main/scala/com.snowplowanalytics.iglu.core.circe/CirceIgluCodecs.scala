@@ -96,6 +96,17 @@ trait CirceIgluCodecs {
       Json.obj("schema" -> Json.fromString(data.schema.toSchemaUri), "data" -> data.data)
     }
 
+  final implicit val schemaListCirceJsonEncoder: Encoder[SchemaList] =
+    Encoder.instance { data => Json.fromValues(data.schemas.map(s => Json.fromString(s.toSchemaUri))) }
+
+  final implicit val schemaListCirceJsonDecoder: Decoder[SchemaList] =
+    Decoder.instance { cursor =>
+      for {
+        strings <- cursor.value.as[List[String]]
+        result <- SchemaList.parseStrings(strings).leftMap(err => DecodingFailure(err, cursor.history))
+      } yield result
+    }
+
   private[circe] def parseSchemaVer(hCursor: HCursor): Either[DecodingFailure, SchemaVer] =
     for {
       jsonString <- hCursor.as[String]
