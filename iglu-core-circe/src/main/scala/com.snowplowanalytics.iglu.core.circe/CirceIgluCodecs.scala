@@ -34,28 +34,36 @@ trait CirceIgluCodecs {
   def toDecodingFailure(cursor: HCursor)(error: ParseError): DecodingFailure =
     DecodingFailure(error.code, cursor.history)
 
-  final implicit val decodeSchemaVer: Decoder[SchemaVer] =
+  final implicit val schemaVerCirceJsonDecoder: Decoder[SchemaVer] =
     Decoder.instance(parseSchemaVer)
 
-  final implicit val encodeSchemaVer: Encoder[SchemaVer] =
-    Encoder.instance { schemaVer =>
-      Json.fromString(schemaVer.asString)
-    }
+  final implicit val schemaVerCirceJsonEncoder: Encoder[SchemaVer] =
+    Encoder.instance { schemaVer => Json.fromString(schemaVer.asString) }
 
-  final implicit val decodeSchemaKey: Decoder[SchemaMap] =
+  final implicit val schemaMapCirceJsonDecoder: Decoder[SchemaMap] =
     Decoder.instance(parseSchemaMap)
 
-  final implicit val encodeSchemaMap: Encoder[SchemaMap] =
+  final implicit val schemaMapCirceJsonEncoder: Encoder[SchemaMap] =
     Encoder.instance { schemaMap =>
       Json.obj(
-        "vendor"  -> Json.fromString(schemaMap.schemaKey.vendor),
+        "vendor" -> Json.fromString(schemaMap.schemaKey.vendor),
         "name"    -> Json.fromString(schemaMap.schemaKey.name),
         "format"  -> Json.fromString(schemaMap.schemaKey.format),
         "version" -> Json.fromString(schemaMap.schemaKey.version.asString)
       )
     }
 
-  final implicit val decodeSchema: Decoder[SelfDescribingSchema[Json]] =
+  final implicit val schemaKeyCirceJsonDecoder: Decoder[SchemaKey] =
+    Decoder.instance { cursor =>
+      cursor
+        .as[String]
+        .flatMap(s => SchemaKey.fromUri(s).leftMap(e => DecodingFailure(s"Cannot decode $s as SchemaKey, ${e.code}", cursor.history)))
+    }
+
+  final implicit val schemaKeyCirceJsonEncoder: Encoder[SchemaKey] =
+    Encoder.instance { key => Json.fromString(key.toSchemaUri) }
+
+  final implicit val selfDescribingSchemaCirceDecoder: Decoder[SelfDescribingSchema[Json]] =
     Decoder.instance { hCursor =>
       for {
         map <- hCursor.as[JsonObject].map(_.toMap)
@@ -67,12 +75,17 @@ trait CirceIgluCodecs {
       } yield SelfDescribingSchema(schemaMap, Json.fromJsonObject(JsonObject.fromMap(jsonSchema)))
     }
 
-  final implicit val encodeSchema: Encoder[SelfDescribingSchema[Json]] =
+  final implicit val selfDescribingSchemaCirceEncoder: Encoder[SelfDescribingSchema[Json]] =
     Encoder.instance { schema =>
-      Json.obj("self" -> schema.self.asJson(encodeSchemaMap)).deepMerge(schema.schema)
+      Json.obj("self" -> schema.self.asJson(schemaMapCirceJsonEncoder)).deepMerge(schema.schema)
     }
 
-  final implicit val decodeData: Decoder[SelfDescribingData[Json]] =
+  final implicit val selfDescribingDataCirceEncoder: Encoder[SelfDescribingData[Json]] =
+    Encoder.instance { data =>
+      Json.obj("schema" -> Json.fromString(data.schema.toSchemaUri), "data" -> data.data)
+    }
+
+  final implicit val selfDescribingDataCirceDecoder: Decoder[SelfDescribingData[Json]] =
     Decoder.instance { hCursor =>
       for {
         map <- hCursor.as[JsonObject].map(_.toMap)
@@ -90,11 +103,6 @@ trait CirceIgluCodecs {
       } yield SelfDescribingData(schema, data)
     }
 
-
-  final implicit val encodeData: Encoder[SelfDescribingData[Json]] =
-    Encoder.instance { data =>
-      Json.obj("schema" -> Json.fromString(data.schema.toSchemaUri), "data" -> data.data)
-    }
 
   final implicit val schemaListCirceJsonEncoder: Encoder[SchemaList] =
     Encoder.instance { data => Json.fromValues(data.schemas.map(s => Json.fromString(s.toSchemaUri))) }
