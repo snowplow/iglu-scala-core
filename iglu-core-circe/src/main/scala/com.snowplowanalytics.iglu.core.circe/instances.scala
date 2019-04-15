@@ -62,13 +62,13 @@ trait instances {
   final implicit val igluNormalizeDataJson: NormalizeData[Json] =
     new NormalizeData[Json] {
       override def normalize(container: SelfDescribingData[Json]): Json =
-        CirceIgluCodecs.encodeData(container)
+        CirceIgluCodecs.selfDescribingDataCirceEncoder(container)
     }
 
   final implicit val igluNormalizeSchemaJson: NormalizeSchema[Json] =
     new NormalizeSchema[Json] {
       override def normalize(container: SelfDescribingSchema[Json]): Json =
-        CirceIgluCodecs.encodeSchema(container)
+        CirceIgluCodecs.selfDescribingSchemaCirceEncoder(container)
     }
 
   final implicit val igluStringifyDataJson: StringifyData[Json] =
