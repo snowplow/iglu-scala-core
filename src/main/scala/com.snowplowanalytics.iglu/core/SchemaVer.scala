@@ -39,6 +39,13 @@ object SchemaVer {
     def getModel = Some(model)
     def getRevision = Some(revision)
     def getAddition = Some(addition)
+
+    /** Get specific point of version */
+    def get(kind: VersionKind): Int = kind match {
+      case VersionKind.Model => model
+      case VersionKind.Revision => revision
+      case VersionKind.Addition => addition
+    }
   }
 
   /** Partially known version. Can be attached only to data, schema need to be looked-up or inferenced */
@@ -48,6 +55,13 @@ object SchemaVer {
     def getModel = model
     def getRevision = revision
     def getAddition = addition
+
+    /** Get specific point of version */
+    def get(kind: VersionKind): Option[Int] = kind match {
+      case VersionKind.Model => model
+      case VersionKind.Revision => revision
+      case VersionKind.Addition => addition
+    }
   }
 
   /**
