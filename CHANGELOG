@@ -1,3 +1,17 @@
+Version 0.5.0 (2019-04-29)
+-------------------------------------
+Move into iglu-scala-core repo (close #1)
+Add Sonatype credentials to .travis.yml (close #4)
+Add Bintray credentials to .travis.yml (close #3)
+Add CI/CD to project (close #2)
+Add VersionKind primitive (close #14)
+Add circe Encoder and Decoder instances for SchemaKey (close #11)
+Add SchemaList primitive (close #10)
+Bump cats to 1.6.0 (close #8)
+Bump circe to 0.11.1 (close #7)
+Bump specs2 to 4.5.1 (close #9)
+Extend copyright notice to 2019 (close #13)
+
 Version 0.4.0 (2019-01-16)
 --------------------------
 Bump sbt-bintray to 0.5.4 (snowplow/iglu#469)
