@@ -1,4 +1,4 @@
-# Scala Iglu Core
+# Iglu Scala Core
 
 [![Maven Central][maven-badge]][maven-link]
 [![Build Status][travis-image]][travis] 
