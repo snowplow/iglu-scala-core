@@ -20,6 +20,7 @@ class SchemaListSpec extends Specification { def is = s2"""
   parseString rejects list of strings starting not from 1-0-0 $e3
   parseString rejects a non-unique SchemaKey $e4
   parseString rejects a SchemaKey with non-matching vendor or name $e5
+  parseString parses a list valid 2-*-* schemas $e6
   """
 
   def e1 = {
@@ -70,5 +71,16 @@ class SchemaListSpec extends Specification { def is = s2"""
       "SchemaKey iglu:com.foo/example/jsonschema/1-0-1 does not match previous vendor (com.foo) or name (example)"
 
     SchemaList.parseStrings(input) must beLeft(expectedError)
+  }
+
+  def e6 = {
+    val input = List(
+      "iglu:com.acme/example/jsonschema/2-0-0",
+      "iglu:com.acme/example/jsonschema/2-0-1")
+    val expected = List(
+      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(2,0,0)),
+      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(2,0,1)))
+
+    SchemaList.parseStrings(input) must beRight(SchemaList(expected))
   }
 }

@@ -13,7 +13,8 @@
 package com.snowplowanalytics.iglu.core
 
 /**
-  * List of SchemaKeys, belonging to the same vendor/name group, and started with 1-0-0
+  * List of SchemaKeys, belonging to the same vendor/name OR vendor/name/model group, and started with initial schema
+  * Can be e
   * Proven to be non-empty, but correct order is trusted and can be validated by Schema DDL
   * It is usually acceptable to trust the producer as long as producer is Iglu Server
   */
@@ -30,8 +31,8 @@ object SchemaList {
   def parseStrings(strings: List[String]): Either[String, SchemaList] = {
     val results = strings.foldLeft(EmptyList: Either[String, ParseAccumulator]) {
       case (EmptyList, cur) => SchemaKey.fromUri(cur) match {
-        case Right(key) if key.version != SchemaVer.Full(1, 0, 0) =>
-          Left(s"Init schema ${key.toSchemaUri} is not 1-0-0")
+        case Right(key @ SchemaKey(_, _, _, SchemaVer.Full(m, r, a))) if r != 0 || a != 0 =>
+          Left(s"Init schema ${key.toSchemaUri} is not $m-0-0")
         case Right(key) => Right(ParseAccumulator(key.vendor, key.name, List(key)))
         case Left(error) => Left(s"$cur - ${error.code}")
       }
