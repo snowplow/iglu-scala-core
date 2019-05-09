@@ -1,3 +1,8 @@
+Version 0.5.1 (2019-05-09)
+--------------------------
+Allow SchemaList to not start with 1-0-0 (#16)
+Clean-up work tree (#15)
+
 Version 0.5.0 (2019-04-29)
 --------------------------
 Move into iglu-scala-core repo (#1)
