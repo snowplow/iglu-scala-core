@@ -52,6 +52,29 @@ trait CirceIgluCodecs {
       )
     }
 
+  final implicit val schemaCriterionDecoder: Decoder[SchemaCriterion] = Decoder.instance { c =>
+    for {
+      vendor <- c.downField("vendor").as[String]
+      name <- c.downField("name").as[String]
+      format <- c.downField("format").as[String]
+      model <- c.downField("model").as[Option[Int]]
+      revision <- c.downField("revision").as[Option[Int]]
+      addition <- c.downField("addition").as[Option[Int]]
+    } yield SchemaCriterion(vendor, name, format, model, revision, addition)
+  }
+
+  final implicit val schemaCriterionEncoder: Encoder[SchemaCriterion] =
+    Encoder.instance { criterion =>
+      Json.obj(
+        "vendor" := criterion.vendor,
+        "name" := criterion.name,
+        "format" := criterion.format,
+        "model" := criterion.model,
+        "revision" := criterion.revision,
+        "addition" := criterion.addition
+      )
+    }
+
   final implicit val schemaKeyCirceJsonDecoder: Decoder[SchemaKey] =
     Decoder.instance { cursor =>
       cursor
