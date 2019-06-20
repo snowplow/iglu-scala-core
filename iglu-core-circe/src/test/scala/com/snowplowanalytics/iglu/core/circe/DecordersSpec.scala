@@ -33,6 +33,7 @@ class DecordersSpec extends Specification { def is = s2"""
     decode produces valid SchemaList-specific error $e4
     fail to extract SelfDescribingSchema if metaschema field contains invalid value $e5
     fail to extract SelfDescribingSchema if metaschema field is missing $e6
+    decode SchemaCriterion $e7
   """
 
   def e1 = {
@@ -114,6 +115,7 @@ class DecordersSpec extends Specification { def is = s2"""
   }
 
   def e5 = {
+
     val result: Json =
     // The valid vendor is 'com.snowplowanalytics.self-desc'
       json"""
@@ -159,5 +161,19 @@ class DecordersSpec extends Specification { def is = s2"""
     val expected = "DecodingFailure at .$schema: Attempt to decode value on failed cursor"
 
     result.as[SelfDescribingSchema[Json]].leftMap(_.show) must beLeft(expected)
+
+  }
+
+  def e7 = {
+    import cats.syntax.option._
+    val nov = json"""{"vendor": "com.acme", "name": "name", "format": "json"}"""
+    nov.as[SchemaCriterion] must beRight(SchemaCriterion("com.acme", "name", "json"))
+    val model = json"""{"vendor": "com.acme", "name": "name", "format": "json", "model": 1}"""
+    model.as[SchemaCriterion] must beRight(SchemaCriterion("com.acme", "name", "json", 1.some))
+    val rev = json"""{"vendor": "com.acme", "name": "name", "format": "json", "revision": 1}"""
+    rev.as[SchemaCriterion] must beRight(SchemaCriterion("com.acme", "name", "json", None, 1.some))
+    val add = json"""{"vendor": "com.acme", "name": "name", "format": "json", "addition": 1}"""
+    add.as[SchemaCriterion] must beRight(
+      SchemaCriterion("com.acme", "name", "json", None, None, 1.some))
   }
 }
