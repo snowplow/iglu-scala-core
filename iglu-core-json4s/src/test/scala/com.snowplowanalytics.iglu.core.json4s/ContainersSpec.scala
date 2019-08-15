@@ -31,6 +31,8 @@ class ContainersSpec extends Specification { def is = s2"""
     normalize SelfDescribingSchema $e4
     stringify SelfDescribingData $e5
     stringify SelfDescribingSchema $e6
+    fail to extract SelfDescribingSchema if metaschema field contains invalid value $e7
+    fail to extract SelfDescribingSchema if metaschema field is missing $e8
   """
 
   def e1 = {
@@ -66,6 +68,7 @@ class ContainersSpec extends Specification { def is = s2"""
     val result: JValue = parse(
       """
         |{
+        | "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
         |	"self": {
         |		"vendor": "com.acme",
         |		"name": "keyvalue",
@@ -142,6 +145,7 @@ class ContainersSpec extends Specification { def is = s2"""
     val expected: JValue = parse(
       """
         {
+          "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
         	"self": {
         		"vendor": "com.acme",
         		"name": "keyvalue",
@@ -194,9 +198,54 @@ class ContainersSpec extends Specification { def is = s2"""
       """.stripMargin)
 
     val expected: String =
-      """{"self":{"vendor":"com.acme","name":"keyvalue","format":"jsonschema","version":"1-1-0"},"type":"object","properties":{"name":{"type":"string"},"value":{"type":"string"}}}"""
+      """{"self":{"vendor":"com.acme","name":"keyvalue","format":"jsonschema","version":"1-1-0"},"$schema":"http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#","type":"object","properties":{"name":{"type":"string"},"value":{"type":"string"}}}"""
 
     val result = SelfDescribingSchema(self, schema)
     result.asString must beEqualTo(expected)
+  }
+
+  def e7 = {
+
+    val result: JValue = parse(
+      """
+         |{
+         | "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self/schema/jsonschema/1-0-0#",
+         |	"self": {
+         |		"vendor": "com.acme",
+         |		"name": "keyvalue",
+         |		"format": "jsonschema",
+         |		"version": "1-1-0"
+         |	},
+         |	"type": "object",
+         |	"properties": {
+         |		"name": { "type": "string" },
+         |		"value": { "type": "string" }
+         |	}
+         |}
+      """.stripMargin)
+
+    SelfDescribingSchema.parse(result) must beLeft(ParseError.InvalidSchemaUri)
+  }
+
+  def e8 = {
+
+    val result: JValue = parse(
+      """
+         |{
+         |	"self": {
+         |		"vendor": "com.acme",
+         |		"name": "keyvalue",
+         |		"format": "jsonschema",
+         |		"version": "1-1-0"
+         |	},
+         |	"type": "object",
+         |	"properties": {
+         |		"name": { "type": "string" },
+         |		"value": { "type": "string" }
+         |	}
+         |}
+      """.stripMargin)
+
+    SelfDescribingSchema.parse(result) must beLeft(ParseError.InvalidSchemaUri)
   }
 }

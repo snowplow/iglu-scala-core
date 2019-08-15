@@ -52,14 +52,17 @@ object IgluJson4sCodecs {
     {
       case fullSchema: JObject =>
         val schemaMap = SchemaMap((fullSchema \ "self").extract[SchemaKey])
-        val schema = IgluCoreCommon.removeSelf(fullSchema)
+        val schema = IgluCoreCommon.removeNecessaryFields(fullSchema)
         SelfDescribingSchema(schemaMap, schema)
       case _ => throw new MappingException("Not an JSON object")
     },
 
     {
       case SelfDescribingSchema(self, schema: JValue) =>
-        (("self", Extraction.decompose(self.schemaKey)): JObject).merge(schema)
+        JObject(
+          ("self", Extraction.decompose(self.schemaKey)),
+          ("$schema", Extraction.decompose(SelfDescribingSchema.SelfDescribingUri.toString))
+        ).merge(schema)
     }
     ))
 

@@ -63,6 +63,7 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
     val schema: JValue = parse(
       """
         |{
+        |  "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
         |  "type": "object",
         |  	"properties": {
         |  		"latitude": {
@@ -99,6 +100,7 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
     val expected: JValue = parse(
       """
         |{
+        | "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
         |	"self": {
         |		"vendor": "com.snowplowanalytics.snowplow",
         |		"name": "geolocation_context",
