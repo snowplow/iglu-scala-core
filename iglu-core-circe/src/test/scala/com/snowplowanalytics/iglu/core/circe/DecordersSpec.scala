@@ -14,6 +14,7 @@ package com.snowplowanalytics.iglu.core.circe
 
 // cats
 import cats.syntax.either._
+import cats.syntax.show._
 
 // circe
 import io.circe._
@@ -31,12 +32,15 @@ class DecordersSpec extends Specification { def is = s2"""
     decode SelfDescribingData $e2
     decode SchemaList $e3
     decode produces valid SchemaList-specific error $e4
+    fail to extract SelfDescribingSchema if metaschema field contains invalid value $e5
+    fail to extract SelfDescribingSchema if metaschema field is missing $e6
   """
 
   def e1 = {
     val result: Json =
       json"""
         {
+          "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
         	"self": {
         		"vendor": "com.acme",
         		"name": "keyvalue",
@@ -98,7 +102,6 @@ class DecordersSpec extends Specification { def is = s2"""
   }
 
   def e4 = {
-    import cats.syntax.show._
 
     val input: Json =
       json"""
@@ -109,5 +112,53 @@ class DecordersSpec extends Specification { def is = s2"""
       "SchemaKey iglu:com.nonacme/example/jsonschema/1-0-1 does not match previous vendor (com.nonacme) or name (example)"
 
     input.as[SchemaList].leftMap(_.show) must beLeft(expected)
+  }
+
+  def e5 = {
+    val result: Json =
+    // The valid vendor is 'com.snowplowanalytics.self-desc'
+      json"""
+        {
+          "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self/schema/jsonschema/1-0-0#",
+        	"self": {
+        		"vendor": "com.acme",
+        		"name": "keyvalue",
+        		"format": "jsonschema",
+        		"version": "1-1-0"
+        	},
+        	"type": "object",
+        	"properties": {
+        		"name": { "type": "string" },
+        		"value": { "type": "string" }
+        	}
+        }
+      """
+
+    val expected = "DecodingFailure at : INVALID_SCHEMA_URI"
+
+    result.as[SelfDescribingSchema[Json]].leftMap(_.show) must beLeft(expected)
+  }
+
+  def e6 = {
+    val result: Json =
+      json"""
+        {
+        	"self": {
+        		"vendor": "com.acme",
+        		"name": "keyvalue",
+        		"format": "jsonschema",
+        		"version": "1-1-0"
+        	},
+        	"type": "object",
+        	"properties": {
+        		"name": { "type": "string" },
+        		"value": { "type": "string" }
+        	}
+        }
+      """
+
+    val expected = "DecodingFailure at .$schema: Attempt to decode value on failed cursor"
+
+    result.as[SelfDescribingSchema[Json]].leftMap(_.show) must beLeft(expected)
   }
 }

@@ -69,15 +69,19 @@ trait CirceIgluCodecs {
         map <- hCursor.as[JsonObject].map(_.toMap)
         jsonSchema <- map.get("self") match {
           case None => Left(DecodingFailure("self-key is not available", hCursor.history))
-          case Some(_) => Right(map - "self")
+          case Some(_) => Right(map - "self" - "$schema")
         }
         schemaMap <- parseSchemaMap(hCursor)
+        _ <- checkSchemaUri(hCursor)
       } yield SelfDescribingSchema(schemaMap, Json.fromJsonObject(JsonObject.fromMap(jsonSchema)))
     }
 
   final implicit val selfDescribingSchemaCirceEncoder: Encoder[SelfDescribingSchema[Json]] =
     Encoder.instance { schema =>
-      Json.obj("self" -> schema.self.asJson(schemaMapCirceJsonEncoder)).deepMerge(schema.schema)
+      Json.fromFields(List(
+        "self" -> schema.self.asJson(schemaMapCirceJsonEncoder),
+        "$schema" -> SelfDescribingSchema.SelfDescribingUri.toString.asJson
+      )).deepMerge(schema.schema)
     }
 
   final implicit val selfDescribingDataCirceEncoder: Encoder[SelfDescribingData[Json]] =
@@ -152,6 +156,14 @@ trait CirceIgluCodecs {
 
     self.toRight(ParseError.InvalidSchema: ParseError).flatten.leftMap(toDecodingFailure(hCursor))
   }
+
+  private[circe] def checkSchemaUri(hCursor: HCursor): Either[DecodingFailure, Unit] =
+    hCursor.downField(s"$$schema").as[String].flatMap { schemaUri =>
+      if (schemaUri != SelfDescribingSchema.SelfDescribingUri.toString)
+        Left(DecodingFailure(ParseError.InvalidSchemaUri.code, hCursor.history))
+      else
+        Right(())
+    }
 }
 
 object CirceIgluCodecs extends CirceIgluCodecs
