@@ -30,9 +30,12 @@ object ParseError {
   case object InvalidSchema extends ParseError {
     def code = "INVALID_SCHEMA"
   }
+  case object InvalidSchemaUri extends ParseError {
+    def code = "INVALID_SCHEMA_URI"
+  }
 
   def parse(string: String): Option[ParseError] =
-    List(InvalidSchemaVer, InvalidIgluUri, InvalidData, InvalidSchema).find { _.code == string }
+    List(InvalidSchemaVer, InvalidIgluUri, InvalidData, InvalidSchema, InvalidSchemaUri).find { _.code == string }
 
   /** List parse function to get an entity that failed parsing */
   def liftParse[A, B](parser: A => Either[ParseError, B]): A => Either[(ParseError, A), B] =

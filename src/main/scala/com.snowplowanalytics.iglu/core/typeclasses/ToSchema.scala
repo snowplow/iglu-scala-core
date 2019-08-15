@@ -19,11 +19,15 @@ package typeclasses
   */
 trait ToSchema[E] { self: ExtractSchemaMap[E] =>
   def toSchema(schema: E): Either[ParseError, SelfDescribingSchema[E]] =
-    self.extractSchemaMap(schema) match {
-      case Right(map) => Right(SelfDescribingSchema(map, getContent(schema)))
-      case Left(error) => Left(error)
-    }
+    for {
+      _ <- self.checkSchemaUri(schema).right
+      schemaMap <- self.extractSchemaMap(schema).right
+    } yield SelfDescribingSchema(schemaMap, getContent(schema))
+
 
   /** Cleanup if necessary information about schema */
   protected def getContent(entity: E): E
+
+
+  protected def checkSchemaUri(entity: E): Either[ParseError, Unit]
 }

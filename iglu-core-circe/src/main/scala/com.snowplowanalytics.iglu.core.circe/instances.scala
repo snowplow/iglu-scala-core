@@ -49,10 +49,15 @@ trait instances {
 
       }
 
+      override def checkSchemaUri(entity: Json): Either[ParseError, Unit] =
+        CirceIgluCodecs.checkSchemaUri(entity.hcursor).leftMap { err =>
+          ParseError.parse(err.message).getOrElse(ParseError.InvalidSchemaUri)
+        }
+
       def getContent(schema: Json): Json =
         Json.fromJsonObject {
           JsonObject.fromMap {
-            schema.asObject.map(_.toMap.filterKeys(_ != "self")).getOrElse(Map.empty)
+            schema.asObject.map(_.toMap.filterKeys(!List("self", "$schema").contains(_))).getOrElse(Map.empty)
           }
         }
     }

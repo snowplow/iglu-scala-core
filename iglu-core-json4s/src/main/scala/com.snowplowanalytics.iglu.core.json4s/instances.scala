@@ -48,18 +48,15 @@ trait instances {
           case None => Left(ParseError.InvalidSchema)
         }
 
-      def getContent(schema: JValue): JValue = schema match {
-        case JObject(fields) =>
-          fields.filterNot {
-            case ("self", JObject(keys)) => intersectsWithSchemakey(keys)
-            case _ => false
-          }
-        case json => json
+      def checkSchemaUri(entity: JValue): Either[ParseError, Unit] = {
+        (entity \ "$schema").extractOpt[String] match {
+          case Some(schemaUri) if schemaUri ==  SelfDescribingSchema.SelfDescribingUri.toString => Right(())
+          case _ => Left(ParseError.InvalidSchemaUri)
+        }
       }
 
-      private[this] def intersectsWithSchemakey(fields: List[JField]): Boolean =
-        fields.map(_._1).toSet.diff(Set("name", "vendor", "format", "version")).isEmpty
-
+      def getContent(schema: JValue): JValue =
+        Json4sIgluCodecs.removeNecessaryFields(schema)
     }
 
   // Container-specific instances
