@@ -52,14 +52,17 @@ object Json4sIgluCodecs {
     {
       case fullSchema: JObject =>
         val schemaMap = SchemaMap((fullSchema \ "self").extract[SchemaKey])
-        val schema = removeSelf(fullSchema)
+        val schema = removeNecessaryFields(fullSchema)
         SelfDescribingSchema(schemaMap, schema)
       case _ => throw new MappingException("Not an JSON object")
     },
 
     {
       case SelfDescribingSchema(self, schema: JValue) =>
-        (("self", Extraction.decompose(self.schemaKey)): JObject).merge(schema)
+        JObject(
+          ("self", Extraction.decompose(self.schemaKey)),
+          ("$schema", Extraction.decompose(SelfDescribingSchema.SelfDescribingUri.toString))
+        ).merge(schema)
     }
     ))
 
@@ -79,17 +82,18 @@ object Json4sIgluCodecs {
         SelfDescribingData(schemaKey, data)
       case _ => throw new MappingException("Not an JSON object")
     },
-    
+
     {
       case SelfDescribingData(key, data: JValue) =>
         JObject(("schema", JString(key.toSchemaUri)) :: ("data", data) :: Nil)
     }
     ))
 
-  def removeSelf(json: JValue): JValue = json match {
+  def removeNecessaryFields(json: JValue): JValue = json match {
     case JObject(fields) =>
       fields.filterNot {
         case ("self", JObject(keys)) => intersectsWithSchemakey(keys)
+        case ("$schema", _) => true
         case _ => false
       }
     case jvalue => jvalue
