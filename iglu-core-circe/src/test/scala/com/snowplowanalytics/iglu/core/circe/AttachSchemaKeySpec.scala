@@ -102,6 +102,7 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
     val expected: Json =
       json"""
         {
+          "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
         	"self": {
         		"vendor": "com.snowplowanalytics.snowplow",
         		"name": "geolocation_context",

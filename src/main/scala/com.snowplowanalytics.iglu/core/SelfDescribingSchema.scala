@@ -12,6 +12,8 @@
  */
 package com.snowplowanalytics.iglu.core
 
+import java.net.URI
+
 import typeclasses.{NormalizeSchema, StringifySchema, ToSchema}
 
 /**
@@ -37,6 +39,9 @@ final case class SelfDescribingSchema[S](self: SchemaMap, schema: S) {
 }
 
 object SelfDescribingSchema {
+
+  val SelfDescribingUri: URI = URI.create("http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#")
+
   /** Try to decode `S` as `SelfDescribingSchema[S]` */
   def parse[S](schema: S)(implicit ev: ToSchema[S]): Either[ParseError, SelfDescribingSchema[S]] =
     ev.toSchema(schema)
