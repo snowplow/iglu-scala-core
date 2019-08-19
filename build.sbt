@@ -20,7 +20,9 @@ shellPrompt in ThisBuild := { state => Project.extract(state).get(sbt.Keys.name)
 
 // Define our project, with basic project information and library dependencies
 lazy val igluCore = (project in file("."))
+  .enablePlugins(MimaPlugin)
   .settings(buildSettings: _*)
+  .settings(BuildSettings.mimaSettings)
   .settings(
     name := "iglu-core",
     libraryDependencies ++= Seq(
@@ -33,7 +35,9 @@ lazy val igluCore = (project in file("."))
 
 lazy val igluCoreJson4s = (project in file("iglu-core-json4s"))
   .dependsOn(igluCore)
+  .enablePlugins(MimaPlugin)
   .settings(json4sBuildSettings: _*)
+  .settings(BuildSettings.mimaSettings)
   .settings(
     name := "iglu-core-json4s",
     libraryDependencies ++= Seq(
@@ -45,7 +49,9 @@ lazy val igluCoreJson4s = (project in file("iglu-core-json4s"))
 
 lazy val igluCoreCirce = (project in file("iglu-core-circe"))
   .dependsOn(igluCore)
+  .enablePlugins(MimaPlugin)
   .settings(circeBuildSettings: _*)
+  .settings(BuildSettings.mimaSettings)
   .settings(
     name := "iglu-core-circe",
     libraryDependencies ++= Seq(
