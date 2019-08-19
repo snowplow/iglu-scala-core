@@ -133,7 +133,7 @@ class DecordersSpec extends Specification { def is = s2"""
         }
       """
 
-    val expected = "DecodingFailure at : INVALID_SCHEMA_URI"
+    val expected = "DecodingFailure at : Invalid metaschema: http://iglucentral.com/schemas/com.snowplowanalytics.self/schema/jsonschema/1-0-0#, code: INVALID_METASCHEMA"
 
     result.as[SelfDescribingSchema[Json]].leftMap(_.show) must beLeft(expected)
   }
