@@ -230,7 +230,7 @@ class ContainersSpec extends Specification { def is = s2"""
          |}
       """.stripMargin)
 
-    SelfDescribingSchema.parse(result) must beLeft(ParseError.InvalidSchemaUri: ParseError)
+    SelfDescribingSchema.parse(result) must beLeft(ParseError.InvalidMetaschema: ParseError)
   }
 
   def e8 = {
@@ -253,7 +253,7 @@ class ContainersSpec extends Specification { def is = s2"""
          |}
       """.stripMargin)
 
-    SelfDescribingSchema.parse(result) must beLeft(ParseError.InvalidSchemaUri: ParseError)
+    SelfDescribingSchema.parse(result) must beLeft(ParseError.InvalidMetaschema: ParseError)
   }
 
 }
