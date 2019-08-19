@@ -3,6 +3,7 @@
 [![Maven Central][maven-badge]][maven-link]
 [![Build Status][travis-image]][travis] 
 [![License][license-image]][license]
+[![Scaladoc][scaladoc-image]][scaldoc]
 
 Core entities for working with Iglu in Scala.
 
@@ -66,3 +67,6 @@ limitations under the License.
 [contributing-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/contributing.png
 
 [license]: http://www.apache.org/licenses/LICENSE-2.0
+
+[scaladoc]: https://snowplow-incubator.github.io/iglu-scala-core/1.0.0/com/snowplowanalytics/iglu/core/index.html
+[scaladoc-image]: https://javadoc-badge.appspot.com/com.github.nscala-time/nscala-time_2.11.svg?label=scaladoc
