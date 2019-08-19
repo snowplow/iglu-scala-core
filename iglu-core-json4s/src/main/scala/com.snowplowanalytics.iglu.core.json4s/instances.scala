@@ -50,12 +50,12 @@ trait instances {
       def checkSchemaUri(entity: JValue): Either[ParseError, Unit] = {
         (entity \ "$schema").extractOpt[String] match {
           case Some(schemaUri) if schemaUri ==  SelfDescribingSchema.SelfDescribingUri.toString => Right(())
-          case _ => Left(ParseError.InvalidSchemaUri)
+          case _ => Left(ParseError.InvalidMetaschema)
         }
       }
 
       def getContent(schema: JValue): JValue =
-        Json4sIgluCodecs.removeNecessaryFields(schema)
+        Json4sIgluCodecs.removeMetaFields(schema)
     }
 
   // Container-specific instances
