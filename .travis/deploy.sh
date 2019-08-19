@@ -34,6 +34,7 @@ function travis_wait {
 }
 
 if [ "${project_version}" == "${tag}" ]; then
+    ./.travis/deploy_docs.sh
     # igluCore
     echo "DEPLOY: testing iglu-core..."
     sbt +test --warn
