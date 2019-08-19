@@ -63,3 +63,9 @@ lazy val igluCoreCirce = (project in file("iglu-core-circe"))
       Libraries.circeLiteral
     )
   )
+
+lazy val aggregated = (project in file("aggregated"))
+  .enablePlugins(SiteScaladocPlugin, GhpagesPlugin, ScalaUnidocPlugin, PreprocessPlugin)
+  .settings(BuildSettings.commonSettings: _*)
+  .settings(BuildSettings.ghPagesSettings)
+  .aggregate(igluCore, igluCoreJson4s, igluCoreCirce)

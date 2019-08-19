@@ -17,6 +17,11 @@ import Keys._
 import com.typesafe.tools.mima.plugin.MimaKeys._
 import com.typesafe.tools.mima.plugin.MimaPlugin
 import scoverage.ScoverageKeys._
+import com.typesafe.sbt.sbtghpages.GhpagesPlugin.autoImport._
+import com.typesafe.sbt.site.SitePlugin.autoImport._
+import com.typesafe.sbt.SbtGit.GitKeys.{gitBranch, gitRemoteRepo}
+import sbtunidoc.ScalaUnidocPlugin.autoImport._
+import com.typesafe.sbt.site.preprocess.PreprocessPlugin.autoImport._
 
 object BuildSettings {
 
@@ -147,6 +152,19 @@ object BuildSettings {
     coverageHighlighting := false,
     (test in Test) := {
       (coverageReport dependsOn (test in Test)).value
+    }
+  )
+
+  val ghPagesSettings = Seq(
+    ghpagesPushSite := (ghpagesPushSite dependsOn makeSite).value,
+    ghpagesNoJekyll := false,
+    gitRemoteRepo := "git@github.com:snowplow-incubator/iglu-scala-core.git",
+    gitBranch := Some("gh-pages"),
+    siteSubdirName in ScalaUnidoc := version.value,
+    preprocessVars in Preprocess := Map("VERSION" -> version.value),
+    addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), siteSubdirName in ScalaUnidoc),
+    excludeFilter in ghpagesCleanSite := new FileFilter {
+      def accept(f: File) = true
     }
   )
 }
