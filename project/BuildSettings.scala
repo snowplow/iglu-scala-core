@@ -14,6 +14,8 @@ import bintray.BintrayPlugin._
 import bintray.BintrayKeys._
 import sbt._
 import Keys._
+import com.typesafe.tools.mima.plugin.MimaKeys._
+import com.typesafe.tools.mima.plugin.MimaPlugin
 
 object BuildSettings {
 
@@ -121,4 +123,19 @@ object BuildSettings {
   }
 
   lazy val buildSettings = igluCoreBuildSettings ++ publishSettings ++ mavenCentralExtras
+
+  // If new version introduces breaking changes,
+  // clear-out mimaBinaryIssueFilters and mimaPreviousVersions.
+  // Otherwise, add previous version to set without
+  // removing other versions.
+  val mimaPreviousVersions = Set()
+
+  val mimaSettings = MimaPlugin.mimaDefaultSettings ++ Seq(
+    mimaPreviousArtifacts := mimaPreviousVersions.map { organization.value %% name.value % _ },
+    mimaBinaryIssueFilters ++= Seq(),
+    test in Test := {
+      mimaReportBinaryIssues.value
+      (test in Test).value
+    }
+  )
 }
