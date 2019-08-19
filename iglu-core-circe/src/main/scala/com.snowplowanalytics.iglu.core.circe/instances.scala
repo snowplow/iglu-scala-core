@@ -51,7 +51,7 @@ trait instances {
 
       override def checkSchemaUri(entity: Json): Either[ParseError, Unit] =
         CirceIgluCodecs.checkSchemaUri(entity.hcursor).leftMap { err =>
-          ParseError.parse(err.message).getOrElse(ParseError.InvalidSchemaUri)
+          ParseError.parse(err.message).getOrElse(ParseError.InvalidMetaschema)
         }
 
       def getContent(schema: Json): Json =

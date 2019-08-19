@@ -34,7 +34,7 @@ object SchemaList {
         case Right(key @ SchemaKey(_, _, _, SchemaVer.Full(m, r, a))) if r != 0 || a != 0 =>
           Left(s"Init schema ${key.toSchemaUri} is not $m-0-0")
         case Right(key) => Right(ParseAccumulator(key.vendor, key.name, List(key)))
-        case Left(error) => Left(s"$cur - ${error.code}")
+        case Left(error) => Left(s"$cur - ${error.message(cur)}")
       }
       case (Right(acc), cur) => SchemaKey.fromUri(cur) match {
         case Right(key) if key.vendor != acc.vendor || key.name != acc.name =>
@@ -44,7 +44,7 @@ object SchemaList {
         case Right(key) =>
           Right(acc.copy(parsed = key :: acc.parsed))
         case Left(error) =>
-          Left(s"$cur - ${error.code}")
+          Left(s"$cur - ${error.message(cur)}")
       }
       case (Left(error), _) => Left(error)
     }

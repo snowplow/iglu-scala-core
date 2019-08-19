@@ -90,7 +90,7 @@ object IgluCoreCommon {
     def checkSchemaUri(entity: JValue): Either[ParseError, Unit] = {
       (entity \ "$schema").extractOpt[String] match {
         case Some(schemaUri) if schemaUri ==  SelfDescribingSchema.SelfDescribingUri.toString => Right(())
-        case _ => Left(ParseError.InvalidSchemaUri)
+        case _ => Left(ParseError.InvalidMetaschema)
       }
     }
 
@@ -99,7 +99,7 @@ object IgluCoreCommon {
      * `getContent` required to be implemented here because it extends [[ToSchema]]
      */
     def getContent(json: JValue): JValue =
-      removeNecessaryFields(json)
+      removeMetaFields(json)
   }
 
   // Data
@@ -175,7 +175,7 @@ object IgluCoreCommon {
   // Aux //
   /////////
 
-  def removeNecessaryFields(json: JValue): JValue = json match {
+  def removeMetaFields(json: JValue): JValue = json match {
     case JObject(fields) =>
       fields.filterNot {
         case ("self", JObject(keys)) => intersectsWithSchemakey(keys)
