@@ -16,6 +16,7 @@ import sbt._
 import Keys._
 import com.typesafe.tools.mima.plugin.MimaKeys._
 import com.typesafe.tools.mima.plugin.MimaPlugin
+import scoverage.ScoverageKeys._
 
 object BuildSettings {
 
@@ -140,6 +141,15 @@ object BuildSettings {
     test in Test := {
       mimaReportBinaryIssues.value
       (test in Test).value
+    }
+  )
+
+  val scoverageSettings = Seq(
+    coverageMinimum := 50,
+    coverageFailOnMinimum := true,
+    coverageHighlighting := false,
+    (test in Test) := {
+      (coverageReport dependsOn (test in Test)).value
     }
   )
 }
