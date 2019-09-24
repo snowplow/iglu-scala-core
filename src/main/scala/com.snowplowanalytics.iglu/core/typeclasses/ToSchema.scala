@@ -20,8 +20,8 @@ package typeclasses
 trait ToSchema[E] { self: ExtractSchemaMap[E] =>
   def toSchema(schema: E): Either[ParseError, SelfDescribingSchema[E]] =
     for {
-      _ <- self.checkSchemaUri(schema).right
-      schemaMap <- self.extractSchemaMap(schema).right
+      _ <- self.checkSchemaUri(schema)
+      schemaMap <- self.extractSchemaMap(schema)
     } yield SelfDescribingSchema(schemaMap, getContent(schema))
 
 

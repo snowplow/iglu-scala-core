@@ -23,7 +23,6 @@ import io.circe.literal._
 // This library
 import com.snowplowanalytics.iglu.core._
 import com.snowplowanalytics.iglu.core.circe.CirceIgluCodecs._
-
 import org.specs2.Specification
 
 class DecordersSpec extends Specification { def is = s2"""
