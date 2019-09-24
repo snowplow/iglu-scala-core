@@ -109,7 +109,7 @@ class ExtractSchemaKeySpec extends Specification { def is = s2"""
         }
       """
 
-    SchemaMap.extract(json) must beLeft(ParseError.InvalidSchemaVer)
+    SchemaMap.extract(json) must beLeft[ParseError](ParseError.InvalidSchemaVer)
   }
 
   def e7 = {
@@ -123,6 +123,6 @@ class ExtractSchemaKeySpec extends Specification { def is = s2"""
         }
       """
 
-    SchemaKey.extract(json) must beLeft
+    SchemaKey.extract(json) must beLeft[ParseError]
   }
 }
