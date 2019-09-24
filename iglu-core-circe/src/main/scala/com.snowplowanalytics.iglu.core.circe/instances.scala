@@ -14,7 +14,6 @@ package com.snowplowanalytics.iglu.core
 package circe
 
 import cats.{ Show, Eq }
-import cats.syntax.either._
 
 import io.circe._
 
@@ -52,7 +51,9 @@ trait instances {
       def getContent(schema: Json): Json =
         Json.fromJsonObject {
           JsonObject.fromMap {
-            schema.asObject.map(_.toMap.filterKeys(_ != "self")).getOrElse(Map.empty)
+            schema.asObject
+              .map(_.toMap.filter { case (key, _) => key != "self" })
+              .getOrElse(Map.empty)
           }
         }
     }
@@ -60,28 +61,16 @@ trait instances {
   // Container-specific instances
 
   final implicit val igluNormalizeDataJson: NormalizeData[Json] =
-    new NormalizeData[Json] {
-      override def normalize(container: SelfDescribingData[Json]): Json =
-        CirceIgluCodecs.selfDescribingDataCirceEncoder(container)
-    }
+    container => CirceIgluCodecs.selfDescribingDataCirceEncoder(container)
 
   final implicit val igluNormalizeSchemaJson: NormalizeSchema[Json] =
-    new NormalizeSchema[Json] {
-      override def normalize(container: SelfDescribingSchema[Json]): Json =
-        CirceIgluCodecs.selfDescribingSchemaCirceEncoder(container)
-    }
+    container => CirceIgluCodecs.selfDescribingSchemaCirceEncoder(container)
 
   final implicit val igluStringifyDataJson: StringifyData[Json] =
-    new StringifyData[Json] {
-      override def asString(container: SelfDescribingData[Json]): String =
-        container.normalize(igluNormalizeDataJson).noSpaces
-    }
+    container => container.normalize(igluNormalizeDataJson).noSpaces
 
   final implicit val igluStringifySchemaJson: StringifySchema[Json] =
-    new StringifySchema[Json] {
-      override def asString(container: SelfDescribingSchema[Json]): String =
-        container.normalize(igluNormalizeSchemaJson).noSpaces
-    }
+    container => container.normalize(igluNormalizeSchemaJson).noSpaces
 
   // Cats instances
 
