@@ -22,8 +22,8 @@ object BuildSettings {
     organization                        := "com.snowplowanalytics",
     version                             := "0.5.1",
     scalaVersion                        := "2.12.6",
-    crossScalaVersions                  := Seq("2.11.12", "2.12.6"),
-    scalacOptions                       := compilerFlags.value,
+    crossScalaVersions                  := Seq("2.12.6"),
+    scalacOptions                       := allScalacFlags,
     scalacOptions in (Compile, console) --=
       Seq("-Ywarn-unused:imports", "-Xfatal-warnings")
   )
@@ -104,22 +104,6 @@ object BuildSettings {
     "-Ywarn-unused:privates",            // Warn if a private member is unused.
     "-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
   )
-
-  // All recommended compiler flags, working on particular version of Scalac
-  lazy val compilerFlags = {
-    scalaVersion.map { version =>
-      if (version.startsWith("2.12."))
-        allScalacFlags.diff(Seq(
-          "-Ywarn-unused:imports"         // cats.syntax.either._
-        ))
-      else if (version.startsWith("2.11."))
-        allScalacFlags.diff(Seq(
-          "-Xlint:constant",              // not available
-          "-Ywarn-extra-implicit"
-        )).filterNot(_.startsWith("-Ywarn-unused:"))
-      else allScalacFlags
-    }
-  }
 
   lazy val buildSettings = igluCoreBuildSettings ++ publishSettings ++ mavenCentralExtras
 }
