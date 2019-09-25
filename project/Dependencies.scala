@@ -15,7 +15,7 @@ import sbt._
 object Dependencies {
   object V {
     // Scala
-    val json4s          = "3.2.11"
+    val json4s          = "3.6.7"
     val circe           = "0.13.0"
     val cats            = "2.0.0"
     val specs2          = "4.7.1"
