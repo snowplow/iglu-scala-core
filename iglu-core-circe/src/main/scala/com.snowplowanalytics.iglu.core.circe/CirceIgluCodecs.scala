@@ -14,10 +14,6 @@ package com.snowplowanalytics.iglu.core.circe
 
 // Cats
 import cats.syntax.either._
-import cats.syntax.apply._
-import cats.instances.option._
-import cats.instances.either._
-import cats.syntax.flatMap._
 
 // Circe
 import io.circe._
