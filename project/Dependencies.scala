@@ -16,8 +16,8 @@ object Dependencies {
   object V {
     // Scala
     val json4s          = "3.2.11"
-    val circe           = "0.11.1"
-    val cats            = "1.6.0"
+    val circe           = "0.13.0"
+    val cats            = "2.0.0"
     val specs2          = "4.5.1"
   }
 
