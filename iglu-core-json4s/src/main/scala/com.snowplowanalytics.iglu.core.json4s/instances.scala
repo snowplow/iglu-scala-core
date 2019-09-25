@@ -65,16 +65,28 @@ trait instances {
   // Container-specific instances
 
   final implicit val igluNormalizeDataJValue: NormalizeData[JValue] =
-    instance => Extraction.decompose(instance)
+    new NormalizeData[JValue] {
+      def normalize(instance: SelfDescribingData[JValue]): JValue =
+        Extraction.decompose(instance)
+    }
 
   final implicit val igluNormalizeSchemaJValue: NormalizeSchema[JValue] =
-    schema => Extraction.decompose(schema)
+    new NormalizeSchema[JValue] {
+      def normalize(schema: SelfDescribingSchema[JValue]): JValue =
+        Extraction.decompose(schema)
+    }
 
   final implicit val igluStringifyDataJValue: StringifyData[JValue] =
-    container => compact(container.normalize(igluNormalizeDataJValue))
+    new StringifyData[JValue] {
+      def asString(container: SelfDescribingData[JValue]): String =
+        compact(container.normalize(igluNormalizeDataJValue))
+    }
 
   final implicit val igluStringifySchemaJValue: StringifySchema[JValue] =
-    container => compact(container.normalize(igluNormalizeSchemaJValue))
+    new StringifySchema[JValue] {
+      def asString(container: SelfDescribingSchema[JValue]): String =
+        compact(container.normalize(igluNormalizeSchemaJValue))
+    }
 }
 
 object instances extends instances
