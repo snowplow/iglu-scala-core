@@ -14,7 +14,6 @@ package com.snowplowanalytics.iglu.core
 package json4s
 
 import org.json4s._
-import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods.compact
 
 import com.snowplowanalytics.iglu.core.typeclasses._
