@@ -38,16 +38,8 @@ trait instances {
   final implicit val igluAttachToSchema: ToSchema[Json] with ExtractSchemaMap[Json] =
     new ToSchema[Json] with ExtractSchemaMap[Json] {
 
-      def extractSchemaMap(entity: Json): Either[ParseError, SchemaMap] = {
-        CirceIgluCodecs.parseSchemaMap(entity.hcursor) match {
-          case Right(r) => Right(r)
-          case Left(err) => ParseError.parse(err.message) match {
-            case Some(parseError) => Left(parseError)
-            case None => Left(ParseError.InvalidSchema)
-          }
-        }
-
-      }
+      def extractSchemaMap(entity: Json): Either[ParseError, SchemaMap] =
+        CirceIgluCodecs.parseSchemaMap(entity.hcursor).leftMap(_._2)
 
       override def checkSchemaUri(entity: Json): Either[ParseError, Unit] =
         CirceIgluCodecs.checkSchemaUri(entity.hcursor).leftMap { err =>

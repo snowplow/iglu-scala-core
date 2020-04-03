@@ -44,7 +44,7 @@ trait CirceIgluCodecs {
     Encoder.instance { schemaVer => Json.fromString(schemaVer.asString) }
 
   final implicit val schemaMapCirceJsonDecoder: Decoder[SchemaMap] =
-    Decoder.instance(parseSchemaMap)
+    Decoder.instance(cur => parseSchemaMap(cur).leftMap(_._1))
 
   final implicit val schemaMapCirceJsonEncoder: Encoder[SchemaMap] =
     Encoder.instance { schemaMap =>
@@ -74,7 +74,7 @@ trait CirceIgluCodecs {
           case None => Left(DecodingFailure("self-key is not available", hCursor.history))
           case Some(_) => Right(map - "self" - "$schema")
         }
-        schemaMap <- parseSchemaMap(hCursor)
+        schemaMap <- parseSchemaMap(hCursor).leftMap(_._1)
         _ <- checkSchemaUri(hCursor)
       } yield SelfDescribingSchema(schemaMap, Json.fromJsonObject(JsonObject.fromMap(jsonSchema)))
     }
@@ -135,26 +135,16 @@ trait CirceIgluCodecs {
       case Left(left) => Left(left)
     }
 
-  private[circe] def parseSchemaMap(hCursor: HCursor): Either[DecodingFailure, SchemaMap] = {
+  private[circe] def parseSchemaMap(hCursor: HCursor): Either[(DecodingFailure, ParseError), SchemaMap] = {
     val self = hCursor.downField("self")
+    def selfKey[A: Decoder](key: String): Either[(DecodingFailure, ParseError), A] =
+      self.downField(key).as[A].leftMap(e => (e, ParseError.InvalidSchema))
+
     for {
-      vendor  <- self.downField("vendor").as[String]
-        .leftMap(e => DecodingFailure(ParseError.InvalidSchema.message(e.message), self.downField("vendor").history))
-      name    <- self.downField("name").as[String]
-        .leftMap(e => DecodingFailure(ParseError.InvalidSchema.message(e.message), self.downField("name").history))
-      format  <- self.downField("format").as[String]
-        .leftMap(e => DecodingFailure(ParseError.InvalidSchema.message(e.message), self.downField("format").history))
-      version <- {
-        val versionCursor = self.downField("version")
-        versionCursor
-          .as[SchemaVer.Full]
-          .leftMap(_ =>
-            DecodingFailure(
-              ParseError.InvalidSchemaVer
-                .message(versionCursor.as[String].right.getOrElse("Version could not be parsed to string")),
-              versionCursor.history)
-          )
-      }
+      vendor  <- selfKey[String]("vendor")
+      name    <- selfKey[String]("name")
+      format  <- selfKey[String]("format")
+      version <- selfKey[SchemaVer.Full]("version").leftMap { case (e, _) => (e, ParseError.InvalidSchemaVer) }
     } yield SchemaMap(vendor, name, format, version)
   }
 
