@@ -20,7 +20,7 @@ import io.circe._
 import com.snowplowanalytics.iglu.core.typeclasses._
 
 trait instances {
-  final implicit val igluAttachToDataCirce: ExtractSchemaKey[Json] with ToData[Json] with ExtractSchemaKey[Json] =
+  final implicit val igluAttachToDataCirce: ExtractSchemaKey[Json] with ToData[Json] =
     new ExtractSchemaKey[Json] with ToData[Json] {
 
       def extractSchemaKey(entity: Json) =
