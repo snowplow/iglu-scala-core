@@ -11,7 +11,6 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-import Dependencies._
 import BuildSettings._
 import Json4sBuildSettings._
 import CirceBuildSettings._
@@ -27,9 +26,9 @@ lazy val igluCore = (project in file("."))
   .settings(
     name := "iglu-core",
     libraryDependencies ++= Seq(
-       // Scala (test only)
-       Libraries.specs2,
-       Libraries.json4sTest
+      // Scala (test only)
+      Dependencies.specs2,
+      Dependencies.json4sTest
     )
   )
 
@@ -43,9 +42,9 @@ lazy val igluCoreJson4s = (project in file("iglu-core-json4s"))
   .settings(
     name := "iglu-core-json4s",
     libraryDependencies ++= Seq(
-       Libraries.json4s,
-       // Scala (test only)
-       Libraries.specs2
+      Dependencies.json4s,
+      // Scala (test only)
+      Dependencies.specs2
     )
   )
 
@@ -58,12 +57,12 @@ lazy val igluCoreCirce = (project in file("iglu-core-circe"))
   .settings(
     name := "iglu-core-circe",
     libraryDependencies ++= Seq(
-      Libraries.circe,
-      Libraries.cats,
+      Dependencies.circe,
+      Dependencies.cats,
       // Scala (test only)
-      Libraries.specs2,
-      Libraries.circeParser,
-      Libraries.circeLiteral
+      Dependencies.specs2,
+      Dependencies.circeParser,
+      Dependencies.circeLiteral
     )
   )
 
