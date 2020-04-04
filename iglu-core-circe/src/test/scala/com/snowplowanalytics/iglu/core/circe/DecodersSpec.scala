@@ -25,7 +25,7 @@ import com.snowplowanalytics.iglu.core._
 import com.snowplowanalytics.iglu.core.circe.CirceIgluCodecs._
 import org.specs2.Specification
 
-class DecordersSpec extends Specification { def is = s2"""
+class DecodersSpec extends Specification { def is = s2"""
   Circe decoders
     decode SelfDescribingSchema $e1
     decode SelfDescribingData $e2
