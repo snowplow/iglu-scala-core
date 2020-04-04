@@ -30,8 +30,8 @@ object BuildSettings {
     organization                        := "com.snowplowanalytics",
     version                             := "0.5.1",
     scalaVersion                        := "2.13.1",
-    crossScalaVersions                  := Seq("2.12.10", "2.13.1"),
-    scalacOptions                       := compilerFlags.value,
+    crossScalaVersions                  := Seq("2.12.11", "2.13.1"),
+    scalacOptions                       := compilerFlags.vallue,
     scalacOptions in (Compile, console) --=
       Seq("-Ywarn-unused:imports", "-Xfatal-warnings")
   )
