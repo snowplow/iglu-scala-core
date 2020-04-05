@@ -15,11 +15,11 @@ package com.snowplowanalytics.iglu.core
 import scala.util.matching.Regex
 
 /**
-  * Class holding semantic version for Schema
+  * Semantic version for a self-describing schema.
   *
-  * + `model` Schema MODEL, representing independent Schema
-  * + `revision` Schema REVISION, representing backward-incompatible changes
-  * + `addition` Schema ADDITION, representing backward-compatible changes
+  * - `model` is the schema MODEL, representing a major schema version;
+  * - `revision` is the schema REVISION, representing backward-incompatible changes;
+  * - `addition` is the schema ADDITION, representing backward-compatible changes.
   */
 sealed trait SchemaVer {
   def asString: String
@@ -34,7 +34,10 @@ object SchemaVer {
   def apply(model: Int, revision: Int, addition: Int): SchemaVer =
     Full(model, revision, addition)
 
-  /** Explicit, fully known version. Can be attached to both data and schema */
+  /**
+    * An explicit, fully known version. It can be attached to both
+    * self-describing data and self-describing schema.
+    */
   final case class Full(model: Int, revision: Int, addition: Int) extends SchemaVer {
     def asString = s"$model-$revision-$addition"
 
@@ -42,7 +45,7 @@ object SchemaVer {
     def getRevision: Option[Int] = Some(revision)
     def getAddition: Option[Int] = Some(addition)
 
-    /** Get specific point of version */
+    /** Get the kind of a specific version component. */
     def get(kind: VersionKind): Int = kind match {
       case VersionKind.Model    => model
       case VersionKind.Revision => revision
@@ -50,7 +53,10 @@ object SchemaVer {
     }
   }
 
-  /** Partially known version. Can be attached only to data, schema need to be looked-up or inferenced */
+  /**
+    * A partially known version. It can be attached only to self-describing data.
+    * (A self-describing schema must be capable of being looked up by version.)
+    */
   final case class Partial(model: Option[Int], revision: Option[Int], addition: Option[Int])
       extends SchemaVer {
     def asString = s"${model.getOrElse("?")}-${revision.getOrElse("?")}-${addition.getOrElse("?")}"
@@ -59,7 +65,7 @@ object SchemaVer {
     def getRevision: Option[Int] = revision
     def getAddition: Option[Int] = addition
 
-    /** Get specific point of version */
+    /** Get the kind of a specific version component. */
     def get(kind: VersionKind): Option[Int] = kind match {
       case VersionKind.Model    => model
       case VersionKind.Revision => revision
@@ -68,35 +74,44 @@ object SchemaVer {
   }
 
   /**
-    * Regular expression to validate or extract `Full` SchemaVer,
-    * with known MODEL, REVISION, ADDITION
-    * Disallow preceding zeros and MODEL to be equal 0
+    * A regular expression to validate or extract a [[SchemaVer.Full]],
+    * with known MODEL, REVISION and ADDITION.
+    *
+    * The MODEL cannot be 0.
     */
   val schemaVerFullRegex: Regex = "^([1-9][0-9]*)-(0|[1-9][0-9]*)-(0|[1-9][0-9]*)$".r
 
   /**
-    * Regular expression to validate or extract `Partial` SchemaVer,
-    * with possible unknown MODEL, REVISION, ADDITION
+    * A regular expression to validate or extract a [[SchemaVer.Partial]],
+    * with potentially unknown MODEL, REVISION or ADDITION.
     */
-  val schemaVerPartialRegex: Regex = ("^([1-9][0-9]*|\\?)-" + // MODEL (cannot start with zero)
-    "((?:0|[1-9][0-9]*)|\\?)-" + // REVISION
-    "((?:0|[1-9][0-9]*)|\\?)$").r // ADDITION
+  val schemaVerPartialRegex: Regex =
+    ("^([1-9][0-9]*|\\?)-" + // MODEL (cannot start with zero)
+      "((?:0|[1-9][0-9]*)|\\?)-" + // REVISION
+      "((?:0|[1-9][0-9]*)|\\?)$").r // ADDITION
 
   /**
-    * Default `Ordering` instance for [[SchemaVer]]
-    * making initial Schemas first and latest Schemas last
+    * A default `Ordering` instance for a [[SchemaVer]],
+    * in ascending order.
     */
   implicit val ordering: Ordering[SchemaVer] =
     Ordering.by { schemaVer: SchemaVer =>
       (schemaVer.getModel, schemaVer.getRevision, schemaVer.getAddition)
     }
 
+  /**
+    * A default `Ordering` instance for a [[SchemaVer.Full]],
+    * in ascending order.
+    */
   implicit val orderingFull: Ordering[Full] =
     Ordering.by { schemaVer: SchemaVer.Full =>
       (schemaVer.model, schemaVer.revision, schemaVer.addition)
     }
 
-  /** Extract the model, revision, and addition of the SchemaVer (possibly unknown) */
+  /**
+    * Parse the MODEL, REVISION, and ADDITION components of a [[SchemaVer]],
+    * which can be potentially unknown.
+    */
   def parse(version: String): Either[ParseError, SchemaVer] =
     parseFull(version) match {
       case Left(ParseError.InvalidSchemaVer) =>
@@ -108,7 +123,10 @@ object SchemaVer {
       case other => other
     }
 
-  /** Extract the model, revision, and addition of the SchemaVer (always known) */
+  /**
+    * Parse the MODEL, REVISION, and ADDITION components of a [[SchemaVer.Full]],
+    * which are always known.
+    */
   def parseFull(version: String): Either[ParseError, SchemaVer.Full] = version match {
     case schemaVerFullRegex(m, r, a) =>
       Right(SchemaVer.Full(m.toInt, r.toInt, a.toInt))
@@ -117,10 +135,10 @@ object SchemaVer {
   }
 
   /**
-    * Check if string is valid SchemaVer
+    * Check if a string is a valid [[SchemaVer]].
     *
-    * @param version string to be checked
-    * @return true if string is valid SchemaVer
+    * @param version The string to be checked.
+    * @return `true` if the string is a valid [[SchemaVer]].
     */
   def isValid(version: String): Boolean =
     version.matches(schemaVerFullRegex.toString)

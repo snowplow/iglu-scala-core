@@ -15,31 +15,31 @@ package com.snowplowanalytics.iglu.core
 import typeclasses.{NormalizeData, StringifyData, ToData}
 
 /**
-  * Container for Self-describing data
-  * Used to eliminate need of Option container when extracting
-  * `SchemaKey` with `ExtractSchemaKey` type class
+  * A container for self-describing data, used to eliminate the
+  * need for an `Option` wrapper when extracting a [[SchemaKey]]
+  * with the [[typeclasses.ExtractSchemaKey]] type class.
   *
-  * @param schema reference to Schema
-  * @param data attached data instance itself
-  * @tparam D generic type to represent data instance type
-  *           (usually it is some JSON-library's base trait)
+  * @param schema A reference to a self-describing schema.
+  * @param data The data blob itself.
+  * @tparam D Any generic type that can represent a piece of
+  *           self-describing data. (See also [[typeclasses.ExtractSchemaKey]].)
   */
 final case class SelfDescribingData[D](schema: SchemaKey, data: D) {
 
   /**
-    * Render data instance to its base type `D`
+    * Render a piece of self-describing data into its base type `D`.
     */
   def normalize(implicit ev: NormalizeData[D]): D = ev.normalize(this)
 
   /**
-    * Render data instance as `String`
+    * Render a piece of self-describing data into `String`.
     */
   def asString(implicit ev: StringifyData[D]): String = ev.asString(this)
 }
 
 object SelfDescribingData {
 
-  /** Try to decode `D` as `SelfDescribingData[D]` */
+  /** Try to decode `D` as [[SelfDescribingData]]]. */
   def parse[D](data: D)(implicit ev: ToData[D]): Either[ParseError, SelfDescribingData[D]] =
     ev.toData(data)
 }

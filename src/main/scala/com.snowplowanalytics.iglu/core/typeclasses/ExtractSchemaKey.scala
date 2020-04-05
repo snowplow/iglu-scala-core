@@ -14,21 +14,35 @@ package com.snowplowanalytics.iglu.core
 package typeclasses
 
 /**
-  * This type class can be instantiated for any type `E` which can bear its
-  * description as [[SchemaKey]]
+  * This type class can be used to extract a [[SchemaKey]] from a piece
+  * of self-describing data.
   *
-  * It particularly useful for validation/data extraction apps which need to
-  * *extract* instance/schema description.
+  * The [[SchemaKey]] contains details about the schema of the data.
   *
-  * @tparam E entity type, mostly intended for various JSON ADTs,
-  *           like Json4s, Jackson, circe, Argonaut etc,
-  *           but also can be anything that can bear reference to
-  *           its description like Thrift, Map[String, String] etc
+  * An example input is:
+  *
+  * {{{
+  *   {
+  *      "schema": "iglu:com.vendor/user_entity/jsonschema/1-0-0",
+  *      "data": {
+  *         "id": "78abb66e-a5ad-4772-96ec-d880650cd0b2",
+  *         "email": "some_user@example.com"
+  *      }
+  *    }
+  * }}}
+  *
+  * where "schema" contains information about the vendor, name, format and
+  * version of the schema and can be extracted as [[SchemaKey]].
+  *
+  * @tparam E Any type that can include a reference to its own schema.
+  *           It's mostly intended for various JSON ADTs,
+  *           like Json4s, Jackson, Circe, Argonaut et al,
+  *           but can also be something like Thrift, Map[String, String], etc.
   */
 trait ExtractSchemaKey[E] {
 
   /**
-    * Try to extract [[SchemaKey]] from entity
+    * Try to extract [[SchemaKey]] from a self-describing data entity.
     */
   def extractSchemaKey(entity: E): Either[ParseError, SchemaKey]
 }
