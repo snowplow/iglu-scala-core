@@ -14,23 +14,22 @@ import sbt._
 
 object Dependencies {
   object V {
-    // Scala
-    val json4s          = "3.6.7"
-    val circe           = "0.13.0"
-    val cats            = "1.6.0"
-    val cats            = "2.0.0"
-    val specs2          = "4.7.1"
+    // Scala third party
+    val circe  = "0.13.0"
+    val cats   = "2.0.0"
+    val json4s = "3.6.7"
+
+    // Testing
+    val specs2 = "4.7.1"
   }
 
+  val circe  = "io.circe"      %% "circe-core"     % V.circe
+  val cats   = "org.typelevel" %% "cats-core"      % V.cats
+  val json4s = "org.json4s"    %% "json4s-jackson" % V.json4s
 
-  val json4s           = "org.json4s"                 %% "json4s-jackson"            % V.json4s
-  val circe            = "io.circe"                   %% "circe-core"                % V.circe
-  val cats             = "org.typelevel"              %% "cats-core"                 % V.cats
-
-  // Scala (test only)
-  val json4sTest       = "org.json4s"                 %% "json4s-jackson"            % V.json4s   % "test"
-  val specs2           = "org.specs2"                 %% "specs2-core"               % V.specs2   % "test"
-  val circeParser      = "io.circe"                   %% "circe-parser"              % V.circe    % "test"
-  val circeLiteral     = "io.circe"                   %% "circe-literal"             % V.circe    % "test"
-
+  // Testing
+  val specs2       = "org.specs2" %% "specs2-core"    % V.specs2 % "test"
+  val circeParser  = "io.circe"   %% "circe-parser"   % V.circe  % "test"
+  val circeLiteral = "io.circe"   %% "circe-literal"  % V.circe  % "test"
+  val json4sTest   = "org.json4s" %% "json4s-jackson" % V.json4s % "test"
 }

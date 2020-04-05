@@ -14,7 +14,8 @@ package com.snowplowanalytics.iglu.core
 
 import org.specs2.Specification
 
-class SchemaListSpec extends Specification { def is = s2"""
+class SchemaListSpec extends Specification {
+  def is = s2"""
   parseString parses list of valid strings $e1
   parseString parses single valid 1-0-0 SchemaKey $e2
   parseString rejects list of strings starting not from 1-0-0 $e3
@@ -24,27 +25,26 @@ class SchemaListSpec extends Specification { def is = s2"""
   """
 
   def e1 = {
-    val input = List(
-      "iglu:com.acme/example/jsonschema/1-0-0",
-      "iglu:com.acme/example/jsonschema/1-1-0")
+    val input =
+      List("iglu:com.acme/example/jsonschema/1-0-0", "iglu:com.acme/example/jsonschema/1-1-0")
     val expected = List(
-      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1,0,0)),
-      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1,1,0)))
+      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1, 0, 0)),
+      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1, 1, 0))
+    )
 
     SchemaList.parseStrings(input) must beRight(SchemaList(expected))
   }
 
   def e2 = {
-    val input = List("iglu:com.acme/example/jsonschema/1-0-0")
-    val expected = List(SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1,0,0)))
+    val input    = List("iglu:com.acme/example/jsonschema/1-0-0")
+    val expected = List(SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1, 0, 0)))
 
     SchemaList.parseStrings(input) must beRight(SchemaList(expected))
   }
 
   def e3 = {
-    val input = List(
-      "iglu:com.acme/example/jsonschema/1-0-1",
-      "iglu:com.acme/example/jsonschema/1-0-0")
+    val input =
+      List("iglu:com.acme/example/jsonschema/1-0-1", "iglu:com.acme/example/jsonschema/1-0-0")
     val expectedError = "Cannot parse list of strings into SchemaList. " +
       "Init schema iglu:com.acme/example/jsonschema/1-0-1 is not 1-0-0"
 
@@ -55,7 +55,8 @@ class SchemaListSpec extends Specification { def is = s2"""
     val input = List(
       "iglu:com.acme/example/jsonschema/1-0-0",
       "iglu:com.acme/example/jsonschema/1-0-1",
-      "iglu:com.acme/example/jsonschema/1-0-1")
+      "iglu:com.acme/example/jsonschema/1-0-1"
+    )
     val expectedError = "Cannot parse list of strings into SchemaList. " +
       "SchemaKey iglu:com.acme/example/jsonschema/1-0-1 is not unique"
 
@@ -66,7 +67,8 @@ class SchemaListSpec extends Specification { def is = s2"""
     val input = List(
       "iglu:com.acme/example/jsonschema/1-0-0",
       "iglu:com.acme/example/jsonschema/1-0-1",
-      "iglu:com.foo/example/jsonschema/1-0-1")
+      "iglu:com.foo/example/jsonschema/1-0-1"
+    )
     val expectedError = "Cannot parse list of strings into SchemaList. " +
       "SchemaKey iglu:com.foo/example/jsonschema/1-0-1 does not match previous vendor (com.foo) or name (example)"
 
@@ -74,12 +76,12 @@ class SchemaListSpec extends Specification { def is = s2"""
   }
 
   def e6 = {
-    val input = List(
-      "iglu:com.acme/example/jsonschema/2-0-0",
-      "iglu:com.acme/example/jsonschema/2-0-1")
+    val input =
+      List("iglu:com.acme/example/jsonschema/2-0-0", "iglu:com.acme/example/jsonschema/2-0-1")
     val expected = List(
-      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(2,0,0)),
-      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(2,0,1)))
+      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(2, 0, 0)),
+      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(2, 0, 1))
+    )
 
     SchemaList.parseStrings(input) must beRight(SchemaList(expected))
   }

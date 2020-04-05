@@ -12,6 +12,8 @@
  */
 package com.snowplowanalytics.iglu.core
 
+import scala.util.matching.Regex
+
 /**
   * Class holding semantic version for Schema
   *
@@ -36,54 +38,54 @@ object SchemaVer {
   final case class Full(model: Int, revision: Int, addition: Int) extends SchemaVer {
     def asString = s"$model-$revision-$addition"
 
-    def getModel = Some(model)
-    def getRevision = Some(revision)
-    def getAddition = Some(addition)
+    def getModel: Option[Int]    = Some(model)
+    def getRevision: Option[Int] = Some(revision)
+    def getAddition: Option[Int] = Some(addition)
 
     /** Get specific point of version */
     def get(kind: VersionKind): Int = kind match {
-      case VersionKind.Model => model
+      case VersionKind.Model    => model
       case VersionKind.Revision => revision
       case VersionKind.Addition => addition
     }
   }
 
   /** Partially known version. Can be attached only to data, schema need to be looked-up or inferenced */
-  final case class Partial(model: Option[Int], revision: Option[Int], addition: Option[Int]) extends SchemaVer {
+  final case class Partial(model: Option[Int], revision: Option[Int], addition: Option[Int])
+      extends SchemaVer {
     def asString = s"${model.getOrElse("?")}-${revision.getOrElse("?")}-${addition.getOrElse("?")}"
 
-    def getModel = model
-    def getRevision = revision
-    def getAddition = addition
+    def getModel: Option[Int]    = model
+    def getRevision: Option[Int] = revision
+    def getAddition: Option[Int] = addition
 
     /** Get specific point of version */
     def get(kind: VersionKind): Option[Int] = kind match {
-      case VersionKind.Model => model
+      case VersionKind.Model    => model
       case VersionKind.Revision => revision
       case VersionKind.Addition => addition
     }
   }
 
   /**
-   * Regular expression to validate or extract `Full` SchemaVer,
-   * with known MODEL, REVISION, ADDITION
-   * Disallow preceding zeros and MODEL to be equal 0
-   */
-  val schemaVerFullRegex = "^([1-9][0-9]*)-(0|[1-9][0-9]*)-(0|[1-9][0-9]*)$".r
+    * Regular expression to validate or extract `Full` SchemaVer,
+    * with known MODEL, REVISION, ADDITION
+    * Disallow preceding zeros and MODEL to be equal 0
+    */
+  val schemaVerFullRegex: Regex = "^([1-9][0-9]*)-(0|[1-9][0-9]*)-(0|[1-9][0-9]*)$".r
 
   /**
     * Regular expression to validate or extract `Partial` SchemaVer,
     * with possible unknown MODEL, REVISION, ADDITION
     */
-  val schemaVerPartialRegex = (
-      "^([1-9][0-9]*|\\?)-" +          // MODEL (cannot start with zero)
-      "((?:0|[1-9][0-9]*)|\\?)-" +    // REVISION
-      "((?:0|[1-9][0-9]*)|\\?)$").r   // ADDITION
+  val schemaVerPartialRegex: Regex = ("^([1-9][0-9]*|\\?)-" + // MODEL (cannot start with zero)
+    "((?:0|[1-9][0-9]*)|\\?)-" + // REVISION
+    "((?:0|[1-9][0-9]*)|\\?)$").r // ADDITION
 
   /**
-   * Default `Ordering` instance for [[SchemaVer]]
-   * making initial Schemas first and latest Schemas last
-   */
+    * Default `Ordering` instance for [[SchemaVer]]
+    * making initial Schemas first and latest Schemas last
+    */
   implicit val ordering: Ordering[SchemaVer] =
     Ordering.by { schemaVer: SchemaVer =>
       (schemaVer.getModel, schemaVer.getRevision, schemaVer.getAddition)
@@ -97,11 +99,12 @@ object SchemaVer {
   /** Extract the model, revision, and addition of the SchemaVer (possibly unknown) */
   def parse(version: String): Either[ParseError, SchemaVer] =
     parseFull(version) match {
-      case Left(ParseError.InvalidSchemaVer) => version match {
-        case schemaVerPartialRegex(IntString(m), IntString(r), IntString(a)) =>
-          Right(SchemaVer.Partial(m, r, a))
-        case _ => Left(ParseError.InvalidSchemaVer)
-      }
+      case Left(ParseError.InvalidSchemaVer) =>
+        version match {
+          case schemaVerPartialRegex(IntString(m), IntString(r), IntString(a)) =>
+            Right(SchemaVer.Partial(m, r, a))
+          case _ => Left(ParseError.InvalidSchemaVer)
+        }
       case other => other
     }
 
@@ -114,11 +117,11 @@ object SchemaVer {
   }
 
   /**
-   * Check if string is valid SchemaVer
-   *
-   * @param version string to be checked
-   * @return true if string is valid SchemaVer
-   */
+    * Check if string is valid SchemaVer
+    *
+    * @param version string to be checked
+    * @return true if string is valid SchemaVer
+    */
   def isValid(version: String): Boolean =
     version.matches(schemaVerFullRegex.toString)
 

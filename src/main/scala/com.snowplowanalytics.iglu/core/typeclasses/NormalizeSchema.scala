@@ -20,9 +20,9 @@ package typeclasses
   * @tparam S generic type in which Schema can be represented
   */
 trait NormalizeSchema[S] {
+
   /**
     * Render Schema to its base type `S`
     */
   def normalize(container: SelfDescribingSchema[S]): S
 }
-

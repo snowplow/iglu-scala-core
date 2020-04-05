@@ -15,20 +15,21 @@ package com.snowplowanalytics.iglu.core
 import scala.util.matching.Regex
 
 /**
- * Entity describing schema of data, which **can** be unknown,
- * by known or unknown `SchemaVer`. Extracted from `schema` key.
- */
+  * Entity describing schema of data, which **can** be unknown,
+  * by known or unknown `SchemaVer`. Extracted from `schema` key.
+  */
 final case class PartialSchemaKey(
   vendor: String,
   name: String,
   format: String,
-  version: SchemaVer) {
+  version: SchemaVer
+) {
 
   /**
-   * Converts the SchemaKey back to an Iglu-format schema URI
-   *
-   * @return the SchemaKey as a Iglu-format schema URI
-   */
+    * Converts the SchemaKey back to an Iglu-format schema URI
+    *
+    * @return the SchemaKey as a Iglu-format schema URI
+    */
   def toSchemaUri: String =
     s"iglu:$vendor/$name/$format/${version.asString}"
 
@@ -44,14 +45,13 @@ final case class PartialSchemaKey(
 object PartialSchemaKey {
 
   /** Canonical regular expression for SchemaKey */
-  val schemaUriRegex: Regex = (
-    "^iglu:" +                            // Protocol
-      "([a-zA-Z0-9-_.]+)/" +              // Vendor
-      "([a-zA-Z0-9-_]+)/" +               // Name
-      "([a-zA-Z0-9-_]+)/" +               // Format
-      "([1-9][0-9]*|\\?)-" +              // MODEL (cannot start with zero)
-      "((?:0|[1-9][0-9]*)|\\?)-" +        // REVISION
-      "((?:0|[1-9][0-9]*)|\\?)").r        // ADDITION
+  val schemaUriRegex: Regex = ("^iglu:" + // Protocol
+    "([a-zA-Z0-9-_.]+)/" + // Vendor
+    "([a-zA-Z0-9-_]+)/" + // Name
+    "([a-zA-Z0-9-_]+)/" + // Format
+    "([1-9][0-9]*|\\?)-" + // MODEL (cannot start with zero)
+    "((?:0|[1-9][0-9]*)|\\?)-" + // REVISION
+    "((?:0|[1-9][0-9]*)|\\?)").r // ADDITION
 
   /**
     * Custom constructor for an Iglu partial SchemaKey from
@@ -69,5 +69,3 @@ object PartialSchemaKey {
     case _ => Left(ParseError.InvalidIgluUri)
   }
 }
-
-

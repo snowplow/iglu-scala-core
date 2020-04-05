@@ -14,10 +14,10 @@ package com.snowplowanalytics.iglu.core
 
 import org.specs2.Specification
 
-// This library
 import IgluCoreCommon._
 
-class SchemaCriterionSpec extends Specification { def is = s2"""
+class SchemaCriterionSpec extends Specification {
+  def is = s2"""
   Specification for parsing SchemaCriterion
     parse simple correct criterion $e1
     parse criterion without SchemaVer $e2
@@ -36,25 +36,50 @@ class SchemaCriterionSpec extends Specification { def is = s2"""
   def e1 = {
     val criterion = "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/2-*-*"
     SchemaCriterion.parse(criterion) must beSome(
-      SchemaCriterion("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 2))
+      SchemaCriterion("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 2)
+    )
   }
 
   def e2 = {
     val criterion = "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/*-*-*"
     SchemaCriterion.parse(criterion) must beSome(
-      SchemaCriterion("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", None, None, None))
+      SchemaCriterion(
+        "com.snowplowanalytics.snowplow",
+        "mobile_context",
+        "jsonschema",
+        None,
+        None,
+        None
+      )
+    )
   }
 
   def e9 = {
     val criterion = "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/2-0-*"
     SchemaCriterion.parse(criterion) must beSome(
-      SchemaCriterion("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", Some(2), Some(0), None))
+      SchemaCriterion(
+        "com.snowplowanalytics.snowplow",
+        "mobile_context",
+        "jsonschema",
+        Some(2),
+        Some(0),
+        None
+      )
+    )
   }
 
   def e10 = {
     val criterion = "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-0"
     SchemaCriterion.parse(criterion) must beSome(
-      SchemaCriterion("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", Some(1), Some(0), Some(0)))
+      SchemaCriterion(
+        "com.snowplowanalytics.snowplow",
+        "mobile_context",
+        "jsonschema",
+        Some(1),
+        Some(0),
+        Some(0)
+      )
+    )
   }
 
   def e3 = {
@@ -68,36 +93,123 @@ class SchemaCriterionSpec extends Specification { def is = s2"""
   }
 
   def e4 = {
-    val criterion = SchemaCriterion("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 2)
-    val key = SchemaKey("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", SchemaVer.Full(2, 1, 0))
+    val criterion =
+      SchemaCriterion("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 2)
+    val key = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "mobile_context",
+      "jsonschema",
+      SchemaVer.Full(2, 1, 0)
+    )
     criterion.matches(key) must beTrue
   }
 
   def e5 = {
-    val criterion = SchemaCriterion("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", None, Some(0), Some(0))
-    val key = SchemaKey("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", SchemaVer.Full(2, 0, 0))
+    val criterion = SchemaCriterion(
+      "com.snowplowanalytics.snowplow",
+      "mobile_context",
+      "jsonschema",
+      None,
+      Some(0),
+      Some(0)
+    )
+    val key = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "mobile_context",
+      "jsonschema",
+      SchemaVer.Full(2, 0, 0)
+    )
     criterion.matches(key) must beTrue
   }
 
   def e6 = {
-    val criterion = SchemaCriterion("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", None, Some(0), Some(0))
-    val key = SchemaKey("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", SchemaVer.Full(2, 1, 0))
-    criterion matches key must beFalse
+    val criterion = SchemaCriterion(
+      "com.snowplowanalytics.snowplow",
+      "mobile_context",
+      "jsonschema",
+      None,
+      Some(0),
+      Some(0)
+    )
+    val key = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "mobile_context",
+      "jsonschema",
+      SchemaVer.Full(2, 1, 0)
+    )
+    criterion.matches(key) must beFalse
   }
 
   def e7 = {
-    val criterion = SchemaCriterion("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", None, Some(0), Some(0))
+    val criterion = SchemaCriterion(
+      "com.snowplowanalytics.snowplow",
+      "mobile_context",
+      "jsonschema",
+      None,
+      Some(0),
+      Some(0)
+    )
     val keys = List(
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 2, 1, 0, "210"),
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 1, 0, 0, "100"),
+      DescribedString(
+        "com.snowplowanalytics.snowplow",
+        "mobile_context",
+        "jsonschema",
+        2,
+        1,
+        0,
+        "210"
+      ),
+      DescribedString(
+        "com.snowplowanalytics.snowplow",
+        "mobile_context",
+        "jsonschema",
+        1,
+        0,
+        0,
+        "100"
+      ),
       DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "avro", 2, 1, 0, "210"),
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 2, 0, 0, "200"),
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 1, 1, 1, "111")
+      DescribedString(
+        "com.snowplowanalytics.snowplow",
+        "mobile_context",
+        "jsonschema",
+        2,
+        0,
+        0,
+        "200"
+      ),
+      DescribedString(
+        "com.snowplowanalytics.snowplow",
+        "mobile_context",
+        "jsonschema",
+        1,
+        1,
+        1,
+        "111"
+      )
     )
     val matched = criterion.pickFrom(keys)
-    matched must containAllOf(Seq(
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 1, 0, 0, "100"),
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 2, 0, 0, "200")
-    ))
+    matched must containAllOf(
+      Seq(
+        DescribedString(
+          "com.snowplowanalytics.snowplow",
+          "mobile_context",
+          "jsonschema",
+          1,
+          0,
+          0,
+          "100"
+        ),
+        DescribedString(
+          "com.snowplowanalytics.snowplow",
+          "mobile_context",
+          "jsonschema",
+          2,
+          0,
+          0,
+          "200"
+        )
+      )
+    )
   }
 }

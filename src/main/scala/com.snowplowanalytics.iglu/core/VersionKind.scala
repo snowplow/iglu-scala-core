@@ -15,7 +15,7 @@ package com.snowplowanalytics.iglu.core
 /** An item in SchemaVer */
 sealed trait VersionKind {
   def show: String = this match {
-    case VersionKind.Model => "MODEL"
+    case VersionKind.Model    => "MODEL"
     case VersionKind.Revision => "REVISION"
     case VersionKind.Addition => "ADDITION"
   }
@@ -27,9 +27,9 @@ object VersionKind {
   case object Addition extends VersionKind
 
   def parse(s: String): Option[VersionKind] = s match {
-    case "MODEL" => Some(Model)
+    case "MODEL"    => Some(Model)
     case "REVISION" => Some(Revision)
     case "ADDITION" => Some(Addition)
-    case _ => None
+    case _          => None
   }
 }
