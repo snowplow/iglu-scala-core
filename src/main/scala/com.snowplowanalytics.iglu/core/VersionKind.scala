@@ -12,7 +12,7 @@
  */
 package com.snowplowanalytics.iglu.core
 
-/** An item in SchemaVer */
+/** The kind of a component of a [[SchemaVer]]. */
 sealed trait VersionKind {
   def show: String = this match {
     case VersionKind.Model    => "MODEL"

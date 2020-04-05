@@ -12,7 +12,9 @@
  */
 package com.snowplowanalytics.iglu.core
 
-/** Common error type for parsing core Iglu entities */
+/** A common error type for failures when parsing core Iglu entities,
+  * such as self-describing schema and self-describing data.
+  */
 sealed trait ParseError extends Product with Serializable {
   def code: String
   def message(str: String): String
@@ -98,12 +100,12 @@ object ParseError {
   /**
     * The metaschema URI appears to be invalid.
     *
-    * A valid Iglu schema must make use of the "$schema" keyword
+    * A valid Iglu schema must make use of the \$schema keyword
     * to declare that it conforms to the 'com.snowplowanalytics.self-desc/schema'
     * metaschema.
     *
     * The valid format is:
-    * {{{"$schema" : "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#"}}}.
+    * {{{"\$schema" : "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#"}}}.
     *
     * It's likely this declaration is missing or malformed.
     */
@@ -117,7 +119,7 @@ object ParseError {
       _.code == string
     }
 
-  /** List parse function to get an entity that failed parsing */
+  /** Add an input that failed parsing to the error. */
   def liftParse[A, B](parser: A => Either[ParseError, B]): A => Either[(ParseError, A), B] =
     a => parser(a).left.map(e => (e, a))
 }
