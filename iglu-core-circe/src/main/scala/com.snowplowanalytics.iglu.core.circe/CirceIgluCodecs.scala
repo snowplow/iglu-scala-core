@@ -19,7 +19,8 @@ import io.circe.syntax._
 import com.snowplowanalytics.iglu.core._
 
 /**
-  * Example of Circe codecs for Iglu entities
+  * Circe codecs for Iglu entities,
+  * such as self-describing schema and self-describing data.
   */
 trait CirceIgluCodecs {
 

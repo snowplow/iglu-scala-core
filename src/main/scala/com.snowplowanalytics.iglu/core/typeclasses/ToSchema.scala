@@ -14,8 +14,34 @@ package com.snowplowanalytics.iglu.core
 package typeclasses
 
 /**
-  * Mixin for [[ExtractSchemaMap]] marking that this particular instance intended
-  * for extraction Schemas, not instances
+  * A mixin for [[ExtractSchemaMap]], signalling that this particular instance of
+  * [[ExtractSchemaMap]] is intended for extracting schema, not data.
+  *
+  * An example input is:
+  *
+  * {{{
+  *    {
+  *      "\$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
+  *      "description": "Schema for a user entity",
+  *      "self": {
+  *         "vendor": "com.vendor",
+  *         "name": "user_entity",
+  *         "format": "jsonschema",
+  *         "version": "1-0-0"
+  *      },
+  *      "type": "object",
+  *      "properties": {
+  *         "id": {
+  *           "type": "string"
+  *         },
+  *         "email": {
+  *           "type": "string"
+  *         }
+  *      }
+  *    }
+  * }}}
+  *
+  * which contains a schema that can be extracted as a [[SelfDescribingSchema]].
   */
 trait ToSchema[E] { self: ExtractSchemaMap[E] =>
   def toSchema(schema: E): Either[ParseError, SelfDescribingSchema[E]] =
@@ -24,8 +50,8 @@ trait ToSchema[E] { self: ExtractSchemaMap[E] =>
       schemaMap <- self.extractSchemaMap(schema)
     } yield SelfDescribingSchema(schemaMap, getContent(schema))
 
-  /** Cleanup if necessary information about schema */
   protected def getContent(entity: E): E
 
+  /** Validate the URI specified with the "\$schema" keyword. */
   protected def checkSchemaUri(entity: E): Either[ParseError, Unit]
 }
