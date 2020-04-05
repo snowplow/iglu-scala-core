@@ -14,14 +14,15 @@ package com.snowplowanalytics.iglu.core
 package typeclasses
 
 /**
-  * Type class to render container with Schema to `String`
+  * Type class to render a self-describing schema into `String`.
   *
-  * @tparam S generic type in which Schema can be represented
+  * @tparam S Any generic type that can represent a
+  *           self-describing schema. (See also [[NormalizeSchema]].)
   */
 trait StringifySchema[S] {
 
   /**
-    * Render Schema as `String`
+    * Render a self-describing schema into `String`.
     */
   def asString(container: SelfDescribingSchema[S]): String
 }

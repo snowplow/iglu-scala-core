@@ -14,14 +14,15 @@ package com.snowplowanalytics.iglu.core
 package typeclasses
 
 /**
-  * Type class to render container with Schema to `String`
+  * Type class to render self-describing data into `String`.
   *
-  * @tparam D generic type in which data instance can be represented
+  * @tparam D Any generic type that can represent a piece of
+  *           self-describing data. (See also [[NormalizeData]].)
   */
 trait StringifyData[D] {
 
   /**
-    * Render data instance as `String`
+    * Render a piece of self-describing data into `String`.
     */
   def asString(container: SelfDescribingData[D]): String
 }

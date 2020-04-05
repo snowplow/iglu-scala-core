@@ -15,21 +15,30 @@ package com.snowplowanalytics.iglu.core
 import typeclasses.ExtractSchemaMap
 
 /**
-  * Entity describing a schema object itself, duality of `SchemaKey`
-  * **Should be used only with schemas**
+  * Contains details about a self-describing schema.
+  *
+  * Provides the same information as a [[SchemaKey]] but is used when dealing
+  * with schema, not data.
+  *
+  * For an example, see [[typeclasses.ExtractSchemaMap]].
   */
 final case class SchemaMap(schemaKey: SchemaKey) extends AnyVal
 
+/** Companion object, which contains a custom constructor for [[SchemaMap]]. */
 object SchemaMap {
 
-  /** Regular expression to extract SchemaKey from path */
+  /**
+    * A regular expression to extract a [[SchemaKey]] from a path.
+    *
+    * TODO: Is this needed?
+    */
   val schemaPathRegex = ("^([a-zA-Z0-9-_.]+)/" +
     "([a-zA-Z0-9-_]+)/" +
     "([a-zA-Z0-9-_]+)/" +
     "([1-9][0-9]*" +
     "(?:-(?:0|[1-9][0-9]*)){2})$").r
 
-  /** Regex to extract SchemaVer separately */
+  /** A regular expression to extract the [[SchemaVer]] separately. */
   private val schemaPathRigidRegex = ("^([a-zA-Z0-9-_.]+)/" +
     "([a-zA-Z0-9-_]+)/" +
     "([a-zA-Z0-9-_]+)/" +
@@ -39,14 +48,15 @@ object SchemaMap {
     SchemaMap(SchemaKey(vendor, name, format, version))
 
   /**
-    * Custom constructor for an Iglu SchemaMap from
-    * an Iglu-format Schema path, which looks like:
-    * com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-0
-    * Can be used get Schema key by path on file system
-    * Exists only in `SchemaMap` because schemas are stored at certain paths
+    * A custom constructor for a [[SchemaMap]] from
+    * an Iglu schema path, which looks like:
+    * "com.vendor/schema_name/jsonschema/1-0-0".
     *
-    * @param schemaPath an Iglu-format Schema path
-    * @return some SchemaMap for Success, and none for failure
+    * Can be used to get information about a slef-describing schema
+    * from a path on the file system, where the schema is stored.
+    *
+    * @param schemaPath An Iglu schema path.
+    * @return A [[SchemaMap]] or an error.
     */
   def fromPath(schemaPath: String): Either[ParseError, SchemaMap] = schemaPath match {
     case schemaPathRigidRegex(vnd, n, f, ver) =>

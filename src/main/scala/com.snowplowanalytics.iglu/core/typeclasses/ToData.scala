@@ -14,8 +14,23 @@ package com.snowplowanalytics.iglu.core
 package typeclasses
 
 /**
-  * Mixin for [[ExtractSchemaKey]] marking that this particular instance of
-  * [[ExtractSchemaKey]] intended for extraction data, not Schemas
+  * A mixin for [[ExtractSchemaKey]], signalling that this particular instance of
+  * [[ExtractSchemaKey]] is intended for extracting data, not schema.
+  *
+  * An example input is:
+  *
+  * {{{
+  *   {
+  *      "schema": "iglu:com.vendor/user_entity/jsonschema/1-0-0",
+  *      "data": {
+  *         "id": "78abb66e-a5ad-4772-96ec-d880650cd0b2",
+  *         "email": "some_user@example.com"
+  *      }
+  *    }
+  * }}}
+  *
+  * which contains information about a user that can be
+  * extracted as [[SelfDescribingData]].
   */
 trait ToData[E] { self: ExtractSchemaKey[E] =>
   def toData(entity: E): Either[ParseError, SelfDescribingData[E]] =
@@ -29,6 +44,5 @@ trait ToData[E] { self: ExtractSchemaKey[E] =>
         Left(error)
     }
 
-  /** Cleanup if necessary information about schema */
   protected def getContent(entity: E): Either[ParseError, E]
 }

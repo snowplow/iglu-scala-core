@@ -14,21 +14,47 @@ package com.snowplowanalytics.iglu.core
 package typeclasses
 
 /**
-  * This type class can be instantiated for any type `E` which can bear its
-  * description as [[SchemaKey]]
+  * This type class can be used to extract a [[SchemaMap]] from a
+  * self-describing schema.
   *
-  * It particularly useful for validation/data extraction apps which need to
-  * *extract* instance/schema description.
+  * The [[SchemaMap]] contains details about the schema itself that
+  * allow it to be identified.
   *
-  * @tparam E entity type, mostly intended for various JSON ADTs,
-  *           like Json4s, Jackson, circe, Argonaut etc,
-  *           but also can be anything that can bear reference to
-  *           its description like Thrift, Map[String, String] etc
+  * An example input is:
+  *
+  * {{{
+  *    {
+  *      "\$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
+  *      "description": "Schema for a user entity",
+  *      "self": {
+  *         "vendor": "com.vendor",
+  *         "name": "user_entity",
+  *         "format": "jsonschema",
+  *         "version": "1-0-0"
+  *      },
+  *      "type": "object",
+  *      "properties": {
+  *         "id": {
+  *           "type": "string"
+  *         },
+  *         "email": {
+  *           "type": "string"
+  *         }
+  *      }
+  *    }
+  * }}}
+  *
+  * where "self" contains information about the vendor, name, format and
+  * version of the schema and can be extracted as [[SchemaMap]].
+  *
+  * @tparam E Any schema that can include a reference to itself.
+  *           It's mostly intended for JSON schema,
+  *           but can also be something like Thrift, Map[String, String], etc.
   */
 trait ExtractSchemaMap[E] {
 
   /**
-    * Try to extract [[SchemaKey]] from entity
+    * Try to extract [[SchemaMap]] from a self-describing schema entity.
     */
   def extractSchemaMap(entity: E): Either[ParseError, SchemaMap]
 }

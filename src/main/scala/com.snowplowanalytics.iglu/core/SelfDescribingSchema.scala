@@ -17,24 +17,24 @@ import java.net.URI
 import typeclasses.{NormalizeSchema, StringifySchema, ToSchema}
 
 /**
-  * Container for Self-describing Schema
-  * Used to eliminate need of Option container when extracting
-  * [[SchemaMap]] with `ExtractSchemaMap` type class
+  * A container for a self-describing schema, used to eliminate the
+  * need for an `Option` wrapper when extracting a [[SchemaMap]]
+  * with the [[typeclasses.ExtractSchemaMap]] type class.
   *
-  * @param self Schema description
-  * @param schema attached Schema instance itself
-  * @tparam S generic type to represent Schema type (usually it is
-  *           some JSON-library's base trait)
+  * @param self Information about the schema.
+  * @param schema The schema itself.
+  * @tparam S Any generic type that can represent a
+  *           self-describing schema. (See also [[typeclasses.ExtractSchemaMap]].)
   */
 final case class SelfDescribingSchema[S](self: SchemaMap, schema: S) {
 
   /**
-    * Render Schema to its base type `S`
+    * Render a self-describing schema into its base type `S`.
     */
   def normalize(implicit ev: NormalizeSchema[S]): S = ev.normalize(this)
 
   /**
-    * Render Schema as `String`
+    * Render a self-describing schema into `String`.
     */
   def asString(implicit ev: StringifySchema[S]): String = ev.asString(this)
 }
@@ -45,7 +45,7 @@ object SelfDescribingSchema {
     "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#"
   )
 
-  /** Try to decode `S` as `SelfDescribingSchema[S]` */
+  /** Try to decode `S` as [[SelfDescribingSchema]]]. */
   def parse[S](schema: S)(implicit ev: ToSchema[S]): Either[ParseError, SelfDescribingSchema[S]] =
     ev.toSchema(schema)
 }

@@ -13,18 +13,21 @@
 package com.snowplowanalytics.iglu.core
 
 /**
-  * Entity allowing to fetch and validate schemas for entities of `A`
-  * Resolvers supposed to be implemented as separate artifacts
+  * A [[Resolver]] allows fetching and validating self-describing schemas
+  * for entities of type `A`.
   *
-  * @tparam F effect, wrapping resolver's work (such as `Either[String, Option[A]]` or `IO[A]`
-  * @tparam A AST for data and schema
+  * Resolvers are meant to be implemented as separate artifacts.
+  *
+  * @tparam F An effect wrapping the [[Resolver]]'s work,
+  *           such as `Either[String, Option[A]]` or `IO[A]`.
+  * @tparam A An AST for data or schema.
   */
 trait Resolver[F[_], A] {
 
-  /** Lookup for a schema by its key */
+  /** Look up a schema by its key. */
   def lookup(data: SchemaKey): F[SelfDescribingSchema[A]]
 
-  /** Validate self-describing data against some schema */
+  /** Validate a piece of self-describing data against a schema. */
   def validate(
     data: SelfDescribingData[A],
     schema: SelfDescribingSchema[A]
