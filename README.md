@@ -23,7 +23,7 @@ $ sbt compile
 In order to include Iglu Scala Core into your project, add following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.snowplowanalytics" % "iglu-core" % "0.5.1"
+libraryDependencies += "com.snowplowanalytics" % "iglu-core" % "1.0.0"
 ```
 
 ## Find out more
