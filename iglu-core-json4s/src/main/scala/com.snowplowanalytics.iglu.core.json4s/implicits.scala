@@ -14,19 +14,18 @@ package com.snowplowanalytics.iglu.core
 package json4s
 
 import org.json4s._
-import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods.compact
 
 import com.snowplowanalytics.iglu.core.typeclasses._
 
 trait implicits {
 
-  private implicit val codecs = Json4sIgluCodecs.formats
+  implicit private val codecs: Formats = Json4sIgluCodecs.formats
 
-  final implicit val igluAttachToDataJValue: ExtractSchemaKey[JValue] with ToData[JValue] =
+  implicit final val igluAttachToDataJValue: ExtractSchemaKey[JValue] with ToData[JValue] =
     new ExtractSchemaKey[JValue] with ToData[JValue] {
 
-      def extractSchemaKey(entity: JValue) =
+      def extractSchemaKey(entity: JValue): Either[ParseError, SchemaKey] =
         entity \ "schema" match {
           case JString(schema) => SchemaKey.fromUri(schema)
           case _               => Left(ParseError.InvalidData)
@@ -35,55 +34,42 @@ trait implicits {
       def getContent(json: JValue): Either[ParseError, JValue] =
         json \ "data" match {
           case JNothing => Left(ParseError.InvalidData)
-          case data => Right(data)
+          case data     => Right(data)
         }
     }
 
-  final implicit val igluAttachToSchema: ExtractSchemaMap[JValue] with ToSchema[JValue] with ExtractSchemaMap[JValue] =
+  implicit final val igluAttachToSchema: ExtractSchemaMap[JValue] with ToSchema[JValue] =
     new ToSchema[JValue] with ExtractSchemaMap[JValue] {
 
       def extractSchemaMap(entity: JValue): Either[ParseError, SchemaMap] =
         (entity \ "self").extractOpt[SchemaKey].map(key => SchemaMap(key)) match {
           case Some(map) => Right(map)
-          case None => Left(ParseError.InvalidSchema)
+          case None      => Left(ParseError.InvalidSchema)
         }
 
-      def checkSchemaUri(entity: JValue): Either[ParseError, Unit] = {
+      def checkSchemaUri(entity: JValue): Either[ParseError, Unit] =
         (entity \ "$schema").extractOpt[String] match {
-          case Some(schemaUri) if schemaUri ==  SelfDescribingSchema.SelfDescribingUri.toString => Right(())
+          case Some(schemaUri) if schemaUri == SelfDescribingSchema.SelfDescribingUri.toString =>
+            Right(())
           case _ => Left(ParseError.InvalidMetaschema)
         }
-      }
 
       def getContent(schema: JValue): JValue =
         Json4sIgluCodecs.removeMetaFields(schema)
     }
 
   // Container-specific instances
+  implicit final val igluNormalizeDataJValue: NormalizeData[JValue] =
+    instance => Extraction.decompose(instance)
 
-  final implicit val igluNormalizeDataJValue: NormalizeData[JValue] =
-    new NormalizeData[JValue] {
-      def normalize(instance: SelfDescribingData[JValue]): JValue =
-        Extraction.decompose(instance)
-    }
+  implicit final val igluNormalizeSchemaJValue: NormalizeSchema[JValue] =
+    schema => Extraction.decompose(schema)
 
-  final implicit val igluNormalizeSchemaJValue: NormalizeSchema[JValue] =
-    new NormalizeSchema[JValue] {
-      def normalize(schema: SelfDescribingSchema[JValue]): JValue =
-        Extraction.decompose(schema)
-    }
+  implicit final val igluStringifyDataJValue: StringifyData[JValue] =
+    container => compact(container.normalize(igluNormalizeDataJValue))
 
-  final implicit val igluStringifyDataJValue: StringifyData[JValue] =
-    new StringifyData[JValue] {
-      def asString(container: SelfDescribingData[JValue]): String =
-        compact(container.normalize(igluNormalizeDataJValue))
-    }
-
-  final implicit val igluStringifySchemaJValue: StringifySchema[JValue] =
-    new StringifySchema[JValue] {
-      def asString(container: SelfDescribingSchema[JValue]): String =
-        compact(container.normalize(igluNormalizeSchemaJValue))
-    }
+  implicit final val igluStringifySchemaJValue: StringifySchema[JValue] =
+    container => compact(container.normalize(igluNormalizeSchemaJValue))
 }
 
 object implicits extends implicits

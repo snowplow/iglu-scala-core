@@ -18,9 +18,9 @@ package com.snowplowanalytics.iglu.core
   * Proven to be non-empty, but correct order is trusted and can be validated by Schema DDL
   * It is usually acceptable to trust the producer as long as producer is Iglu Server
   */
-final case class SchemaList private(schemas: List[SchemaKey]) extends AnyVal {
+final case class SchemaList private (schemas: List[SchemaKey]) extends AnyVal {
   def vendor: String = schemas.head.vendor
-  def name: String = schemas.head.name
+  def name: String   = schemas.head.name
 }
 
 object SchemaList {
@@ -30,28 +30,32 @@ object SchemaList {
   /** Validate that list of strings is SchemaList (non-empty SchemaKeys only list) */
   def parseStrings(strings: List[String]): Either[String, SchemaList] = {
     val results = strings.foldLeft(EmptyList: Either[String, ParseAccumulator]) {
-      case (EmptyList, cur) => SchemaKey.fromUri(cur) match {
-        case Right(key @ SchemaKey(_, _, _, SchemaVer.Full(m, r, a))) if r != 0 || a != 0 =>
-          Left(s"Init schema ${key.toSchemaUri} is not $m-0-0")
-        case Right(key) => Right(ParseAccumulator(key.vendor, key.name, List(key)))
-        case Left(error) => Left(s"$cur - ${error.message(cur)}")
-      }
-      case (Right(acc), cur) => SchemaKey.fromUri(cur) match {
-        case Right(key) if key.vendor != acc.vendor || key.name != acc.name =>
-          Left(s"SchemaKey ${key.toSchemaUri} does not match previous vendor (${key.vendor}) or name (${key.name})")
-        case Right(key) if acc.parsed.contains(key) =>
-          Left(s"SchemaKey ${key.toSchemaUri} is not unique")
-        case Right(key) =>
-          Right(acc.copy(parsed = key :: acc.parsed))
-        case Left(error) =>
-          Left(s"$cur - ${error.message(cur)}")
-      }
+      case (EmptyList, cur) =>
+        SchemaKey.fromUri(cur) match {
+          case Right(key @ SchemaKey(_, _, _, SchemaVer.Full(m, r, a))) if r != 0 || a != 0 =>
+            Left(s"Init schema ${key.toSchemaUri} is not $m-0-0")
+          case Right(key)  => Right(ParseAccumulator(key.vendor, key.name, List(key)))
+          case Left(error) => Left(s"$cur - ${error.message(cur)}")
+        }
+      case (Right(acc), cur) =>
+        SchemaKey.fromUri(cur) match {
+          case Right(key) if key.vendor != acc.vendor || key.name != acc.name =>
+            Left(
+              s"SchemaKey ${key.toSchemaUri} does not match previous vendor (${key.vendor}) or name (${key.name})"
+            )
+          case Right(key) if acc.parsed.contains(key) =>
+            Left(s"SchemaKey ${key.toSchemaUri} is not unique")
+          case Right(key) =>
+            Right(acc.copy(parsed = key :: acc.parsed))
+          case Left(error) =>
+            Left(s"$cur - ${error.message(cur)}")
+        }
       case (Left(error), _) => Left(error)
     }
 
     results match {
       case Right(ParseAccumulator(_, _, parsed)) => Right(SchemaList(parsed.reverse))
-      case Left(error) => Left(s"Cannot parse list of strings into SchemaList. $error")
+      case Left(error)                           => Left(s"Cannot parse list of strings into SchemaList. $error")
     }
   }
 

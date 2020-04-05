@@ -13,18 +13,16 @@
 package com.snowplowanalytics.iglu.core
 package json4s
 
-// specs2
-import org.specs2.Specification
-
-// json4s
 import org.json4s._
 import org.json4s.jackson.JsonMethods.parse
 
-// This library
-import implicits._
-import typeclasses.NormalizeSchema
+import com.snowplowanalytics.iglu.core.json4s.implicits._
+import com.snowplowanalytics.iglu.core.typeclasses.NormalizeSchema
 
-class AttachSchemaKeySpec extends Specification { def is = s2"""
+import org.specs2.Specification
+
+class AttachSchemaKeySpec extends Specification {
+  def is = s2"""
   Specification AttachTo type class for instances
     add Schema reference to json4s data instance $e1
     add description to json4s Schema $e2
@@ -33,13 +31,12 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
 
   def e1 = {
 
-    val data: JValue = parse(
-      """
-        |{
-        |  "latitude": 32.2,
-        |  "longitude": 53.23,
-        |  "speed": 40
-        |}
+    val data: JValue = parse("""
+                               |{
+                               |  "latitude": 32.2,
+                               |  "longitude": 53.23,
+                               |  "speed": 40
+                               |}
       """.stripMargin)
 
     val expected: JValue = parse(
@@ -52,9 +49,15 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
         |  "speed": 40
         | }
         |}
-      """.stripMargin)
+      """.stripMargin
+    )
 
-    val result = SchemaKey("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0)).attachTo(data)
+    val result = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    ).attachTo(data)
     result must beEqualTo(expected)
   }
 
@@ -141,8 +144,12 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
       """.stripMargin
     )
 
-
-    val map = SchemaMap("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0))
+    val map = SchemaMap(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    )
     val result = implicitly[NormalizeSchema[JValue]].normalize(SelfDescribingSchema(map, schema))
 
     result must beEqualTo(expected)
@@ -150,21 +157,25 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
 
   def e3 = {
 
-    val schema: JValue = parse(
-      """
-        |{
-        |  "type": "object",
-        |  	"properties": {
-        |  		"latitude": {
-        |  			"type": "number"
-        |  		},
-        |  		"longitude": {
-        |  			"type": "number"
-        |  		}
-        |}}
+    val schema: JValue = parse("""
+                                 |{
+                                 |  "type": "object",
+                                 |  	"properties": {
+                                 |  		"latitude": {
+                                 |  			"type": "number"
+                                 |  		},
+                                 |  		"longitude": {
+                                 |  			"type": "number"
+                                 |  		}
+                                 |}}
       """.stripMargin)
 
-    val key = SchemaKey("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0))
+    val key = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    )
     val result = key.attachTo(schema)
     SchemaKey.extract(result) must beRight(key)
   }

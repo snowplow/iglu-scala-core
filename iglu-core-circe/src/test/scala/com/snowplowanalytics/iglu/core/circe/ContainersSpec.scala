@@ -12,17 +12,16 @@
  */
 package com.snowplowanalytics.iglu.core.circe
 
-// specs2
-import org.specs2.Specification
-
-// circe
 import io.circe._
 import io.circe.literal._
 
-// This library
 import com.snowplowanalytics.iglu.core._
+import com.snowplowanalytics.iglu.core.circe.implicits._
 
-class ContainersSpec extends Specification { def is = s2"""
+import org.specs2.Specification
+
+class ContainersSpec extends Specification {
+  def is = s2"""
   Specification for container types
     extract SelfDescribingData $e1
     extract SelfDescribingSchema $e2
@@ -33,8 +32,6 @@ class ContainersSpec extends Specification { def is = s2"""
     fail to extract SelfDescribingSchema if metaschema field contains invalid value $e7
     fail to extract SelfDescribingSchema if metaschema field is missing $e8
   """
-
-  import implicits._
 
   def e1 = {
 
@@ -50,7 +47,12 @@ class ContainersSpec extends Specification { def is = s2"""
         }
       """
 
-    val key = SchemaKey("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0))
+    val key = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    )
     val data =
       json"""
         {
@@ -83,7 +85,7 @@ class ContainersSpec extends Specification { def is = s2"""
         }
       """
 
-    val self = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1,1,0))
+    val self = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1, 1, 0))
     val schema =
       json"""
         {
@@ -101,7 +103,12 @@ class ContainersSpec extends Specification { def is = s2"""
 
   def e3 = {
 
-    val schema = SchemaKey("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0))
+    val schema = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    )
     val data: Json =
       json"""
         {
@@ -129,7 +136,7 @@ class ContainersSpec extends Specification { def is = s2"""
 
   def e4 = {
 
-    val self = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1,1,0))
+    val self = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1, 1, 0))
     val schema: Json =
       json"""
         {
@@ -165,7 +172,12 @@ class ContainersSpec extends Specification { def is = s2"""
 
   def e5 = {
 
-    val schema = SchemaKey("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0))
+    val schema = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    )
     val data: Json =
       json"""
         {
@@ -184,7 +196,7 @@ class ContainersSpec extends Specification { def is = s2"""
 
   def e6 = {
 
-    val self = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1,1,0))
+    val self = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1, 1, 0))
     val schema: Json =
       json"""
         {
@@ -206,7 +218,7 @@ class ContainersSpec extends Specification { def is = s2"""
   def e7 = {
 
     val result: Json =
-    // The valid vendor is 'com.snowplowanalytics.self-desc'
+      // The valid vendor is 'com.snowplowanalytics.self-desc'
       json"""
         {
           "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self/schema/jsonschema/1-0-0#",
