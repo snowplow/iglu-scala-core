@@ -18,51 +18,60 @@ import scala.util.matching.Regex
 import typeclasses.{ExtractSchemaKey, NormalizeData}
 
 /**
-  * Entity describing schema of data, Duality of `SchemaMap`
-  * Unlike `PartialSchemaKey` it always has full known version
+  * Contains details about the schema of a piece of self-describing data.
+  *
+  * Provides the same information as a [[SchemaMap]] but is used when dealing
+  * with data, not schema.
+  *
+  * For an example, see [[typeclasses.ExtractSchemaKey]].
+  *
+  * Unlike [[PartialSchemaKey]], the schema version is always fully known.
   */
 final case class SchemaKey(vendor: String, name: String, format: String, version: SchemaVer.Full) {
 
-  /** Converts the SchemaKey back to an Iglu-format schema URI */
+  /** Convert this [[SchemaKey]] to an Iglu schema URI. */
   def toSchemaUri: String =
     s"iglu:$vendor/$name/$format/${version.asString}"
 
   /**
-    * Converts a SchemaKey into a path which is compatible
+    * Convert this [[SchemaKey]] to a path that is compatible
     * with most local and remote Iglu schema repositories.
     */
   def toPath: String =
     s"$vendor/$name/$format/${version.asString}"
 
-  /** Lossy conversion to partial schema key */
+  /** Lossy conversion to [[PartialSchemaKey]]. */
   def asPartial: PartialSchemaKey =
     PartialSchemaKey(vendor, name, format, version)
 
-  /** Convert to schema-duality */
+  /** Convert this [[SchemaKey]] to a [[SchemaMap]].
+    *
+    * They both provide the same information but the former is used
+    * when dealing with data, and the latter when dealing with schema.
+    */
   def toSchemaMap: SchemaMap =
     SchemaMap(this)
 
-  /** Attach SchemaKey, without changing structure of `E` */
+  /**
+    * Attach this [[SchemaKey]] to a piece of self-describing data,
+    * without changing the structure of the data's base type `E`.
+    */
   def attachTo[E: NormalizeData](entity: E): E =
     implicitly[NormalizeData[E]].normalize(SelfDescribingData(this, entity))
 }
 
-/**
-  * Companion object contains a custom constructor for
-  * an Iglu SchemaKey.
-  */
+/** Companion object, which contains a custom constructor for [[SchemaKey]]. */
 object SchemaKey {
 
-  /** Canonical regular expression for SchemaKey */
+  /** Canonical regular expression for a [[SchemaKey]]. */
   val schemaUriRegex: Regex = ("^iglu:" + // Protocol
     "([a-zA-Z0-9-_.]+)/" + // Vendor
     "([a-zA-Z0-9-_]+)/" + // Name
     "([a-zA-Z0-9-_]+)/" + // Format
     "([1-9][0-9]*" + // MODEL (cannot start with 0)
     "(?:-(?:0|[1-9][0-9]*)){2})$").r // REVISION and ADDITION
-  // Extract whole SchemaVer within single group
 
-  /** Regex to extract SchemaVer separately */
+  /** A regular expression to extract [[SchemaVer]] within a single group. */
   private val schemaUriRigidRegex: Regex = ("^iglu:" + // Protocol
     "([a-zA-Z0-9-_.]+)/" + // Vendor
     "([a-zA-Z0-9-_]+)/" + // Name
@@ -70,9 +79,8 @@ object SchemaKey {
     "([0-9]*(?:-(?:[0-9]*)){2})$").r // SchemaVer
 
   /**
-    * Default `Ordering` instance for [[SchemaKey]]
-    * Sort keys alphabetically AND by ascending SchemaVer
-    * (so initial Schemas will be in the beginning)
+    * A Default `Ordering` instance for a [[SchemaKey]],
+    * which sorts keys alphabetically AND by ascending [[SchemaVer]].
     *
     * Usage:
     * {{{
@@ -87,14 +95,14 @@ object SchemaKey {
     }
 
   /**
-    * Custom constructor for an Iglu SchemaKey from
-    * an Iglu-format schema URI, which looks like:
-    * iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-0
-    * Default for Schema reference
+    * A custom constructor for a [[SchemaKey]] from
+    * an Iglu schema URI, which looks like:
+    * "iglu:com.vendor/schema_name/jsonschema/1-0-0".
     *
-    * @param schemaUri an Iglu-format Schema URI
-    * @return a Validation-boxed SchemaKey for
-    *         Success, and an error String on Failure
+    * An Iglu schema URI is the default for schema lookup.
+    *
+    * @param schemaUri An Iglu schema URI.
+    * @return A [[SchemaKey]] or an error.
     */
   def fromUri(schemaUri: String): Either[ParseError, SchemaKey] = schemaUri match {
     case schemaUriRigidRegex(vnd, n, f, ver) =>
@@ -105,7 +113,10 @@ object SchemaKey {
     case _ => Left(ParseError.InvalidIgluUri)
   }
 
-  /** Try to get `SchemaKey` from `E` as */
+  /**
+    * Extract a [[SchemaKey]] from an entity with base type `E`,
+    * representing a piece of self-describing data.
+    */
   def extract[E: ExtractSchemaKey](e: E): Either[ParseError, SchemaKey] =
     implicitly[ExtractSchemaKey[E]].extractSchemaKey(e)
 }
