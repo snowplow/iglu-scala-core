@@ -39,6 +39,7 @@ lazy val igluCoreJson4s = (project in file("iglu-core-json4s"))
   .settings(json4sBuildSettings: _*)
   .settings(BuildSettings.mimaSettings)
   .settings(BuildSettings.scoverageSettings)
+  .settings(BuildSettings.compilerSettings)
   .settings(
     name := "iglu-core-json4s",
     libraryDependencies ++= Seq(
@@ -54,6 +55,7 @@ lazy val igluCoreCirce = (project in file("iglu-core-circe"))
   .settings(circeBuildSettings: _*)
   .settings(BuildSettings.mimaSettings)
   .settings(BuildSettings.scoverageSettings)
+  .settings(BuildSettings.compilerSettings)
   .settings(
     name := "iglu-core-circe",
     libraryDependencies ++= Seq(
@@ -69,5 +71,6 @@ lazy val igluCoreCirce = (project in file("iglu-core-circe"))
 lazy val docs = (project in file("docs"))
   .enablePlugins(SiteScaladocPlugin, GhpagesPlugin, ScalaUnidocPlugin, PreprocessPlugin)
   .settings(BuildSettings.commonSettings: _*)
+  .settings(BuildSettings.compilerSettings)
   .settings(BuildSettings.ghPagesSettings)
   .aggregate(igluCore, igluCoreJson4s, igluCoreCirce)
