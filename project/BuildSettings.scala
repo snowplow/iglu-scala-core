@@ -30,7 +30,7 @@ object BuildSettings {
   // Basic project settings
   lazy val commonProjectSettings: Seq[sbt.Setting[_]] = Seq(
     organization := "com.snowplowanalytics",
-    version := "1.0.0",
+    version := "1.0.0-M4",
     scalaVersion := "2.13.1",
     crossScalaVersions := Seq("2.12.11", "2.13.1")
   )
