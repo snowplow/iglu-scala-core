@@ -12,65 +12,50 @@
  */
 
 import BuildSettings._
-import Json4sBuildSettings._
-import CirceBuildSettings._
 
 shellPrompt in ThisBuild := { state => Project.extract(state).get(sbt.Keys.name) + " > " }
 
-// Define our project, with basic project information and library dependencies
 lazy val igluCore = (project in file("."))
   .enablePlugins(MimaPlugin)
-  .settings(buildSettings: _*)
-  .settings(BuildSettings.mimaSettings)
-  .settings(BuildSettings.scoverageSettings)
+  .settings(coreBuildSettings)
   .settings(
-    name := "iglu-core",
     libraryDependencies ++= Seq(
-      // Scala (test only)
+      // Testing
       Dependencies.specs2,
       Dependencies.json4sTest
-    )
-  )
-
-
-lazy val igluCoreJson4s = (project in file("iglu-core-json4s"))
-  .dependsOn(igluCore)
-  .enablePlugins(MimaPlugin)
-  .settings(json4sBuildSettings: _*)
-  .settings(BuildSettings.mimaSettings)
-  .settings(BuildSettings.scoverageSettings)
-  .settings(BuildSettings.compilerSettings)
-  .settings(
-    name := "iglu-core-json4s",
-    libraryDependencies ++= Seq(
-      Dependencies.json4s,
-      // Scala (test only)
-      Dependencies.specs2
     )
   )
 
 lazy val igluCoreCirce = (project in file("iglu-core-circe"))
   .dependsOn(igluCore)
   .enablePlugins(MimaPlugin)
-  .settings(circeBuildSettings: _*)
-  .settings(BuildSettings.mimaSettings)
-  .settings(BuildSettings.scoverageSettings)
-  .settings(BuildSettings.compilerSettings)
+  .settings(circeBuildSettings)
   .settings(
-    name := "iglu-core-circe",
     libraryDependencies ++= Seq(
       Dependencies.circe,
       Dependencies.cats,
-      // Scala (test only)
+      // Testing
       Dependencies.specs2,
       Dependencies.circeParser,
       Dependencies.circeLiteral
     )
   )
 
+lazy val igluCoreJson4s = (project in file("iglu-core-json4s"))
+  .dependsOn(igluCore)
+  .enablePlugins(MimaPlugin)
+  .settings(json4sBuildSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      Dependencies.json4s,
+      // Testing
+      Dependencies.specs2
+    )
+  )
+
+
+
 lazy val docs = (project in file("docs"))
   .enablePlugins(SiteScaladocPlugin, GhpagesPlugin, ScalaUnidocPlugin, PreprocessPlugin)
-  .settings(BuildSettings.commonSettings: _*)
-  .settings(BuildSettings.compilerSettings)
-  .settings(BuildSettings.ghPagesSettings)
-  .aggregate(igluCore, igluCoreJson4s, igluCoreCirce)
+  .settings(docsBuildSettings)
+  .aggregate(igluCore, igluCoreCirce, igluCoreJson4s)
