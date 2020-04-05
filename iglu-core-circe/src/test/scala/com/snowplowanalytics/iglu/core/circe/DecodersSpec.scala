@@ -12,20 +12,17 @@
  */
 package com.snowplowanalytics.iglu.core.circe
 
-// cats
 import cats.syntax.either._
 import cats.syntax.show._
-
-// circe
 import io.circe._
 import io.circe.literal._
 
-// This library
 import com.snowplowanalytics.iglu.core._
 import com.snowplowanalytics.iglu.core.circe.CirceIgluCodecs._
 import org.specs2.Specification
 
-class DecodersSpec extends Specification { def is = s2"""
+class DecodersSpec extends Specification {
+  def is = s2"""
   Circe decoders
     decode SelfDescribingSchema $e1
     decode SelfDescribingData $e2
@@ -55,7 +52,7 @@ class DecodersSpec extends Specification { def is = s2"""
         }
       """
 
-    val self = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1,1,0))
+    val self = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1, 1, 0))
     val schema =
       json"""
         {
@@ -81,7 +78,7 @@ class DecodersSpec extends Specification { def is = s2"""
       """
 
     val expected = SelfDescribingData(
-      SchemaKey("com.acme", "event", "jsonschema", SchemaVer.Full(1,0,4)),
+      SchemaKey("com.acme", "event", "jsonschema", SchemaVer.Full(1, 0, 4)),
       Json.fromFields(List.empty)
     )
 
@@ -94,9 +91,12 @@ class DecodersSpec extends Specification { def is = s2"""
         ["iglu:com.acme/example/jsonschema/1-0-0", "iglu:com.acme/example/jsonschema/1-0-1"]
       """
 
-    val expected = SchemaList(List(
-      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1,0,0)),
-      SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1,0,1))))
+    val expected = SchemaList(
+      List(
+        SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1, 0, 0)),
+        SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1, 0, 1))
+      )
+    )
 
     input.as[SchemaList] must beRight(expected)
   }
@@ -117,7 +117,7 @@ class DecodersSpec extends Specification { def is = s2"""
   def e5 = {
 
     val result: Json =
-    // The valid vendor is 'com.snowplowanalytics.self-desc'
+      // The valid vendor is 'com.snowplowanalytics.self-desc'
       json"""
         {
           "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self/schema/jsonschema/1-0-0#",
@@ -135,7 +135,8 @@ class DecodersSpec extends Specification { def is = s2"""
         }
       """
 
-    val expected = "DecodingFailure at : Invalid metaschema: http://iglucentral.com/schemas/com.snowplowanalytics.self/schema/jsonschema/1-0-0#, code: INVALID_METASCHEMA"
+    val expected =
+      "DecodingFailure at : Invalid metaschema: http://iglucentral.com/schemas/com.snowplowanalytics.self/schema/jsonschema/1-0-0#, code: INVALID_METASCHEMA"
 
     result.as[SelfDescribingSchema[Json]].leftMap(_.show) must beLeft(expected)
   }
@@ -174,6 +175,7 @@ class DecodersSpec extends Specification { def is = s2"""
     rev.as[SchemaCriterion] must beRight(SchemaCriterion("com.acme", "name", "json", None, 1.some))
     val add = json"""{"vendor": "com.acme", "name": "name", "format": "json", "addition": 1}"""
     add.as[SchemaCriterion] must beRight(
-      SchemaCriterion("com.acme", "name", "json", None, None, 1.some))
+      SchemaCriterion("com.acme", "name", "json", None, None, 1.some)
+    )
   }
 }

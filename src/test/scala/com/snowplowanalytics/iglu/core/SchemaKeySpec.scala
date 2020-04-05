@@ -12,13 +12,12 @@
  */
 package com.snowplowanalytics.iglu.core
 
-// specs2
 import org.specs2.Specification
 
-// This library
 import IgluCoreCommon.DescribedString
 
-class SchemaKeySpec extends Specification { def is = s2"""
+class SchemaKeySpec extends Specification {
+  def is = s2"""
   Specification for parsing SchemaKey
     parse simple correct key from Iglu URI $e1
     parse complex correct key from Iglu URI $e2
@@ -35,13 +34,25 @@ class SchemaKeySpec extends Specification { def is = s2"""
   def e1 = {
     val uri = "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-0"
     SchemaKey.fromUri(uri) must beRight(
-      SchemaKey("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", SchemaVer.Full(1,0,0)))
+      SchemaKey(
+        "com.snowplowanalytics.snowplow",
+        "mobile_context",
+        "jsonschema",
+        SchemaVer.Full(1, 0, 0)
+      )
+    )
   }
 
   def e2 = {
     val uri = "iglu:uk.edu.acme.sub-division/second-event_complex/jsonschema/2-10-32"
     SchemaKey.fromUri(uri) must beRight(
-      SchemaKey("uk.edu.acme.sub-division", "second-event_complex", "jsonschema", SchemaVer.Full(2,10,32)))
+      SchemaKey(
+        "uk.edu.acme.sub-division",
+        "second-event_complex",
+        "jsonschema",
+        SchemaVer.Full(2, 10, 32)
+      )
+    )
   }
 
   def e3 = {
@@ -72,23 +83,107 @@ class SchemaKeySpec extends Specification { def is = s2"""
   def e6 = {
 
     implicit val ordering = SchemaKey.ordering
-    
+
     val describedData = List(
-      DescribedString("com.snowplowanalytics.snowplow", "aobile_context", "jsonschema", 2, 1, 0, "210"),
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 1, 0, 0, "100"),
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 2, 1, 0, "210"),
+      DescribedString(
+        "com.snowplowanalytics.snowplow",
+        "aobile_context",
+        "jsonschema",
+        2,
+        1,
+        0,
+        "210"
+      ),
+      DescribedString(
+        "com.snowplowanalytics.snowplow",
+        "mobile_context",
+        "jsonschema",
+        1,
+        0,
+        0,
+        "100"
+      ),
+      DescribedString(
+        "com.snowplowanalytics.snowplow",
+        "mobile_context",
+        "jsonschema",
+        2,
+        1,
+        0,
+        "210"
+      ),
       DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "avro", 2, 1, 0, "210"),
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 2, 0, 0, "200"),
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 1, 1, 1, "111")
+      DescribedString(
+        "com.snowplowanalytics.snowplow",
+        "mobile_context",
+        "jsonschema",
+        2,
+        0,
+        0,
+        "200"
+      ),
+      DescribedString(
+        "com.snowplowanalytics.snowplow",
+        "mobile_context",
+        "jsonschema",
+        1,
+        1,
+        1,
+        "111"
+      )
     )
 
-    describedData.sortBy(SchemaKey.extract(_).getOrElse(throw new RuntimeException("Not possible")) ) must beEqualTo(Seq(
-      DescribedString("com.snowplowanalytics.snowplow", "aobile_context", "jsonschema", 2, 1, 0, "210"),
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "avro", 2, 1, 0, "210"),
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 1, 0, 0, "100"),
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 1, 1, 1, "111"),
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 2, 0, 0, "200"),
-      DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "jsonschema", 2, 1, 0, "210")
-    ))
+    describedData.sortBy(
+      SchemaKey.extract(_).getOrElse(throw new RuntimeException("Not possible"))
+    ) must beEqualTo(
+      Seq(
+        DescribedString(
+          "com.snowplowanalytics.snowplow",
+          "aobile_context",
+          "jsonschema",
+          2,
+          1,
+          0,
+          "210"
+        ),
+        DescribedString("com.snowplowanalytics.snowplow", "mobile_context", "avro", 2, 1, 0, "210"),
+        DescribedString(
+          "com.snowplowanalytics.snowplow",
+          "mobile_context",
+          "jsonschema",
+          1,
+          0,
+          0,
+          "100"
+        ),
+        DescribedString(
+          "com.snowplowanalytics.snowplow",
+          "mobile_context",
+          "jsonschema",
+          1,
+          1,
+          1,
+          "111"
+        ),
+        DescribedString(
+          "com.snowplowanalytics.snowplow",
+          "mobile_context",
+          "jsonschema",
+          2,
+          0,
+          0,
+          "200"
+        ),
+        DescribedString(
+          "com.snowplowanalytics.snowplow",
+          "mobile_context",
+          "jsonschema",
+          2,
+          1,
+          0,
+          "210"
+        )
+      )
+    )
   }
 }
