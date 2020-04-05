@@ -15,17 +15,13 @@ package core
 
 import scala.util.matching.Regex
 
-import typeclasses.{ ExtractSchemaKey, NormalizeData }
+import typeclasses.{ExtractSchemaKey, NormalizeData}
 
 /**
- * Entity describing schema of data, Duality of `SchemaMap`
- * Unlike `PartialSchemaKey` it always has full known version
- */
-final case class SchemaKey(
-  vendor: String,
-  name: String,
-  format: String,
-  version: SchemaVer.Full) {
+  * Entity describing schema of data, Duality of `SchemaMap`
+  * Unlike `PartialSchemaKey` it always has full known version
+  */
+final case class SchemaKey(vendor: String, name: String, format: String, version: SchemaVer.Full) {
 
   /** Converts the SchemaKey back to an Iglu-format schema URI */
   def toSchemaUri: String =
@@ -52,61 +48,59 @@ final case class SchemaKey(
 }
 
 /**
- * Companion object contains a custom constructor for
- * an Iglu SchemaKey.
- */
+  * Companion object contains a custom constructor for
+  * an Iglu SchemaKey.
+  */
 object SchemaKey {
 
   /** Canonical regular expression for SchemaKey */
-  val schemaUriRegex: Regex = (
-    "^iglu:" +                          // Protocol
-    "([a-zA-Z0-9-_.]+)/" +              // Vendor
-    "([a-zA-Z0-9-_]+)/" +               // Name
-    "([a-zA-Z0-9-_]+)/" +               // Format
-    "([1-9][0-9]*" +                    // MODEL (cannot start with 0)
-    "(?:-(?:0|[1-9][0-9]*)){2})$").r    // REVISION and ADDITION
-                                        // Extract whole SchemaVer within single group
+  val schemaUriRegex: Regex = ("^iglu:" + // Protocol
+    "([a-zA-Z0-9-_.]+)/" + // Vendor
+    "([a-zA-Z0-9-_]+)/" + // Name
+    "([a-zA-Z0-9-_]+)/" + // Format
+    "([1-9][0-9]*" + // MODEL (cannot start with 0)
+    "(?:-(?:0|[1-9][0-9]*)){2})$").r // REVISION and ADDITION
+  // Extract whole SchemaVer within single group
 
   /** Regex to extract SchemaVer separately */
-  private val schemaUriRigidRegex: Regex = (
-    "^iglu:" +                          // Protocol
-      "([a-zA-Z0-9-_.]+)/" +              // Vendor
-      "([a-zA-Z0-9-_]+)/" +               // Name
-      "([a-zA-Z0-9-_]+)/" +               // Format
-      "([0-9]*(?:-(?:[0-9]*)){2})$").r    // SchemaVer
+  private val schemaUriRigidRegex: Regex = ("^iglu:" + // Protocol
+    "([a-zA-Z0-9-_.]+)/" + // Vendor
+    "([a-zA-Z0-9-_]+)/" + // Name
+    "([a-zA-Z0-9-_]+)/" + // Format
+    "([0-9]*(?:-(?:[0-9]*)){2})$").r // SchemaVer
 
   /**
-   * Default `Ordering` instance for [[SchemaKey]]
-   * Sort keys alphabetically AND by ascending SchemaVer
-   * (so initial Schemas will be in the beginning)
-   *
-   * Usage:
-   * {{{
-   *   import com.snowplowanalytics.iglu.core.SchemaKey
-   *   implicit val schemaOrdering = SchemaKey.ordering
-   *   keys.sorted
-   * }}}
-   */
+    * Default `Ordering` instance for [[SchemaKey]]
+    * Sort keys alphabetically AND by ascending SchemaVer
+    * (so initial Schemas will be in the beginning)
+    *
+    * Usage:
+    * {{{
+    *   import com.snowplowanalytics.iglu.core.SchemaKey
+    *   implicit val schemaOrdering = SchemaKey.ordering
+    *   keys.sorted
+    * }}}
+    */
   val ordering: Ordering[SchemaKey] =
     Ordering.by { key: SchemaKey =>
       (key.vendor, key.name, key.format, key.version)
     }
 
   /**
-   * Custom constructor for an Iglu SchemaKey from
-   * an Iglu-format schema URI, which looks like:
-   * iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-0
-   * Default for Schema reference
-   *
-   * @param schemaUri an Iglu-format Schema URI
-   * @return a Validation-boxed SchemaKey for
-   *         Success, and an error String on Failure
-   */
+    * Custom constructor for an Iglu SchemaKey from
+    * an Iglu-format schema URI, which looks like:
+    * iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-0
+    * Default for Schema reference
+    *
+    * @param schemaUri an Iglu-format Schema URI
+    * @return a Validation-boxed SchemaKey for
+    *         Success, and an error String on Failure
+    */
   def fromUri(schemaUri: String): Either[ParseError, SchemaKey] = schemaUri match {
     case schemaUriRigidRegex(vnd, n, f, ver) =>
       SchemaVer.parse(ver) match {
         case Right(full: SchemaVer.Full) => Right(SchemaKey(vnd, n, f, full))
-        case _ => Left(ParseError.InvalidSchemaVer)
+        case _                           => Left(ParseError.InvalidSchemaVer)
       }
     case _ => Left(ParseError.InvalidIgluUri)
   }

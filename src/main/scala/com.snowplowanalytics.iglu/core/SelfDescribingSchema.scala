@@ -27,6 +27,7 @@ import typeclasses.{NormalizeSchema, StringifySchema, ToSchema}
   *           some JSON-library's base trait)
   */
 final case class SelfDescribingSchema[S](self: SchemaMap, schema: S) {
+
   /**
     * Render Schema to its base type `S`
     */
@@ -40,10 +41,11 @@ final case class SelfDescribingSchema[S](self: SchemaMap, schema: S) {
 
 object SelfDescribingSchema {
 
-  val SelfDescribingUri: URI = URI.create("http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#")
+  val SelfDescribingUri: URI = URI.create(
+    "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#"
+  )
 
   /** Try to decode `S` as `SelfDescribingSchema[S]` */
   def parse[S](schema: S)(implicit ev: ToSchema[S]): Either[ParseError, SelfDescribingSchema[S]] =
     ev.toSchema(schema)
 }
-

@@ -12,14 +12,13 @@
  */
 package com.snowplowanalytics.iglu.core
 
-// specs2
-import org.specs2.Specification
-
-// json4s
 import org.json4s._
 import org.json4s.jackson.JsonMethods.parse
 
-class ExtractSchemaKeySpec extends Specification { def is = s2"""
+import org.specs2.Specification
+
+class ExtractSchemaKeySpec extends Specification {
+  def is = s2"""
   Specification ExtractFrom type class for instances
     extract SchemaKey using postfix method $e1
     extract SchemaKey using AttachTo type class $e3
@@ -33,58 +32,54 @@ class ExtractSchemaKeySpec extends Specification { def is = s2"""
   def e1 = {
     import IgluCoreCommon.Json4SExtractSchemaKeyData
 
-    val json: JValue = parse(
-      """
-        |{
-        |  "schema": "iglu:com.acme.useless/null/jsonschema/2-0-3",
-        |  "data": null
-        |}
+    val json: JValue = parse("""
+                               |{
+                               |  "schema": "iglu:com.acme.useless/null/jsonschema/2-0-3",
+                               |  "data": null
+                               |}
       """.stripMargin)
 
     SchemaKey.extract(json) must beRight(
-      SchemaKey("com.acme.useless", "null", "jsonschema", SchemaVer.Full(2,0,3))
+      SchemaKey("com.acme.useless", "null", "jsonschema", SchemaVer.Full(2, 0, 3))
     )
   }
 
   def e3 = {
     import IgluCoreCommon.Json4SAttachSchemaKeyData
 
-    val json: JValue = parse(
-      """
-        |{
-        |  "schema": "iglu:com.acme.useless/null/jsonschema/2-0-3",
-        |  "data": null
-        |}
+    val json: JValue = parse("""
+                               |{
+                               |  "schema": "iglu:com.acme.useless/null/jsonschema/2-0-3",
+                               |  "data": null
+                               |}
       """.stripMargin)
 
     SchemaKey.extract(json) must beRight(
-      SchemaKey("com.acme.useless", "null", "jsonschema", SchemaVer.Full(2,0,3))
+      SchemaKey("com.acme.useless", "null", "jsonschema", SchemaVer.Full(2, 0, 3))
     )
   }
 
   def e5 = {
-
     import IgluCoreCommon.Json4SAttachSchemaMapComplex
 
-    val json: JValue = parse(
-      """
-        |{
-        |	"self": {
-        |		"vendor": "com.acme",
-        |		"name": "keyvalue",
-        |		"format": "jsonschema",
-        |		"version": "1-1-0"
-        |	},
-        |	"type": "object",
-        |	"properties": {
-        |		"name": { "type": "string" },
-        |		"value": { "type": "string" }
-        |	}
-        |}
+    val json: JValue = parse("""
+                               |{
+                               |	"self": {
+                               |		"vendor": "com.acme",
+                               |		"name": "keyvalue",
+                               |		"format": "jsonschema",
+                               |		"version": "1-1-0"
+                               |	},
+                               |	"type": "object",
+                               |	"properties": {
+                               |		"name": { "type": "string" },
+                               |		"value": { "type": "string" }
+                               |	}
+                               |}
       """.stripMargin)
 
     SchemaMap.extract(json) must beRight(
-      SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1,1,0))
+      SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1, 1, 0))
     )
   }
 
@@ -92,21 +87,20 @@ class ExtractSchemaKeySpec extends Specification { def is = s2"""
     import IgluCoreCommon.Json4SExtractSchemaKeySchema
 
     // SchemaVer cannot have 0 as MODEL
-    val json: JValue = parse(
-      """
-        |{
-        |	"self": {
-        |		"vendor": "com.acme",
-        |		"name": "keyvalue",
-        |		"format": "jsonschema",
-        |		"version": "0-1-0"
-        |	},
-        |	"type": "object",
-        |	"properties": {
-        |		"name": { "type": "string" },
-        |		"value": { "type": "string" }
-        |	}
-        |}
+    val json: JValue = parse("""
+                               |{
+                               |	"self": {
+                               |		"vendor": "com.acme",
+                               |		"name": "keyvalue",
+                               |		"format": "jsonschema",
+                               |		"version": "0-1-0"
+                               |	},
+                               |	"type": "object",
+                               |	"properties": {
+                               |		"name": { "type": "string" },
+                               |		"value": { "type": "string" }
+                               |	}
+                               |}
       """.stripMargin)
 
     SchemaKey.extract(json) must beLeft
@@ -116,12 +110,11 @@ class ExtractSchemaKeySpec extends Specification { def is = s2"""
     import IgluCoreCommon.Json4SExtractSchemaKeyData
 
     // SchemaVer cannot have preceding 0 in REVISION
-    val json: JValue = parse(
-      """
-        |{
-        |  "schema": "iglu:com.acme.useless/null/jsonschema/2-01-3",
-        |  "data": null
-        |}
+    val json: JValue = parse("""
+                               |{
+                               |  "schema": "iglu:com.acme.useless/null/jsonschema/2-01-3",
+                               |  "data": null
+                               |}
       """.stripMargin)
 
     SchemaKey.extract(json) must beLeft

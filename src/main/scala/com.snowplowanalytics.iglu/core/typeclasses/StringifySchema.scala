@@ -19,9 +19,9 @@ package typeclasses
   * @tparam S generic type in which Schema can be represented
   */
 trait StringifySchema[S] {
+
   /**
     * Render Schema as `String`
     */
   def asString(container: SelfDescribingSchema[S]): String
 }
-

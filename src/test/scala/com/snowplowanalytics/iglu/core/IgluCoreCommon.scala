@@ -12,21 +12,19 @@
  */
 package com.snowplowanalytics.iglu.core
 
-// json4s
 import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods.compact
 
-// This library
 import com.snowplowanalytics.iglu.core.typeclasses._
 
 /**
- * This module contains examples of common traits and type class instances
- * based on Json4s library
- */
+  * This module contains examples of common traits and type class instances
+  * based on Json4s library
+  */
 object IgluCoreCommon {
 
-  implicit val formats = IgluJson4sCodecs.formats
+  implicit val formats: Formats = IgluJson4sCodecs.formats
 
   ////////////////////////
   // ExtractFrom Json4s //
@@ -42,27 +40,27 @@ object IgluCoreCommon {
   }
 
   /**
-   * Example of [[ExtractSchemaKey]] instance for json4s JSON *data*
-   */
+    * Example of [[ExtractSchemaKey]] instance for json4s JSON *data*
+    */
   implicit object Json4SExtractSchemaKeyData extends Json4SExtractSchemaKeyData
 
   /** Example common trait for [[ExtractSchemaKey]] *Schemas* objects */
   trait Json4SExtractSchemaKeySchema extends ExtractSchemaKey[JValue] {
+
     /**
-     * Extract SchemaKey usning serialization formats defined at [[IgluJson4sCodecs]]
-     */
+      * Extract SchemaKey usning serialization formats defined at [[IgluJson4sCodecs]]
+      */
     def extractSchemaKey(entity: JValue): Either[ParseError, SchemaKey] =
       (entity \ "self").extractOpt[SchemaKey] match {
-        case None => Left(ParseError.InvalidSchema)
+        case None       => Left(ParseError.InvalidSchema)
         case Some(self) => Right(self)
       }
   }
 
   /**
-   * Example of [[ExtractSchemaKey]] instance for json4s JSON *Schemas*
-   */
+    * Example of [[ExtractSchemaKey]] instance for json4s JSON *Schemas*
+    */
   implicit object Json4SExtractSchemaKeySchema extends Json4SExtractSchemaKeySchema
-
 
   /////////////////////
   // AttachTo Json4s //
@@ -74,42 +72,47 @@ object IgluCoreCommon {
     def extractSchemaKey(entity: JValue): Either[ParseError, SchemaKey] =
       (entity \ "self").extractOpt[SchemaKey] match {
         case Some(self) => Right(self)
-        case None => Left(ParseError.InvalidSchema)
+        case None       => Left(ParseError.InvalidSchema)
       }
   }
 
-  implicit object Json4SAttachSchemaMapComplex extends ExtractSchemaMap[JValue] with ToSchema[JValue] {
+  implicit object Json4SAttachSchemaMapComplex
+      extends ExtractSchemaMap[JValue]
+      with ToSchema[JValue] {
     def extractSchemaMap(entity: JValue): Either[ParseError, SchemaMap] = {
-      implicit val formats = IgluJson4sCodecs.formats
+      implicit val formats: Formats = IgluJson4sCodecs.formats
       (entity \ "self").extractOpt[SchemaKey].map(key => SchemaMap(key)) match {
         case Some(map) => Right(map)
-        case None => Left(ParseError.InvalidSchema)
+        case None      => Left(ParseError.InvalidSchema)
       }
     }
 
-    def checkSchemaUri(entity: JValue): Either[ParseError, Unit] = {
+    def checkSchemaUri(entity: JValue): Either[ParseError, Unit] =
       (entity \ "$schema").extractOpt[String] match {
-        case Some(schemaUri) if schemaUri ==  SelfDescribingSchema.SelfDescribingUri.toString => Right(())
+        case Some(schemaUri) if schemaUri == SelfDescribingSchema.SelfDescribingUri.toString =>
+          Right(())
         case _ => Left(ParseError.InvalidMetaschema)
       }
-    }
 
     /**
-     * Remove key with `self` description
-     * `getContent` required to be implemented here because it extends [[ToSchema]]
-     */
+      * Remove key with `self` description
+      * `getContent` required to be implemented here because it extends [[ToSchema]]
+      */
     def getContent(json: JValue): JValue =
       removeMetaFields(json)
   }
 
   // Data
 
-  implicit object Json4SAttachSchemaKeyData extends ExtractSchemaKey[JValue] with ToData[JValue] with Json4SExtractSchemaKeyData {
+  implicit object Json4SAttachSchemaKeyData
+      extends ExtractSchemaKey[JValue]
+      with ToData[JValue]
+      with Json4SExtractSchemaKeyData {
 
     def getContent(json: JValue): Either[ParseError, JValue] =
       json \ "data" match {
         case data: JObject => Right(data)
-        case _ => Left(ParseError.InvalidData)
+        case _             => Left(ParseError.InvalidData)
       }
 
     def attachSchemaKey(schemaKey: SchemaKey, instance: JValue): JValue =
@@ -121,8 +124,8 @@ object IgluCoreCommon {
   //////////////////////////
 
   /**
-   * Stub class bearing its Schema
-   */
+    * Stub class bearing its Schema
+    */
   case class DescribedString(
     vendor: String,
     name: String,
@@ -130,11 +133,12 @@ object IgluCoreCommon {
     model: Int,
     revision: Int,
     addition: Int,
-    data: String)
+    data: String
+  )
 
   /**
-   * Example of [[ExtractSchemaKey]] instance for usual case class
-   */
+    * Example of [[ExtractSchemaKey]] instance for usual case class
+    */
   implicit object DescribingStringInstance extends ExtractSchemaKey[DescribedString] {
     def extractSchemaKey(entity: DescribedString): Either[ParseError, SchemaKey] =
       Right(
@@ -179,8 +183,8 @@ object IgluCoreCommon {
     case JObject(fields) =>
       fields.filterNot {
         case ("self", JObject(keys)) => intersectsWithSchemakey(keys)
-        case ("$schema", _) => true
-        case _ => false
+        case ("$schema", _)          => true
+        case _                       => false
       }
     case jvalue => jvalue
   }

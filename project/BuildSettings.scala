@@ -10,48 +10,47 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-import bintray.BintrayPlugin._
-import bintray.BintrayKeys._
 import sbt._
 import Keys._
+
+import bintray.BintrayPlugin._
+import bintray.BintrayKeys._
+
 import com.typesafe.tools.mima.plugin.MimaKeys._
-import com.typesafe.tools.mima.plugin.MimaPlugin
+
 import scoverage.ScoverageKeys._
+
 import com.typesafe.sbt.sbtghpages.GhpagesPlugin.autoImport._
 import com.typesafe.sbt.site.SitePlugin.autoImport._
 import com.typesafe.sbt.SbtGit.GitKeys.{gitBranch, gitRemoteRepo}
-import sbtunidoc.ScalaUnidocPlugin.autoImport._
 import com.typesafe.sbt.site.preprocess.PreprocessPlugin.autoImport._
+import sbtunidoc.ScalaUnidocPlugin.autoImport._
 
 object BuildSettings {
-
-  // Basic settings common for Iglu project and all its subprojects
-  lazy val commonSettings = Seq[Setting[_]](
-    organization                        := "com.snowplowanalytics",
-    version                             := "0.5.1",
-    scalaVersion                        := "2.13.1",
-    crossScalaVersions                  := Seq("2.12.11", "2.13.1"),
-    scalacOptions                       := compilerFlags.vallue,
-    scalacOptions in (Compile, console) --=
-      Seq("-Ywarn-unused:imports", "-Xfatal-warnings")
+  // Basic project settings
+  lazy val commonProjectSettings: Seq[sbt.Setting[_]] = Seq(
+    organization := "com.snowplowanalytics",
+    version := "0.5.1",
+    scalaVersion := "2.13.1",
+    crossScalaVersions := Seq("2.12.11", "2.13.1")
   )
 
-  lazy val coreProjectSettings = commonProjectSettings ++ Seq[Setting[_]](
+  lazy val coreProjectSettings: Seq[sbt.Setting[_]] = commonProjectSettings ++ Seq(
     name := "iglu-core",
     description := "Core entities for Iglu"
   )
 
-  lazy val circeProjectSettings = commonProjectSettings ++ Seq[Setting[_]](
+  lazy val circeProjectSettings: Seq[sbt.Setting[_]] = commonProjectSettings ++ Seq(
     name := "iglu-core-circe",
     description := "Iglu Core type classes instances for Circe"
   )
 
-  lazy val json4sProjectSettings = commonProjectSettings ++ Seq[Setting[_]](
+  lazy val json4sProjectSettings: Seq[sbt.Setting[_]] = commonProjectSettings ++ Seq(
     name := "iglu-core-json4s",
     description := "Iglu Core type classes instances for Json4s"
   )
 
-  lazy val docsProjectSettings = commonProjectSettings ++ Seq[Setting[_]](
+  lazy val docsProjectSettings: Seq[sbt.Setting[_]] = commonProjectSettings ++ Seq(
     name := "docs",
     description := "Scaladoc publishing"
   )
@@ -60,15 +59,26 @@ object BuildSettings {
   lazy val scalifiedSettings = Seq(
     sourceGenerators in Compile += Def.task {
       val file = (sourceManaged in Compile).value / "settings.scala"
-      IO.write(file, """package com.snowplowanalytics.iglu.core.generated
-                       |object ProjectSettings {
-                       |  val organization = "%s"
-                       |  val name = "%s"
-                       |  val version = "%s"
-                       |  val scalaVersion = "%s"
-                       |  val description = "%s"
-                       |}
-                       |""".stripMargin.format(organization.value, name.value, version.value, scalaVersion.value, description.value))
+      IO.write(
+        file,
+        """package com.snowplowanalytics.iglu.core.generated
+          |object ProjectSettings {
+          |  val organization = "%s"
+          |  val name = "%s"
+          |  val version = "%s"
+          |  val scalaVersion = "%s"
+          |  val description = "%s"
+          |}
+          |"""
+          .stripMargin
+          .format(
+            organization.value,
+            name.value,
+            version.value,
+            scalaVersion.value,
+            description.value
+          )
+      )
       Seq(file)
     }.taskValue
   )
@@ -137,33 +147,20 @@ object BuildSettings {
         )
         if (version.startsWith("2.13.")) allScalacFlags.diff(scala213Flags) else allScalacFlags
       }.value,
->>>>>>> 7e788d5... foo
     javacOptions := Seq(
-      "-source", "1.8",
-      "-target", "1.8",
+      "-source",
+      "1.8",
+      "-target",
+      "1.8",
       "-Xlint"
     )
   )
 
-  // All recommended compiler flags, working on particular version of Scalac
-  lazy val compilerFlags = {
-    scalaVersion.map { version =>
-      if (version.startsWith("2.13."))
-        allScalacFlags.diff(Seq(
-          "-Xlint:by-name-right-associative", // not available
-          "-Xlint:unsound-match", // not available
-          "-Yno-adapted-args", // not available. Can be returned in future https://github.com/scala/bug/issues/11110
-          "-Ypartial-unification", // enabled by default
-          "-Ywarn-inaccessible", // not available. the same as -Xlint:inaccessible
-          "-Ywarn-infer-any", // not available. The same as -Xlint:infer-any
-          "-Ywarn-nullary-override", // not available. The same as -Xlint:nullary-override
-          "-Ywarn-nullary-unit", // not available. The same as -Xlint:nullary-unit
-          "-Xfuture",   // not available
-          "-Ywarn-unused:imports"         // cats.syntax.either._
-        ))
-      else allScalacFlags
-    }
-  }
+  lazy val resolverSettings: Seq[sbt.Setting[_]] = Seq(
+    resolvers ++= Seq(
+      "Sonatype OSS Snapshots".at("https://oss.sonatype.org/content/repositories/snapshots/")
+    )
+  )
 
   lazy val publishSettings = bintraySettings ++ Seq[Setting[_]](
     publishMavenStyle := true,
@@ -172,18 +169,24 @@ object BuildSettings {
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     bintrayOrganization := Some("snowplow"),
     bintrayRepository := "snowplow-maven",
-    pomIncludeRepository := { _ => false },
+    pomIncludeRepository := { _ =>
+      false
+    },
     homepage := Some(url("http://snowplowanalytics.com")),
-    scmInfo := Some(ScmInfo(url("https://github.com/snowplow-incubator/iglu-scala-core"), "scm:git@github.com:snowplow-incubator/iglu-scala-core.git")),
-    pomExtra := (
-      <developers>
-        <developer>
-          <name>Snowplow Analytics Ltd</name>
-          <email>support@snowplowanalytics.com</email>
-          <organization>Snowplow Analytics Ltd</organization>
-          <organizationUrl>http://snowplowanalytics.com</organizationUrl>
-        </developer>
-      </developers>)
+    scmInfo := Some(
+      ScmInfo(
+        url("https://github.com/snowplow-incubator/iglu-scala-core"),
+        "scm:git@github.com:snowplow-incubator/iglu-scala-core.git"
+      )
+    ),
+    pomExtra := (<developers>
+      <developer>
+        <name>Snowplow Analytics Ltd</name>
+        <email>support@snowplowanalytics.com</email>
+        <organization>Snowplow Analytics Ltd</organization>
+        <organizationUrl>http://snowplowanalytics.com</organizationUrl>
+      </developer>
+    </developers>)
   )
 
   // If a new version introduces breaking changes,
@@ -205,12 +208,12 @@ object BuildSettings {
     coverageFailOnMinimum := true,
     coverageHighlighting := false,
     (test in Test) := {
-      (coverageReport dependsOn (test in Test)).value
+      coverageReport.dependsOn(test in Test).value
     }
   )
 
   val ghPagesSettings = Seq(
-    ghpagesPushSite := (ghpagesPushSite dependsOn makeSite).value,
+    ghpagesPushSite := ghpagesPushSite.dependsOn(makeSite).value,
     ghpagesNoJekyll := false,
     gitRemoteRepo := "git@github.com:snowplow-incubator/iglu-scala-core.git",
     gitBranch := Some("gh-pages"),
@@ -222,10 +225,12 @@ object BuildSettings {
     }
   )
 
-  lazy val commonBuildSettings = compilerSettings ++ resolverSettings ++ publishSettings ++ mimaSettings ++ scoverageSettings
-  lazy val coreBuildSettings = (coreProjectSettings ++ scalifiedSettings ++ commonBuildSettings).diff(scoverageSettings)
-  lazy val circeBuildSettings = circeProjectSettings ++ commonBuildSettings
-  lazy val json4sBuildSettings = json4sProjectSettings ++ commonBuildSettings
-  lazy val docsBuildSettings = docsProjectSettings ++ compilerSettings ++ ghPagesSettings
-
+  lazy val commonBuildSettings: Seq[sbt.Setting[_]] = compilerSettings ++ resolverSettings ++
+    publishSettings ++ mimaSettings ++ scoverageSettings
+  lazy val coreBuildSettings: Seq[sbt.Setting[_]] =
+    (coreProjectSettings ++ scalifiedSettings ++ commonBuildSettings).diff(scoverageSettings)
+  lazy val circeBuildSettings: Seq[sbt.Setting[_]]  = circeProjectSettings ++ commonBuildSettings
+  lazy val json4sBuildSettings: Seq[sbt.Setting[_]] = json4sProjectSettings ++ commonBuildSettings
+  lazy val docsBuildSettings: Seq[sbt.Setting[_]] = docsProjectSettings ++ compilerSettings ++
+    ghPagesSettings
 }
