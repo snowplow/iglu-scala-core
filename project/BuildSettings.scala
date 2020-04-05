@@ -64,7 +64,6 @@ object BuildSettings {
       </developers>)
   )
 
-  // All recommended compiler flags
   lazy val allScalacFlags = Seq(
     "-deprecation",                      // Emit warning and location for usages of deprecated APIs.
     "-encoding", "utf-8",                // Specify character encoding used by source files.
@@ -110,6 +109,31 @@ object BuildSettings {
     "-Ywarn-unused:patvars",             // Warn if a variable bound in a pattern is unused.
     "-Ywarn-unused:privates",            // Warn if a private member is unused.
     "-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
+  )
+
+  lazy val compilerSettings: Seq[sbt.Setting[_]] = Seq(
+    scalacOptions :=
+      scalaVersion.map { version: String =>
+        val scala213Flags = Seq(
+          "-Xlint:by-name-right-associative", // not available
+          "-Xlint:unsound-match", // not available
+          "-Yno-adapted-args", // not available. Can be returned in future https://github.com/scala/bug/issues/11110
+          "-Ypartial-unification", // enabled by default
+          "-Ywarn-inaccessible", // not available. the same as -Xlint:inaccessible
+          "-Ywarn-infer-any", // not available. The same as -Xlint:infer-any
+          "-Ywarn-nullary-override", // not available. The same as -Xlint:nullary-override
+          "-Ywarn-nullary-unit", // not available. The same as -Xlint:nullary-unit
+          "-Xfuture",   // not available
+          "-Ywarn-unused:imports"         // cats.syntax.either._
+        )
+        if (version.startsWith("2.13.")) allScalacFlags.diff(scala213Flags) else allScalacFlags
+      }.value,
+>>>>>>> 7e788d5... foo
+    javacOptions := Seq(
+      "-source", "1.8",
+      "-target", "1.8",
+      "-Xlint"
+    )
   )
 
   // All recommended compiler flags, working on particular version of Scalac
