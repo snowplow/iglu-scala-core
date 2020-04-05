@@ -12,58 +12,56 @@
  */
 package com.snowplowanalytics.iglu.core.circe
 
-// Cats
 import cats.syntax.either._
-
-// Circe
 import io.circe._
 import io.circe.syntax._
 
-// This library
 import com.snowplowanalytics.iglu.core._
 
 /**
- * Example of Circe codecs for Iglu entities
- */
+  * Example of Circe codecs for Iglu entities
+  */
 trait CirceIgluCodecs {
 
   def toDecodingFailure(cursor: HCursor, data: String)(error: ParseError): DecodingFailure =
     DecodingFailure(error.message(data), cursor.history)
 
-  final implicit val schemaVerCirceJsonDecoder: Decoder[SchemaVer] =
+  implicit final val schemaVerCirceJsonDecoder: Decoder[SchemaVer] =
     Decoder.instance(parseSchemaVer)
 
-  final implicit val schemaVerFullCirceJsonDecoder: Decoder[SchemaVer.Full] =
+  implicit final val schemaVerFullCirceJsonDecoder: Decoder[SchemaVer.Full] =
     Decoder.instance(parseSchemaVerFull)
 
-  final implicit val schemaVerCirceJsonEncoder: Encoder[SchemaVer] =
-    Encoder.instance { schemaVer => Json.fromString(schemaVer.asString) }
+  implicit final val schemaVerCirceJsonEncoder: Encoder[SchemaVer] =
+    Encoder.instance { schemaVer =>
+      Json.fromString(schemaVer.asString)
+    }
 
-  final implicit val schemaMapCirceJsonDecoder: Decoder[SchemaMap] =
+  implicit final val schemaMapCirceJsonDecoder: Decoder[SchemaMap] =
     Decoder.instance(cur => parseSchemaMap(cur).leftMap(_._1))
 
-  final implicit val schemaMapCirceJsonEncoder: Encoder[SchemaMap] =
+  implicit final val schemaMapCirceJsonEncoder: Encoder[SchemaMap] =
     Encoder.instance { schemaMap =>
       Json.obj(
-        "vendor" -> Json.fromString(schemaMap.schemaKey.vendor),
+        "vendor"  -> Json.fromString(schemaMap.schemaKey.vendor),
         "name"    -> Json.fromString(schemaMap.schemaKey.name),
         "format"  -> Json.fromString(schemaMap.schemaKey.format),
         "version" -> Json.fromString(schemaMap.schemaKey.version.asString)
       )
     }
 
-  final implicit val schemaCriterionDecoder: Decoder[SchemaCriterion] = Decoder.instance { c =>
+  implicit final val schemaCriterionDecoder: Decoder[SchemaCriterion] = Decoder.instance { c =>
     for {
-      vendor <- c.downField("vendor").as[String]
-      name <- c.downField("name").as[String]
-      format <- c.downField("format").as[String]
-      model <- c.downField("model").as[Option[Int]]
+      vendor   <- c.downField("vendor").as[String]
+      name     <- c.downField("name").as[String]
+      format   <- c.downField("format").as[String]
+      model    <- c.downField("model").as[Option[Int]]
       revision <- c.downField("revision").as[Option[Int]]
       addition <- c.downField("addition").as[Option[Int]]
     } yield SchemaCriterion(vendor, name, format, model, revision, addition)
   }
 
-  final implicit val schemaCriterionEncoder: Encoder[SchemaCriterion] =
+  implicit final val schemaCriterionEncoder: Encoder[SchemaCriterion] =
     Encoder.instance { criterion =>
       Json.obj(
         "vendor" := criterion.vendor,
@@ -75,69 +73,87 @@ trait CirceIgluCodecs {
       )
     }
 
-  final implicit val schemaKeyCirceJsonDecoder: Decoder[SchemaKey] =
+  implicit final val schemaKeyCirceJsonDecoder: Decoder[SchemaKey] =
     Decoder.instance { cursor =>
       cursor
         .as[String]
-        .flatMap(s => SchemaKey.fromUri(s).leftMap(e => DecodingFailure(s"Cannot decode $s as SchemaKey, ${e.message(s)}", cursor.history)))
+        .flatMap(s =>
+          SchemaKey
+            .fromUri(s)
+            .leftMap(e =>
+              DecodingFailure(s"Cannot decode $s as SchemaKey, ${e.message(s)}", cursor.history)
+            )
+        )
     }
 
-  final implicit val schemaKeyCirceJsonEncoder: Encoder[SchemaKey] =
-    Encoder.instance { key => Json.fromString(key.toSchemaUri) }
+  implicit final val schemaKeyCirceJsonEncoder: Encoder[SchemaKey] =
+    Encoder.instance { key =>
+      Json.fromString(key.toSchemaUri)
+    }
 
-  final implicit val selfDescribingSchemaCirceDecoder: Decoder[SelfDescribingSchema[Json]] =
+  implicit final val selfDescribingSchemaCirceDecoder: Decoder[SelfDescribingSchema[Json]] =
     Decoder.instance { hCursor =>
       for {
         map <- hCursor.as[JsonObject].map(_.toMap)
         jsonSchema <- map.get("self") match {
-          case None => Left(DecodingFailure("self-key is not available", hCursor.history))
+          case None    => Left(DecodingFailure("self-key is not available", hCursor.history))
           case Some(_) => Right(map - "self" - "$schema")
         }
         schemaMap <- parseSchemaMap(hCursor).leftMap(_._1)
-        _ <- checkSchemaUri(hCursor).leftMap(_._1)
+        _         <- checkSchemaUri(hCursor).leftMap(_._1)
       } yield SelfDescribingSchema(schemaMap, Json.fromJsonObject(JsonObject.fromMap(jsonSchema)))
     }
 
-  final implicit val selfDescribingSchemaCirceEncoder: Encoder[SelfDescribingSchema[Json]] =
+  implicit final val selfDescribingSchemaCirceEncoder: Encoder[SelfDescribingSchema[Json]] =
     Encoder.instance { schema =>
-      Json.fromFields(List(
-        "self" -> schema.self.asJson(schemaMapCirceJsonEncoder),
-        "$schema" -> SelfDescribingSchema.SelfDescribingUri.toString.asJson
-      )).deepMerge(schema.schema)
+      Json
+        .fromFields(
+          List(
+            "self"    -> schema.self.asJson(schemaMapCirceJsonEncoder),
+            "$schema" -> SelfDescribingSchema.SelfDescribingUri.toString.asJson
+          )
+        )
+        .deepMerge(schema.schema)
     }
 
-  final implicit val selfDescribingDataCirceEncoder: Encoder[SelfDescribingData[Json]] =
+  implicit final val selfDescribingDataCirceEncoder: Encoder[SelfDescribingData[Json]] =
     Encoder.instance { data =>
       Json.obj("schema" -> Json.fromString(data.schema.toSchemaUri), "data" -> data.data)
     }
 
-  final implicit val selfDescribingDataCirceDecoder: Decoder[SelfDescribingData[Json]] =
+  implicit final val selfDescribingDataCirceDecoder: Decoder[SelfDescribingData[Json]] =
     Decoder.instance { hCursor =>
       for {
         map <- hCursor.as[JsonObject].map(_.toMap)
         schema <- map.get("schema") match {
           case None => Left(DecodingFailure("schema key is not available", hCursor.history))
-          case Some(schema) => for {
-            schemaString <- schema.as[String]
-            schemaKey <- SchemaKey.fromUri(schemaString).leftMap(toDecodingFailure(hCursor, schemaString))
-          } yield schemaKey
+          case Some(schema) =>
+            for {
+              schemaString <- schema.as[String]
+              schemaKey <- SchemaKey
+                .fromUri(schemaString)
+                .leftMap(toDecodingFailure(hCursor, schemaString))
+            } yield schemaKey
         }
         data <- map.get("data") match {
-          case None => Left(DecodingFailure("data key is not available", hCursor.history))
+          case None       => Left(DecodingFailure("data key is not available", hCursor.history))
           case Some(data) => Right(data)
         }
       } yield SelfDescribingData(schema, data)
     }
 
+  implicit final val schemaListCirceJsonEncoder: Encoder[SchemaList] =
+    Encoder.instance { data =>
+      Json.fromValues(data.schemas.map(s => Json.fromString(s.toSchemaUri)))
+    }
 
-  final implicit val schemaListCirceJsonEncoder: Encoder[SchemaList] =
-    Encoder.instance { data => Json.fromValues(data.schemas.map(s => Json.fromString(s.toSchemaUri))) }
-
-  final implicit val schemaListCirceJsonDecoder: Decoder[SchemaList] =
+  implicit final val schemaListCirceJsonDecoder: Decoder[SchemaList] =
     Decoder.instance { cursor =>
       for {
         strings <- cursor.value.as[List[String]]
-        result <- SchemaList.parseStrings(strings).leftMap(err => DecodingFailure(err, cursor.history))
+        result <- SchemaList
+          .parseStrings(strings)
+          .leftMap(err => DecodingFailure(err, cursor.history))
       } yield result
     }
 
@@ -150,28 +166,38 @@ trait CirceIgluCodecs {
   private[circe] def parseSchemaVerFull(hCursor: HCursor): Either[DecodingFailure, SchemaVer.Full] =
     parseSchemaVer(hCursor) match {
       case Right(full: SchemaVer.Full) => Right(full)
-      case Right(other) => Left(DecodingFailure(s"SchemaVer ${other.asString} is not full", hCursor.history))
+      case Right(other) =>
+        Left(DecodingFailure(s"SchemaVer ${other.asString} is not full", hCursor.history))
       case Left(left) => Left(left)
     }
 
-  private[circe] def parseSchemaMap(hCursor: HCursor): Either[(DecodingFailure, ParseError), SchemaMap] = {
+  private[circe] def parseSchemaMap(
+    hCursor: HCursor
+  ): Either[(DecodingFailure, ParseError), SchemaMap] = {
     val self = hCursor.downField("self")
     def selfKey[A: Decoder](key: String): Either[(DecodingFailure, ParseError), A] =
       self.downField(key).as[A].leftMap(e => (e, ParseError.InvalidSchema))
 
     for {
-      vendor  <- selfKey[String]("vendor")
-      name    <- selfKey[String]("name")
-      format  <- selfKey[String]("format")
-      version <- selfKey[SchemaVer.Full]("version").leftMap { case (e, _) => (e, ParseError.InvalidSchemaVer) }
+      vendor <- selfKey[String]("vendor")
+      name   <- selfKey[String]("name")
+      format <- selfKey[String]("format")
+      version <- selfKey[SchemaVer.Full]("version").leftMap {
+        case (e, _) => (e, ParseError.InvalidSchemaVer)
+      }
     } yield SchemaMap(vendor, name, format, version)
   }
 
   private[circe] def checkSchemaUri(hCursor: HCursor): Either[(DecodingFailure, ParseError), Unit] =
     hCursor.downField("$schema").as[String] match {
       case Right(schemaUri) if (schemaUri != SelfDescribingSchema.SelfDescribingUri.toString) =>
-        Left((DecodingFailure(ParseError.InvalidMetaschema.message(schemaUri), hCursor.history), ParseError.InvalidMetaschema))
-      case Right(_) => Right(())
+        Left(
+          (
+            DecodingFailure(ParseError.InvalidMetaschema.message(schemaUri), hCursor.history),
+            ParseError.InvalidMetaschema
+          )
+        )
+      case Right(_)  => Right(())
       case Left(err) => Left((err, ParseError.InvalidMetaschema))
     }
 }

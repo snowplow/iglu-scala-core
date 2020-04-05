@@ -23,19 +23,17 @@ final case class SchemaMap(schemaKey: SchemaKey) extends AnyVal
 object SchemaMap {
 
   /** Regular expression to extract SchemaKey from path */
-  val schemaPathRegex = (
-    "^([a-zA-Z0-9-_.]+)/" +
-      "([a-zA-Z0-9-_]+)/" +
-      "([a-zA-Z0-9-_]+)/" +
-      "([1-9][0-9]*" +
-      "(?:-(?:0|[1-9][0-9]*)){2})$").r
+  val schemaPathRegex = ("^([a-zA-Z0-9-_.]+)/" +
+    "([a-zA-Z0-9-_]+)/" +
+    "([a-zA-Z0-9-_]+)/" +
+    "([1-9][0-9]*" +
+    "(?:-(?:0|[1-9][0-9]*)){2})$").r
 
   /** Regex to extract SchemaVer separately */
-  private val schemaPathRigidRegex = (
-    "^([a-zA-Z0-9-_.]+)/" +
-      "([a-zA-Z0-9-_]+)/" +
-      "([a-zA-Z0-9-_]+)/" +
-      "([0-9]*(?:-(?:[0-9]*)){2})$").r
+  private val schemaPathRigidRegex = ("^([a-zA-Z0-9-_.]+)/" +
+    "([a-zA-Z0-9-_]+)/" +
+    "([a-zA-Z0-9-_]+)/" +
+    "([0-9]*(?:-(?:[0-9]*)){2})$").r
 
   def apply(vendor: String, name: String, format: String, version: SchemaVer.Full): SchemaMap =
     SchemaMap(SchemaKey(vendor, name, format, version))
@@ -53,9 +51,9 @@ object SchemaMap {
   def fromPath(schemaPath: String): Either[ParseError, SchemaMap] = schemaPath match {
     case schemaPathRigidRegex(vnd, n, f, ver) =>
       SchemaVer.parse(ver) match {
-        case Right(v: SchemaVer.Full) => Right(SchemaMap(vnd, n, f, v))
+        case Right(v: SchemaVer.Full)    => Right(SchemaMap(vnd, n, f, v))
         case Right(_: SchemaVer.Partial) => Left(ParseError.InvalidSchemaVer)
-        case Left(other) => Left(other)
+        case Left(other)                 => Left(other)
       }
     case _ => Left(ParseError.InvalidSchema)
   }

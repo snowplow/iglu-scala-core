@@ -12,80 +12,87 @@
  */
 package com.snowplowanalytics.iglu.core
 
-// json4s
 import org.json4s._
-import org.json4s.JsonDSL._
 
 /**
- * Example of Json4s serializers for Iglu entities
- */
+  * Example of Json4s serializers for Iglu entities
+  */
 object IgluJson4sCodecs {
 
   // Public formats. Import it
   lazy val formats: Formats = schemaFormats + SchemaSerializer + DataSerializer
 
   // Local formats
-  private implicit val schemaFormats: Formats = DefaultFormats + SchemaVerSerializer
+  implicit private val schemaFormats: Formats = DefaultFormats + SchemaVerSerializer
 
   /**
-   * Extract SchemaVer (*-*-*) from JValue
-   */
-  object SchemaVerSerializer extends CustomSerializer[SchemaVer.Full](_ => (
-    {
-      case JString(version) =>
-        SchemaVer.parse(version) match {
-        case Right(schemaVer: SchemaVer.Full) => schemaVer
-        case _ => throw new MappingException("Can't convert " + version + " to SchemaVer")
-      }
-      case x => throw new MappingException("Can't convert " + x + " to SchemaVer")
-    },
-
-    {
-      case x: SchemaVer => JString(x.asString)
-    }
-  ))
-
-  /**
-   * Extract [[SchemaKey]] from `self` key and remaining as Schema body
-   */
-  object SchemaSerializer extends CustomSerializer[SelfDescribingSchema[JValue]](_ => (
-    {
-      case fullSchema: JObject =>
-        val schemaMap = SchemaMap((fullSchema \ "self").extract[SchemaKey])
-        val schema = IgluCoreCommon.removeMetaFields(fullSchema)
-        SelfDescribingSchema(schemaMap, schema)
-      case _ => throw new MappingException("Not an JSON object")
-    },
-
-    {
-      case SelfDescribingSchema(self, schema: JValue) =>
-        JObject(
-          ("self", Extraction.decompose(self.schemaKey)),
-          ("$schema", Extraction.decompose(SelfDescribingSchema.SelfDescribingUri.toString))
-        ).merge(schema)
-    }
-    ))
+    * Extract SchemaVer (*-*-*) from JValue
+    */
+  object SchemaVerSerializer
+      extends CustomSerializer[SchemaVer.Full](
+        _ =>
+          (
+            {
+              case JString(version) =>
+                SchemaVer.parse(version) match {
+                  case Right(schemaVer: SchemaVer.Full) => schemaVer
+                  case _                                => throw new MappingException("Can't convert " + version + " to SchemaVer")
+                }
+              case x => throw new MappingException("Can't convert " + x + " to SchemaVer")
+            }, {
+              case x: SchemaVer => JString(x.asString)
+            }
+          )
+      )
 
   /**
-   * Extract [[SchemaKey]] from `schema` key and data from `data` key
-   */
-  object DataSerializer extends CustomSerializer[SelfDescribingData[JValue]](_ => (
-    {
-      case fullInstance: JObject =>
-        val schemaKey = (fullInstance \ "schema").extractOpt[String].flatMap(x => SchemaKey.fromUri(x).toOption).getOrElse {
-          throw new MappingException("Does not contain schema key with valid Schema URI")
-        }
-        val data = fullInstance \ "data" match {
-          case JNothing => throw new MappingException("Does not contain data")
-          case json: JValue => json
-        }
-        SelfDescribingData(schemaKey, data)
-      case _ => throw new MappingException("Not an JSON object")
-    },
-    
-    {
-      case SelfDescribingData(key, data: JValue) =>
-        JObject(("schema", JString(key.toSchemaUri)) :: ("data", data) :: Nil)
-    }
-    ))
+    * Extract [[SchemaKey]] from `self` key and remaining as Schema body
+    */
+  object SchemaSerializer
+      extends CustomSerializer[SelfDescribingSchema[JValue]](
+        _ =>
+          (
+            {
+              case fullSchema: JObject =>
+                val schemaMap = SchemaMap((fullSchema \ "self").extract[SchemaKey])
+                val schema    = IgluCoreCommon.removeMetaFields(fullSchema)
+                SelfDescribingSchema(schemaMap, schema)
+              case _ => throw new MappingException("Not an JSON object")
+            }, {
+              case SelfDescribingSchema(self, schema: JValue) =>
+                JObject(
+                  ("self", Extraction.decompose(self.schemaKey)),
+                  ("$schema", Extraction.decompose(SelfDescribingSchema.SelfDescribingUri.toString))
+                ).merge(schema)
+            }
+          )
+      )
+
+  /**
+    * Extract [[SchemaKey]] from `schema` key and data from `data` key
+    */
+  object DataSerializer
+      extends CustomSerializer[SelfDescribingData[JValue]](
+        _ =>
+          (
+            {
+              case fullInstance: JObject =>
+                val schemaKey = (fullInstance \ "schema")
+                  .extractOpt[String]
+                  .flatMap(x => SchemaKey.fromUri(x).toOption)
+                  .getOrElse {
+                    throw new MappingException("Does not contain schema key with valid Schema URI")
+                  }
+                val data = fullInstance \ "data" match {
+                  case JNothing     => throw new MappingException("Does not contain data")
+                  case json: JValue => json
+                }
+                SelfDescribingData(schemaKey, data)
+              case _ => throw new MappingException("Not an JSON object")
+            }, {
+              case SelfDescribingData(key, data: JValue) =>
+                JObject(("schema", JString(key.toSchemaUri)) :: ("data", data) :: Nil)
+            }
+          )
+      )
 }

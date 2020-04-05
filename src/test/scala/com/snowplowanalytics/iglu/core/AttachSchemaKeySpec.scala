@@ -12,14 +12,13 @@
  */
 package com.snowplowanalytics.iglu.core
 
-// specs2
-import org.specs2.Specification
-
-// json4s
 import org.json4s._
 import org.json4s.jackson.JsonMethods.parse
 
-class AttachSchemaKeySpec extends Specification { def is = s2"""
+import org.specs2.Specification
+
+class AttachSchemaKeySpec extends Specification {
+  def is = s2"""
   Specification AttachTo type class for instances
     add Schema reference to json4s instance $e1
     add description to json4s Schema $e2
@@ -29,13 +28,12 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
   def e1 = {
     import IgluCoreCommon.Json4SNormalizeData
 
-    val data: JValue = parse(
-      """
-        |{
-        |  "latitude": 32.2,
-        |  "longitude": 53.23,
-        |  "speed": 40
-        |}
+    val data: JValue = parse("""
+                               |{
+                               |  "latitude": 32.2,
+                               |  "longitude": 53.23,
+                               |  "speed": 40
+                               |}
       """.stripMargin)
 
     val expected: JValue = parse(
@@ -51,7 +49,12 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
       """.stripMargin
     )
 
-    val result = SchemaKey("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0)).attachTo(data)
+    val result = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    ).attachTo(data)
     result must beEqualTo(expected)
   }
 
@@ -138,30 +141,40 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
       """.stripMargin
     )
 
-
-    val map = SchemaMap(SchemaKey("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0)))
+    val map = SchemaMap(
+      SchemaKey(
+        "com.snowplowanalytics.snowplow",
+        "geolocation_context",
+        "jsonschema",
+        SchemaVer.Full(1, 1, 0)
+      )
+    )
     val result = Json4SNormalizeSchema.normalize(SelfDescribingSchema(map, schema))
     result must beEqualTo(expected)
   }
 
   def e3 = {
-    import IgluCoreCommon.{ Json4SAttachSchemaMapComplex, Json4SNormalizeSchema }
+    import IgluCoreCommon.{Json4SAttachSchemaMapComplex, Json4SNormalizeSchema}
 
-    val schema: JValue = parse(
-      """
-        |{
-        |  "type": "object",
-        |  	"properties": {
-        |  		"latitude": {
-        |  			"type": "number"
-        |  		},
-        |  		"longitude": {
-        |  			"type": "number"
-        |  		}
-        |}}
+    val schema: JValue = parse("""
+                                 |{
+                                 |  "type": "object",
+                                 |  	"properties": {
+                                 |  		"latitude": {
+                                 |  			"type": "number"
+                                 |  		},
+                                 |  		"longitude": {
+                                 |  			"type": "number"
+                                 |  		}
+                                 |}}
       """.stripMargin)
 
-    val map = SchemaMap("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0))
+    val map = SchemaMap(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    )
     val result = Json4SNormalizeSchema.normalize(SelfDescribingSchema(map, schema))
     SchemaMap.extract(result) must beRight(map)
   }

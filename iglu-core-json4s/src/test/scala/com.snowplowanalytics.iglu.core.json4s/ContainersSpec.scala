@@ -12,18 +12,16 @@
  */
 package com.snowplowanalytics.iglu.core.json4s
 
-// specs2
-import org.specs2.Specification
-
-// json4s
 import org.json4s._
 import org.json4s.jackson.JsonMethods.parse
 
-// This library
-import implicits._
 import com.snowplowanalytics.iglu.core._
+import com.snowplowanalytics.iglu.core.json4s.implicits._
 
-class ContainersSpec extends Specification { def is = s2"""
+import org.specs2.Specification
+
+class ContainersSpec extends Specification {
+  def is = s2"""
   Specification for container types
     extract SelfDescribingData $e1
     extract SelfDescribingSchema $e2
@@ -47,16 +45,21 @@ class ContainersSpec extends Specification { def is = s2"""
         |  "speed": 40
         | }
         |}
-      """.stripMargin)
+      """.stripMargin
+    )
 
-    val key = SchemaKey("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0))
-    val data = parse(
-      """
-        |{
-        |  "latitude": 32.2,
-        |  "longitude": 53.23,
-        |  "speed": 40
-        |}
+    val key = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    )
+    val data = parse("""
+                       |{
+                       |  "latitude": 32.2,
+                       |  "longitude": 53.23,
+                       |  "speed": 40
+                       |}
       """.stripMargin)
 
     // With AttachTo[JValue] with ToSchema[JValue] in scope .toData won't be even available
@@ -81,18 +84,18 @@ class ContainersSpec extends Specification { def is = s2"""
         |		"value": { "type": "string" }
         |	}
         |}
-      """.stripMargin)
+      """.stripMargin
+    )
 
-    val self = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1,1,0))
-    val schema = parse(
-      """
-        |{
-        |	"type": "object",
-        |	"properties": {
-        |		"name": { "type": "string" },
-        |		"value": { "type": "string" }
-        | }
-        |}
+    val self   = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1, 1, 0))
+    val schema = parse("""
+                         |{
+                         |	"type": "object",
+                         |	"properties": {
+                         |		"name": { "type": "string" },
+                         |		"value": { "type": "string" }
+                         | }
+                         |}
       """.stripMargin)
 
     // With AttachTo[JValue] with ToData[JValue] in scope .toSchema won't be even available
@@ -101,14 +104,18 @@ class ContainersSpec extends Specification { def is = s2"""
 
   def e3 = {
 
-    val schema = SchemaKey("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0))
-    val data = parse(
-      """
-        |{
-        |  "latitude": 32.2,
-        |  "longitude": 53.23,
-        |  "speed": 40
-        |}
+    val schema = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    )
+    val data = parse("""
+                       |{
+                       |  "latitude": 32.2,
+                       |  "longitude": 53.23,
+                       |  "speed": 40
+                       |}
       """.stripMargin)
 
     val expected: JValue = parse(
@@ -130,16 +137,15 @@ class ContainersSpec extends Specification { def is = s2"""
 
   def e4 = {
 
-    val self = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1,1,0))
-    val schema = parse(
-      """
-        |{
-        |	"type": "object",
-        |	"properties": {
-        |		"name": { "type": "string" },
-        |		"value": { "type": "string" }
-        | }
-        |}
+    val self   = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1, 1, 0))
+    val schema = parse("""
+                         |{
+                         |	"type": "object",
+                         |	"properties": {
+                         |		"name": { "type": "string" },
+                         |		"value": { "type": "string" }
+                         | }
+                         |}
       """.stripMargin)
 
     val expected: JValue = parse(
@@ -158,7 +164,8 @@ class ContainersSpec extends Specification { def is = s2"""
         		"value": { "type": "string" }
         	}
         }
-      """)
+      """
+    )
 
     val result = SelfDescribingSchema(self, schema)
     result.normalize must beEqualTo(expected)
@@ -166,14 +173,18 @@ class ContainersSpec extends Specification { def is = s2"""
 
   def e5 = {
 
-    val schema = SchemaKey("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0))
-    val data: JValue = parse(
-      """
-        |{
-        |  "latitude": 32.2,
-        |  "longitude": 53.23,
-        |  "speed": 40
-        |}
+    val schema = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    )
+    val data: JValue = parse("""
+                               |{
+                               |  "latitude": 32.2,
+                               |  "longitude": 53.23,
+                               |  "speed": 40
+                               |}
       """.stripMargin)
 
     val expected: String =
@@ -185,16 +196,15 @@ class ContainersSpec extends Specification { def is = s2"""
 
   def e6 = {
 
-    val self = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1,1,0))
-    val schema: JValue = parse(
-      """
-        |{
-        |	"type": "object",
-        |	"properties": {
-        |		"name": { "type": "string" },
-        |		"value": { "type": "string" }
-        | }
-        |}
+    val self           = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1, 1, 0))
+    val schema: JValue = parse("""
+                                 |{
+                                 |	"type": "object",
+                                 |	"properties": {
+                                 |		"name": { "type": "string" },
+                                 |		"value": { "type": "string" }
+                                 | }
+                                 |}
       """.stripMargin)
 
     val expected: String =
@@ -208,42 +218,42 @@ class ContainersSpec extends Specification { def is = s2"""
 
     val result: JValue = parse(
       """
-         |{
-         | "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self/schema/jsonschema/1-0-0#",
-         |	"self": {
-         |		"vendor": "com.acme",
-         |		"name": "keyvalue",
-         |		"format": "jsonschema",
-         |		"version": "1-1-0"
-         |	},
-         |	"type": "object",
-         |	"properties": {
-         |		"name": { "type": "string" },
-         |		"value": { "type": "string" }
-         |	}
-         |}
-      """.stripMargin)
+        |{
+        | "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self/schema/jsonschema/1-0-0#",
+        |	"self": {
+        |		"vendor": "com.acme",
+        |		"name": "keyvalue",
+        |		"format": "jsonschema",
+        |		"version": "1-1-0"
+        |	},
+        |	"type": "object",
+        |	"properties": {
+        |		"name": { "type": "string" },
+        |		"value": { "type": "string" }
+        |	}
+        |}
+      """.stripMargin
+    )
 
     SelfDescribingSchema.parse(result) must beLeft(ParseError.InvalidMetaschema: ParseError)
   }
 
   def e8 = {
 
-    val result: JValue = parse(
-      """
-         |{
-         |	"self": {
-         |		"vendor": "com.acme",
-         |		"name": "keyvalue",
-         |		"format": "jsonschema",
-         |		"version": "1-1-0"
-         |	},
-         |	"type": "object",
-         |	"properties": {
-         |		"name": { "type": "string" },
-         |		"value": { "type": "string" }
-         |	}
-         |}
+    val result: JValue = parse("""
+                                 |{
+                                 |	"self": {
+                                 |		"vendor": "com.acme",
+                                 |		"name": "keyvalue",
+                                 |		"format": "jsonschema",
+                                 |		"version": "1-1-0"
+                                 |	},
+                                 |	"type": "object",
+                                 |	"properties": {
+                                 |		"name": { "type": "string" },
+                                 |		"value": { "type": "string" }
+                                 |	}
+                                 |}
       """.stripMargin)
 
     SelfDescribingSchema.parse(result) must beLeft(ParseError.InvalidMetaschema: ParseError)

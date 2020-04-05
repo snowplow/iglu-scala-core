@@ -12,25 +12,22 @@
  */
 package com.snowplowanalytics.iglu.core.circe
 
-// specs2
-import com.snowplowanalytics.iglu.core.typeclasses.NormalizeSchema
-import org.specs2.Specification
-
-// Circe
 import io.circe._
 import io.circe.literal._
 
-// This library
 import com.snowplowanalytics.iglu.core._
+import com.snowplowanalytics.iglu.core.typeclasses.NormalizeSchema
+import com.snowplowanalytics.iglu.core.circe.implicits._
 
-class AttachSchemaKeySpec extends Specification { def is = s2"""
+import org.specs2.Specification
+
+class AttachSchemaKeySpec extends Specification {
+  def is = s2"""
   Specification AttachTo type class for instances
     add Schema reference to circe data instance $e1
     add description to circe Schema $e2
     add and extract SchemaKey to Json $e3
   """
-
-  import implicits._
 
   def e1 = {
 
@@ -55,7 +52,12 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
         }
       """
 
-    val result = SchemaKey("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0)).attachTo(data)
+    val result = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    ).attachTo(data)
     result must beEqualTo(expected)
   }
 
@@ -139,7 +141,12 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
         }
       """
 
-    val map = SchemaMap("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0))
+    val map = SchemaMap(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    )
     val result = implicitly[NormalizeSchema[Json]].normalize(SelfDescribingSchema(map, schema))
     result must beJson(expected)
   }
@@ -159,7 +166,12 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
         }}
       """
 
-    val key = SchemaKey("com.snowplowanalytics.snowplow", "geolocation_context", "jsonschema", SchemaVer.Full(1,1,0))
+    val key = SchemaKey(
+      "com.snowplowanalytics.snowplow",
+      "geolocation_context",
+      "jsonschema",
+      SchemaVer.Full(1, 1, 0)
+    )
     val result = key.attachTo(schema)
     SchemaKey.extract(result) must beRight(key)
   }
@@ -167,6 +179,9 @@ class AttachSchemaKeySpec extends Specification { def is = s2"""
   import org.specs2.matcher.Matcher
 
   def beJson(expected: Json): Matcher[Json] = { actual: Json =>
-    (actual == expected, "actual:\n" + actual.spaces2 + "\n" + "expected:\n" + expected.spaces2 + "\n")
+    (
+      actual == expected,
+      "actual:\n" + actual.spaces2 + "\n" + "expected:\n" + expected.spaces2 + "\n"
+    )
   }
 }
