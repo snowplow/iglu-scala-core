@@ -36,32 +36,41 @@ object BuildSettings {
       Seq("-Ywarn-unused:imports", "-Xfatal-warnings")
   )
 
-  // Basic settings only for Iglu Core
-  lazy val igluCoreBuildSettings = commonSettings ++ Seq[Setting[_]](
-    description        := "Core entities for Iglu"
+  lazy val coreProjectSettings = commonProjectSettings ++ Seq[Setting[_]](
+    name := "iglu-core",
+    description := "Core entities for Iglu"
   )
 
-  // Publish settings
-  lazy val publishSettings = bintraySettings ++ Seq[Setting[_]](
-    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-    bintrayOrganization := Some("snowplow"),
-    bintrayRepository := "snowplow-maven"
+  lazy val circeProjectSettings = commonProjectSettings ++ Seq[Setting[_]](
+    name := "iglu-core-circe",
+    description := "Iglu Core type classes instances for Circe"
   )
 
-  // Maven Central publishing settings
-  lazy val mavenCentralExtras = Seq[Setting[_]](
-    pomIncludeRepository := { x => false },
-    homepage := Some(url("http://snowplowanalytics.com")),
-    scmInfo := Some(ScmInfo(url("https://github.com/snowplow-incubator/iglu-scala-core"), "scm:git@github.com:snowplow-incubator/iglu-scala-core.git")),
-    pomExtra := (
-      <developers>
-        <developer>
-          <name>Snowplow Analytics Ltd</name>
-          <email>support@snowplowanalytics.com</email>
-          <organization>Snowplow Analytics Ltd</organization>
-          <organizationUrl>http://snowplowanalytics.com</organizationUrl>
-        </developer>
-      </developers>)
+  lazy val json4sProjectSettings = commonProjectSettings ++ Seq[Setting[_]](
+    name := "iglu-core-json4s",
+    description := "Iglu Core type classes instances for Json4s"
+  )
+
+  lazy val docsProjectSettings = commonProjectSettings ++ Seq[Setting[_]](
+    name := "docs",
+    description := "Scaladoc publishing"
+  )
+
+  // Make package (build) metadata available within source code.
+  lazy val scalifiedSettings = Seq(
+    sourceGenerators in Compile += Def.task {
+      val file = (sourceManaged in Compile).value / "settings.scala"
+      IO.write(file, """package com.snowplowanalytics.iglu.core.generated
+                       |object ProjectSettings {
+                       |  val organization = "%s"
+                       |  val name = "%s"
+                       |  val version = "%s"
+                       |  val scalaVersion = "%s"
+                       |  val description = "%s"
+                       |}
+                       |""".stripMargin.format(organization.value, name.value, version.value, scalaVersion.value, description.value))
+      Seq(file)
+    }.taskValue
   )
 
   lazy val allScalacFlags = Seq(
@@ -156,14 +165,32 @@ object BuildSettings {
     }
   }
 
-  lazy val buildSettings = igluCoreBuildSettings ++ publishSettings ++ mavenCentralExtras
+  lazy val publishSettings = bintraySettings ++ Seq[Setting[_]](
+    publishMavenStyle := true,
+    publishArtifact := true,
+    publishArtifact in Test := false,
+    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+    bintrayOrganization := Some("snowplow"),
+    bintrayRepository := "snowplow-maven",
+    pomIncludeRepository := { _ => false },
+    homepage := Some(url("http://snowplowanalytics.com")),
+    scmInfo := Some(ScmInfo(url("https://github.com/snowplow-incubator/iglu-scala-core"), "scm:git@github.com:snowplow-incubator/iglu-scala-core.git")),
+    pomExtra := (
+      <developers>
+        <developer>
+          <name>Snowplow Analytics Ltd</name>
+          <email>support@snowplowanalytics.com</email>
+          <organization>Snowplow Analytics Ltd</organization>
+          <organizationUrl>http://snowplowanalytics.com</organizationUrl>
+        </developer>
+      </developers>)
+  )
 
-  // If new version introduces breaking changes,
-  // clear-out mimaBinaryIssueFilters and mimaPreviousVersions.
-  // Otherwise, add previous version to set without
-  // removing other versions.
+  // If a new version introduces breaking changes,
+  // clear `mimaBinaryIssueFilters` and `mimaPreviousVersions`.
+  // Otherwise, add previous version to the set without
+  // removing older versions.
   val mimaPreviousVersions = Set()
-
   val mimaSettings = Seq(
     mimaPreviousArtifacts := mimaPreviousVersions.map { organization.value %% name.value % _ },
     mimaBinaryIssueFilters ++= Seq(),
@@ -194,4 +221,11 @@ object BuildSettings {
       def accept(f: File) = true
     }
   )
+
+  lazy val commonBuildSettings = compilerSettings ++ resolverSettings ++ publishSettings ++ mimaSettings ++ scoverageSettings
+  lazy val coreBuildSettings = (coreProjectSettings ++ scalifiedSettings ++ commonBuildSettings).diff(scoverageSettings)
+  lazy val circeBuildSettings = circeProjectSettings ++ commonBuildSettings
+  lazy val json4sBuildSettings = json4sProjectSettings ++ commonBuildSettings
+  lazy val docsBuildSettings = docsProjectSettings ++ compilerSettings ++ ghPagesSettings
+
 }
