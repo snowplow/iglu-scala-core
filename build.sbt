@@ -13,7 +13,9 @@
 
 import BuildSettings._
 
-shellPrompt in ThisBuild := { state => Project.extract(state).get(sbt.Keys.name) + " > " }
+shellPrompt in ThisBuild := { state =>
+  Project.extract(state).get(sbt.Keys.name) + " > "
+}
 
 lazy val igluCore = (project in file("."))
   .enablePlugins(MimaPlugin)
@@ -52,8 +54,6 @@ lazy val igluCoreJson4s = (project in file("iglu-core-json4s"))
       Dependencies.specs2
     )
   )
-
-
 
 lazy val docs = (project in file("docs"))
   .enablePlugins(SiteScaladocPlugin, GhpagesPlugin, ScalaUnidocPlugin, PreprocessPlugin)

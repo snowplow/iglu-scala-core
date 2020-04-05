@@ -13,7 +13,6 @@
 package com.snowplowanalytics.iglu.core
 package typeclasses
 
-
 /**
   * Type class to render data into it base type `D`
   * and lowest-level (`String`) common for all aps
@@ -21,9 +20,9 @@ package typeclasses
   * @tparam D generic type in which instance can be represented
   */
 trait NormalizeData[D] {
+
   /**
     * Render data instance to its base type `D`
     */
   def normalize(container: SelfDescribingData[D]): D
 }
-

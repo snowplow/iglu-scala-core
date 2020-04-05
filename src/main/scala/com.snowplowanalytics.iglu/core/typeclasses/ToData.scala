@@ -22,7 +22,7 @@ trait ToData[E] { self: ExtractSchemaKey[E] =>
     getContent(entity) match {
       case Right(content) =>
         self.extractSchemaKey(entity) match {
-          case Right(key) => Right(SelfDescribingData(key, content))
+          case Right(key)  => Right(SelfDescribingData(key, content))
           case Left(error) => Left(error)
         }
       case Left(error) =>

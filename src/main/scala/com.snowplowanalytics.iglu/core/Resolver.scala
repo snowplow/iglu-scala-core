@@ -20,9 +20,13 @@ package com.snowplowanalytics.iglu.core
   * @tparam A AST for data and schema
   */
 trait Resolver[F[_], A] {
+
   /** Lookup for a schema by its key */
   def lookup(data: SchemaKey): F[SelfDescribingSchema[A]]
 
   /** Validate self-describing data against some schema */
-  def validate(data: SelfDescribingData[A], schema: SelfDescribingSchema[A]): F[Either[String, Unit]]
+  def validate(
+    data: SelfDescribingData[A],
+    schema: SelfDescribingSchema[A]
+  ): F[Either[String, Unit]]
 }

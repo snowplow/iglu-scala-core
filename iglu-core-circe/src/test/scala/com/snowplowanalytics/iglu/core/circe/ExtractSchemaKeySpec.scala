@@ -12,17 +12,16 @@
  */
 package com.snowplowanalytics.iglu.core.circe
 
-// specs2
-import org.specs2.Specification
-
-// circe
 import io.circe._
 import io.circe.literal._
 
-// This library
 import com.snowplowanalytics.iglu.core._
+import com.snowplowanalytics.iglu.core.circe.implicits._
 
-class ExtractSchemaKeySpec extends Specification { def is = s2"""
+import org.specs2.Specification
+
+class ExtractSchemaKeySpec extends Specification {
+  def is = s2"""
   Specification ExtractFrom type class for instances
     extract SchemaKey using postfix method $e1
     extract SchemaKey using AttachTo type class $e3
@@ -32,8 +31,6 @@ class ExtractSchemaKeySpec extends Specification { def is = s2"""
     extract SchemaMap $e5
     fail to extract SchemaMap with invalid SchemaVer $e6
   """
-
-  import implicits._
 
   def e1 = {
 
@@ -46,7 +43,7 @@ class ExtractSchemaKeySpec extends Specification { def is = s2"""
       """
 
     SchemaKey.extract(json) must beRight(
-      SchemaKey("com.acme.useless", "null", "jsonschema", SchemaVer.Full(2,0,3))
+      SchemaKey("com.acme.useless", "null", "jsonschema", SchemaVer.Full(2, 0, 3))
     )
   }
 
@@ -61,7 +58,7 @@ class ExtractSchemaKeySpec extends Specification { def is = s2"""
       """
 
     SchemaKey.extract(json) must beRight(
-      SchemaKey("com.acme.useless", "null", "jsonschema", SchemaVer.Full(2,0,3))
+      SchemaKey("com.acme.useless", "null", "jsonschema", SchemaVer.Full(2, 0, 3))
     )
   }
 
@@ -85,7 +82,7 @@ class ExtractSchemaKeySpec extends Specification { def is = s2"""
       """
 
     SchemaMap.extract(json) must beRight(
-      SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1,1,0))
+      SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1, 1, 0))
     )
   }
 

@@ -13,29 +13,32 @@
 package com.snowplowanalytics.iglu.core
 package circe
 
-import cats.{ Show, Eq }
+import cats.{Eq, Show}
 import cats.syntax.either._
-
 import io.circe._
 
 import com.snowplowanalytics.iglu.core.typeclasses._
 
 trait implicits {
-  final implicit val igluAttachToDataCirce: ExtractSchemaKey[Json] with ToData[Json] =
+  implicit final val igluAttachToDataCirce: ExtractSchemaKey[Json] with ToData[Json] =
     new ExtractSchemaKey[Json] with ToData[Json] {
 
-      def extractSchemaKey(entity: Json) =
+      def extractSchemaKey(entity: Json): Either[ParseError, SchemaKey] =
         for {
           jsonSchema <- entity.asObject.toRight(ParseError.InvalidData)
-          schemaUri <- jsonSchema.toMap.get("schema").flatMap(_.asString).toRight(ParseError.InvalidData)
+          schemaUri <- jsonSchema
+            .toMap
+            .get("schema")
+            .flatMap(_.asString)
+            .toRight(ParseError.InvalidData)
           schemaKey <- SchemaKey.fromUri(schemaUri)
         } yield schemaKey
 
       def getContent(json: Json): Either[ParseError, Json] =
-      json.asObject.flatMap(_.apply("data")).toRight(ParseError.InvalidData)
+        json.asObject.flatMap(_.apply("data")).toRight(ParseError.InvalidData)
     }
 
-  final implicit val igluAttachToSchema: ToSchema[Json] with ExtractSchemaMap[Json] =
+  implicit final val igluAttachToSchema: ToSchema[Json] with ExtractSchemaMap[Json] =
     new ToSchema[Json] with ExtractSchemaMap[Json] {
 
       def extractSchemaMap(entity: Json): Either[ParseError, SchemaMap] =
@@ -47,7 +50,8 @@ trait implicits {
       def getContent(schema: Json): Json =
         Json.fromJsonObject {
           JsonObject.fromMap {
-            schema.asObject
+            schema
+              .asObject
               .map(_.toMap.filter { case (key, _) => !(key == "self" || key == "$schema") })
               .getOrElse(Map.empty)
           }
@@ -55,35 +59,33 @@ trait implicits {
     }
 
   // Container-specific instances
-
-  final implicit val igluNormalizeDataJson: NormalizeData[Json] =
+  implicit final val igluNormalizeDataJson: NormalizeData[Json] =
     container => CirceIgluCodecs.selfDescribingDataCirceEncoder(container)
 
-  final implicit val igluNormalizeSchemaJson: NormalizeSchema[Json] =
+  implicit final val igluNormalizeSchemaJson: NormalizeSchema[Json] =
     container => CirceIgluCodecs.selfDescribingSchemaCirceEncoder(container)
 
-  final implicit val igluStringifyDataJson: StringifyData[Json] =
+  implicit final val igluStringifyDataJson: StringifyData[Json] =
     container => container.normalize(igluNormalizeDataJson).noSpaces
 
-  final implicit val igluStringifySchemaJson: StringifySchema[Json] =
+  implicit final val igluStringifySchemaJson: StringifySchema[Json] =
     container => container.normalize(igluNormalizeSchemaJson).noSpaces
 
   // Cats instances
-
-  final implicit val schemaVerShow: Show[SchemaVer] =
+  implicit final val schemaVerShow: Show[SchemaVer] =
     Show.show(_.asString)
 
-  final implicit val schemaKeyShow: Show[SchemaKey] =
+  implicit final val schemaKeyShow: Show[SchemaKey] =
     Show.show(_.toSchemaUri)
 
-  final implicit val partialSchemaKeyShow: Show[PartialSchemaKey] =
+  implicit final val partialSchemaKeyShow: Show[PartialSchemaKey] =
     Show.show(_.toSchemaUri)
 
-  final implicit val schemaVerEq: Eq[SchemaVer.Full] =
+  implicit final val schemaVerEq: Eq[SchemaVer.Full] =
     Eq.fromUniversalEquals[SchemaVer.Full]
 
   // Decide if we want to provide Eq partial
-  final implicit val schemaKeyEq: Eq[SchemaKey] =
+  implicit final val schemaKeyEq: Eq[SchemaKey] =
     Eq.fromUniversalEquals[SchemaKey]
 }
 

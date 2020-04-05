@@ -19,9 +19,9 @@ package typeclasses
   * @tparam D generic type in which data instance can be represented
   */
 trait StringifyData[D] {
+
   /**
     * Render data instance as `String`
     */
   def asString(container: SelfDescribingData[D]): String
 }
-
