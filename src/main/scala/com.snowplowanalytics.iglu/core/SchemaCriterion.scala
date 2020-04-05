@@ -15,9 +15,7 @@ package core
 
 import typeclasses.ExtractSchemaKey
 
-/**
-  * Class to filter Schemas by [[SchemaKey]]
-  */
+/** Filter self-describing schemas by [[SchemaKey]]. */
 final case class SchemaCriterion(
   vendor: String,
   name: String,
@@ -28,33 +26,34 @@ final case class SchemaCriterion(
 ) {
 
   /**
-    * Whether a SchemaKey is valid.
+    * Check if a [[SchemaKey]] is valid.
     *
     * It's valid if the vendor, name, format, and model all match
-    * and the supplied key's revision and addition do not exceed the
-    * criterion's revision and addition.
+    * and the supplied key's REVISION and ADDITION do not exceed the
+    * criterion's REVISION and ADDITION.
     *
-    * @param key The SchemaKey to validate
-    * @return whether the SchemaKey is valid
+    * @param key The [[SchemaKey]] to validate.
+    * @return `true` if the [[SchemaKey]] is valid.
     */
   def matches(key: SchemaKey): Boolean =
     prefixMatches(key) && verMatch(key.version)
 
   /**
-    * Filter sequence of entities by this [[SchemaCriterion]]
-    * It can be applied for getting only right JSON instances
-    * out of array with custom context
+    * Filter a sequence of entities by this [[SchemaCriterion]].
+    *
+    * Can be used for getting only the `Right` JSON instances
+    * out of an array of custom contexts.
     *
     * Usage:
     * {{{
-    *   // This will get best matching entity
+    *   // This will get the best match for an entity
     *   criterion.takeFrom(_.schema)(entities).sort.getOption
     * }}}
     *
-    * @param entities list of Self-describing instances (or Schemas)
-    * @tparam E type of Self-describing entity, having
-    *           an `ExtractSchemaKey` instance in scope
-    * @return list of matching entities
+    * @param entities A list of self-describing data blobs.
+    * @tparam E The base type of the self-describing data, having
+    *           an `ExtractSchemaKey` instance in scope.
+    * @return A list of matching entities.
     */
   def pickFrom[E: ExtractSchemaKey](entities: Seq[E]): Seq[E] =
     entities.foldLeft(Seq.empty[E]) { (acc, cur) =>
@@ -65,34 +64,33 @@ final case class SchemaCriterion(
     }
 
   /**
-    * Format as a schema URI, but the revision and addition
-    * may be replaced with "*" wildcards.
+    * Format this [[SchemaCriterion]] as an Iglu schema URI,
+    * whereby the REVISION and ADDITION may be replaced with
+    * "*" wildcards.
     *
-    * @return the String representation of this criterion
+    * @return The string representation of this criterion.
     */
   def asString: String =
     s"iglu:$vendor/$name/$format/$versionString"
 
-  /**
-    * Stringify version part of criterion
-    */
+  /** Stringify the version of this [[SchemaCriterion]]. */
   def versionString: String =
     "%s-%s-%s".format(model.getOrElse("*"), revision.getOrElse("*"), addition.getOrElse("*"))
 
   /**
-    * Whether the vendor, name, and format are all correct.
+    * Check if the vendor, name, and format are all valid.
     *
-    * @param key The SchemaKey to validate
-    * @return whether the first three fields are correct
+    * @param key The [[SchemaKey]] to validate.
+    * @return `true` if the first three fields are correct.
     */
   private def prefixMatches(key: SchemaKey): Boolean =
     key.vendor == vendor && key.name == name && key.format == format
 
   /**
-    * Match only [[SchemaVer]]
+    * Match only [[SchemaVer]].
     *
-    * @param ver SchemaVer of some other [[SchemaKey]]
-    * @return true if all specified groups matched
+    * @param ver A [[SchemaVer]] of some other [[SchemaKey]].
+    * @return `true` if all specified groups match.
     */
   private[this] def verMatch(ver: SchemaVer): Boolean =
     groupMatch(ver.getModel, model) &&
@@ -100,11 +98,11 @@ final case class SchemaCriterion(
       groupMatch(ver.getAddition, addition)
 
   /**
-    * Helper function for [[verMatch]]. Compares two numbers for same group
+    * Helper function for `verMatch`. Compares two numbers for the same group.
     *
-    * @param other Schema's SchemaVer group (MODEL, REVISION, ADDITION)
-    * @param crit this Criterion's corresponding group
-    * @return true if groups match or criterion not specific about it
+    * @param other The other schema's [[SchemaVer]] group (MODEL, REVISION, ADDITION).
+    * @param crit This [[SchemaCriterion]]'s corresponding group.
+    * @return `true` if the groups match or if either entities are unknown.
     */
   private[this] def groupMatch(other: Option[Int], crit: Option[Int]): Boolean = crit match {
     case Some(c) if other == Some(c) => true
@@ -114,14 +112,10 @@ final case class SchemaCriterion(
   }
 }
 
-/**
-  * Companion object containing alternative constructor for a [[SchemaCriterion]]
-  */
+/** Companion object, which contains custom constructors for [[SchemaCriterion]]. */
 object SchemaCriterion {
 
-  /**
-    * Canonical regex to extract Schema criterion
-    */
+  /** Canonical regular expression to extract [[SchemaCriterion]]. */
   val criterionRegex = ("^iglu:" + // Protocol
     "([a-zA-Z0-9-_.]+)/" + // Vendor
     "([a-zA-Z0-9-_]+)/" + // Name
@@ -131,11 +125,14 @@ object SchemaCriterion {
     "((?:0|[1-9][0-9]*)|\\*)$").r // ADDITION
 
   /**
-    * Custom constructor for an SchemaCriterion from a string, like
-    * iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-*-*
+    * A custom constructor for a [[SchemaCriterion]] from
+    * a string like:
+    * "iglu:com.vendor/schema_name/jsonschema/1-*-*".
     *
-    * @param criterion string supposed to be criterion
-    * @return criterion object if string satisfies a format
+    * An Iglu schema URI is the default for schema lookup.
+    *
+    * @param criterion The string to convert to a [[SchemaCriterion]].
+    * @return A [[SchemaCriterion]] if the string satisfies the format.
     */
   def parse(criterion: String): Option[SchemaCriterion] =
     criterion match {
@@ -145,9 +142,9 @@ object SchemaCriterion {
     }
 
   /**
-    * Constructs an exhaustive SchemaCriterion.
+    * Constructs a comprehensive [[SchemaCriterion]].
     *
-    * @return our constructed SchemaCriterion
+    * @return the constructed [[SchemaCriterion]].
     */
   def apply(
     vendor: String,
@@ -160,10 +157,10 @@ object SchemaCriterion {
     SchemaCriterion(vendor, name, format, Some(model), Some(revision), Some(addition))
 
   /**
-    * Constructs a SchemaCriterion from everything
-    * except the addition.
+    * Constructs a [[SchemaCriterion]] with everything
+    * except ADDITION.
     *
-    * @return our constructed SchemaCriterion
+    * @return the constructed [[SchemaCriterion]].
     */
   def apply(
     vendor: String,
@@ -175,18 +172,17 @@ object SchemaCriterion {
     SchemaCriterion(vendor, name, format, Some(model), Some(revision))
 
   /**
-    * Constructs a SchemaCriterion which is agnostic
-    * of addition and revision.
-    * Restricts to model only.
+    * Constructs a [[SchemaCriterion]], which is agnostic
+    * about REVISION and ADDITION (restricted to MODEL only).
     *
-    * @return our constructed SchemaCriterion
+    * @return the constructed [[SchemaCriterion]].
     */
   def apply(vendor: String, name: String, format: String, model: Int): SchemaCriterion =
     SchemaCriterion(vendor, name, format, Some(model), None, None)
 
   /**
-    * Try to parse string number
-    * Helper method for [[parse]]
+    * Try to parse a string as a number.
+    * Helper method for [[parse]].
     */
   private def parseInt(number: String): Option[Int] =
     try {

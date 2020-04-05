@@ -13,10 +13,12 @@
 package com.snowplowanalytics.iglu.core
 
 /**
-  * List of SchemaKeys, belonging to the same vendor/name OR vendor/name/model group, and started with initial schema
-  * Can be e
-  * Proven to be non-empty, but correct order is trusted and can be validated by Schema DDL
-  * It is usually acceptable to trust the producer as long as producer is Iglu Server
+  * A non-empty List of [[SchemaKey]]s, which belong to the same
+  * "vendor/name" OR "vendor/name/model" group.
+  *
+  * Starts with the first schema in the series.
+  * The correct order can be validated by [[https://github.com/snowplow-incubator/schema-ddl]].
+  * If the producer is Iglu Server, it's usually acceptable to trust the order.
   */
 final case class SchemaList private (schemas: List[SchemaKey]) extends AnyVal {
   def vendor: String = schemas.head.vendor
@@ -27,7 +29,10 @@ object SchemaList {
   private val EmptyList = Left("SchemaList cannot be empty")
   private case class ParseAccumulator(vendor: String, name: String, parsed: List[SchemaKey])
 
-  /** Validate that list of strings is SchemaList (non-empty SchemaKeys only list) */
+  /**
+    * Validate that a list of strings is a [[SchemaList]]
+    * (a non-empty list of [[SchemaKey]]s).
+    */
   def parseStrings(strings: List[String]): Either[String, SchemaList] = {
     val results = strings.foldLeft(EmptyList: Either[String, ParseAccumulator]) {
       case (EmptyList, cur) =>
@@ -59,5 +64,5 @@ object SchemaList {
     }
   }
 
-  def parseUnsafe(keys: List[SchemaKey]) = SchemaList(keys)
+  def parseUnsafe(keys: List[SchemaKey]): SchemaList = SchemaList(keys)
 }

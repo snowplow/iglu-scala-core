@@ -17,18 +17,19 @@ import org.json4s._
 import org.json4s.JsonDSL._
 
 /**
-  * Example of serializers for JSON Schema
+  * Json4s serializers for Iglu entities,
+  * such as self-describing schema and self-describing data.
   */
 object Json4sIgluCodecs {
 
-  // Public formats. Import it
+  // Public formats. Import it.
   lazy val formats: Formats = schemaFormats + SchemaSerializer + DataSerializer
 
   // Local formats
   implicit private val schemaFormats: Formats = DefaultFormats + SchemaVerSerializer
 
   /**
-    * Extract SchemaVer (*-*-*) from JValue
+    * Extract `SchemaVer` (*-*-*) from `JValue`.
     */
   object SchemaVerSerializer
       extends CustomSerializer[SchemaVer.Full](
@@ -48,7 +49,8 @@ object Json4sIgluCodecs {
       )
 
   /**
-    * Extract `SchemaKey` from `self` key and remaining as Schema body
+    * Extract `SchemaKey` from the "self" property of a
+    * self-describing schema, and the remaining properties as schema body.
     */
   object SchemaSerializer
       extends CustomSerializer[SelfDescribingSchema[JValue]](
@@ -71,7 +73,8 @@ object Json4sIgluCodecs {
       )
 
   /**
-    * Extract `SchemaKey` from string and data from data key
+    * Extract `SchemaKey` from the "schema" property,
+    * and data from the "data" property.
     */
   object DataSerializer
       extends CustomSerializer[SelfDescribingData[JValue]](

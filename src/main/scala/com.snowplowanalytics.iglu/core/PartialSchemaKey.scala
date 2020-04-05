@@ -15,8 +15,9 @@ package com.snowplowanalytics.iglu.core
 import scala.util.matching.Regex
 
 /**
-  * Entity describing schema of data, which **can** be unknown,
-  * by known or unknown `SchemaVer`. Extracted from `schema` key.
+  * Contains details about the schema of a piece of self-describing data.
+  *
+  * Unlike [[SchemaKey]], the schema version may not be fully known.
   */
 final case class PartialSchemaKey(
   vendor: String,
@@ -25,15 +26,11 @@ final case class PartialSchemaKey(
   version: SchemaVer
 ) {
 
-  /**
-    * Converts the SchemaKey back to an Iglu-format schema URI
-    *
-    * @return the SchemaKey as a Iglu-format schema URI
-    */
+  /** Convert this [[PartialSchemaKey]] to an Iglu schema URI. */
   def toSchemaUri: String =
     s"iglu:$vendor/$name/$format/${version.asString}"
 
-  /** Transform to fully known `SchemaKey` */
+  /** Convert this [[PartialSchemaKey]] to a fully-known [[SchemaKey]]. */
   def toSchemaKey: Option[SchemaKey] =
     version match {
       case full: SchemaVer.Full =>
@@ -42,9 +39,10 @@ final case class PartialSchemaKey(
     }
 }
 
+/** Companion object, which contains a custom constructor for [[PartialSchemaKey]]. */
 object PartialSchemaKey {
 
-  /** Canonical regular expression for SchemaKey */
+  /** Canonical regular expression for a [[PartialSchemaKey]]. */
   val schemaUriRegex: Regex = ("^iglu:" + // Protocol
     "([a-zA-Z0-9-_.]+)/" + // Vendor
     "([a-zA-Z0-9-_]+)/" + // Name
@@ -54,14 +52,15 @@ object PartialSchemaKey {
     "((?:0|[1-9][0-9]*)|\\?)").r // ADDITION
 
   /**
-    * Custom constructor for an Iglu partial SchemaKey from
-    * an Iglu-format schema URI, which looks like:
-    * iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-0 for full or
-    * iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-?-? for partial
-    * Default for Schema reference
+    * A custom constructor for a [[PartialSchemaKey]] from
+    * an Iglu schema URI, which looks like:
+    * "iglu:com.vendor/schema_name/jsonschema/1-0-0" for a fully known version or
+    * "iglu:com.vendor/schema_name/jsonschema/1-?-?" for a partially known version.
     *
-    * @param schemaUri an Iglu-format Schema URI
-    * @return some (possibly partial) schema key if `schemaUri` was valid
+    * An Iglu schema URI is the default for schema lookup.
+    *
+    * @param schemaUri An Iglu schema URI.
+    * @return A [[PartialSchemaKey]] or an error.
     */
   def fromUri(schemaUri: String): Either[ParseError, PartialSchemaKey] = schemaUri match {
     case schemaUriRegex(vnd, n, f, m, r, a) =>
