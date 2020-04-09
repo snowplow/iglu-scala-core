@@ -4,6 +4,7 @@
 [![Build Status][travis-image]][travis] 
 [![License][license-image]][license]
 [![Scaladoc][scaladoc-image]][scaladoc]
+[![Coverage Status][coveralls-image]][coveralls]
 
 Core entities for working with Iglu in Scala.
 
@@ -70,3 +71,6 @@ limitations under the License.
 
 [scaladoc]: https://snowplow-incubator.github.io/iglu-scala-core/1.0.0/com/snowplowanalytics/iglu/core/index.html
 [scaladoc-image]: https://javadoc-badge.appspot.com/com.snowplowanalytics/iglu-core_2.12.svg?label=scaladoc
+
+[coveralls]: https://coveralls.io/github/snowplow-incubator/iglu-scala-core?branch=master
+[coveralls-image]: https://coveralls.io/repos/github/snowplow-incubator/iglu-scala-core/badge.svg?branch=master
