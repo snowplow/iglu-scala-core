@@ -27,6 +27,7 @@ class SchemaKeySpec extends Specification {
     fail to parse with missing ADDITION $e8
     fail to parse partial schema key $e9
     fail to parse if key is URL-encoded $e10
+    fail to parse schema key when one of the version comonents is outside the Int range $e10
 
   Specification for SchemaKey
     sort entities with SchemaKey $e6
@@ -192,4 +193,10 @@ class SchemaKeySpec extends Specification {
       )
     )
   }
+
+  def e11 = {
+    val uri = "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/111111111111114-0-0"
+    SchemaKey.fromUri(uri) must beLeft
+  }
+
 }

@@ -129,7 +129,12 @@ object SchemaVer {
     */
   def parseFull(version: String): Either[ParseError, SchemaVer.Full] = version match {
     case schemaVerFullRegex(m, r, a) =>
-      Right(SchemaVer.Full(m.toInt, r.toInt, a.toInt))
+      try {
+        Right(SchemaVer.Full(m.toInt, r.toInt, a.toInt))
+      } catch {
+        case _: NumberFormatException =>
+          Left(ParseError.InvalidSchemaVer)
+      }
     case _ =>
       Left(ParseError.InvalidSchemaVer)
   }
