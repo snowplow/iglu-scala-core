@@ -26,6 +26,7 @@ class SchemaKeySpec extends Specification {
     fail to parse with invalid name $e5
     fail to parse with missing ADDITION $e8
     fail to parse partial schema key $e9
+    fail to parse schema key when one of the version comonents is outside the Int range $e11
 
   Specification for SchemaKey
     sort entities with SchemaKey $e6
@@ -41,6 +42,18 @@ class SchemaKeySpec extends Specification {
         SchemaVer.Full(1, 0, 0)
       )
     )
+  }
+
+  def e11 = {
+    val uri = "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/111111111111114-0-0"
+    val res = try {
+      SchemaKey.fromUri(uri)
+    } catch {
+      case e: NumberFormatException => Left(e.toString)
+      case _: Throwable => Left("unexpected")
+    }
+
+    res must beLeft("""java.lang.NumberFormatException: For input string: "111111111111114"""")
   }
 
   def e2 = {
