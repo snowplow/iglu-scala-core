@@ -15,12 +15,12 @@ import sbt._
 object Dependencies {
   object V {
     // Scala third party
-    val circe  = "0.13.0"
-    val cats   = "2.0.0"
-    val json4s = "3.6.7"
+    val circe  = "0.14.1"
+    val cats   = "2.6.1"
+    val json4s = "3.6.11"
 
     // Testing
-    val specs2 = "4.7.1"
+    val specs2 = "4.12.3"
   }
 
   val circe  = "io.circe"      %% "circe-core"     % V.circe

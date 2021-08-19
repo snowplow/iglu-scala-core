@@ -62,7 +62,10 @@ object IgluJson4sCodecs {
               case SelfDescribingSchema(self, schema: JValue) =>
                 JObject(
                   ("self", Extraction.decompose(self.schemaKey)),
-                  ("$schema", Extraction.decompose(SelfDescribingSchema.SelfDescribingUri.toString))
+                  (
+                    s"$$schema",
+                    Extraction.decompose(SelfDescribingSchema.SelfDescribingUri.toString)
+                  )
                 ).merge(schema)
             }
           )
@@ -77,12 +80,15 @@ object IgluJson4sCodecs {
           (
             {
               case fullInstance: JObject =>
-                val schemaKey = (fullInstance \ "schema")
-                  .extractOpt[String]
-                  .flatMap(x => SchemaKey.fromUri(x).toOption)
-                  .getOrElse {
-                    throw new MappingException("Does not contain schema key with valid Schema URI")
-                  }
+                val schemaKey =
+                  (fullInstance \ "schema")
+                    .extractOpt[String]
+                    .flatMap(x => SchemaKey.fromUri(x).toOption)
+                    .getOrElse {
+                      throw new MappingException(
+                        "Does not contain schema key with valid Schema URI"
+                      )
+                    }
                 val data = fullInstance \ "data" match {
                   case JNothing     => throw new MappingException("Does not contain data")
                   case json: JValue => json

@@ -110,8 +110,8 @@ trait CirceIgluCodecs {
       Json
         .fromFields(
           List(
-            "self"    -> schema.self.asJson(schemaMapCirceJsonEncoder),
-            "$schema" -> SelfDescribingSchema.SelfDescribingUri.toString.asJson
+            "self"      -> schema.self.asJson(schemaMapCirceJsonEncoder),
+            s"$$schema" -> SelfDescribingSchema.SelfDescribingUri.toString.asJson
           )
         )
         .deepMerge(schema.schema)
