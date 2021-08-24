@@ -16,23 +16,30 @@ import Keys._
 import bintray.BintrayPlugin._
 import bintray.BintrayKeys._
 
+// dynver plugin
+import sbtdynver.DynVerPlugin.autoImport._
+
+// Mima plugin
 import com.typesafe.tools.mima.plugin.MimaKeys._
 
+// Scoverage plugin
 import scoverage.ScoverageKeys._
 
+// GHPages plugin
 import com.typesafe.sbt.sbtghpages.GhpagesPlugin.autoImport._
 import com.typesafe.sbt.site.SitePlugin.autoImport._
 import com.typesafe.sbt.SbtGit.GitKeys.{gitBranch, gitRemoteRepo}
 import com.typesafe.sbt.site.preprocess.PreprocessPlugin.autoImport._
 import sbtunidoc.ScalaUnidocPlugin.autoImport._
 
+
 object BuildSettings {
   // Basic project settings
   lazy val commonProjectSettings: Seq[sbt.Setting[_]] = Seq(
     organization := "com.snowplowanalytics",
-    version := "1.0.0",
     scalaVersion := "2.13.1",
-    crossScalaVersions := Seq("2.12.11", "2.13.1")
+    crossScalaVersions := Seq("2.12.11", "2.13.1"),
+    ThisBuild / dynverVTagPrefix := false // Otherwise git tags required to have v-prefix
   )
 
   lazy val coreProjectSettings: Seq[sbt.Setting[_]] = commonProjectSettings ++ Seq(
@@ -193,9 +200,10 @@ object BuildSettings {
   // clear `mimaBinaryIssueFilters` and `mimaPreviousVersions`.
   // Otherwise, add previous version to the set without
   // removing older versions.
-  val mimaPreviousVersions = Set()
+  val mimaPreviousVersions = Set("1.0.0")
   val mimaSettings = Seq(
     mimaPreviousArtifacts := mimaPreviousVersions.map { organization.value %% name.value % _ },
+    ThisBuild / mimaFailOnNoPrevious := false,
     mimaBinaryIssueFilters ++= Seq(),
     Test / test := {
       mimaReportBinaryIssues.value
