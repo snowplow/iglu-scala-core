@@ -20,9 +20,9 @@ import com.snowplowanalytics.iglu.core.typeclasses._
 
 trait instances {
 
-  private implicit val codecs = Json4sIgluCodecs.formats
+  implicit private val codecs = Json4sIgluCodecs.formats
 
-  final implicit val igluAttachToDataJValue: ExtractSchemaKey[JValue] with ToData[JValue] =
+  implicit final val igluAttachToDataJValue: ExtractSchemaKey[JValue] with ToData[JValue] =
     new ExtractSchemaKey[JValue] with ToData[JValue] {
 
       def extractSchemaKey(entity: JValue) =
@@ -34,25 +34,26 @@ trait instances {
       def getContent(json: JValue): Either[ParseError, JValue] =
         json \ "data" match {
           case JNothing => Left(ParseError.InvalidData)
-          case data => Right(data)
+          case data     => Right(data)
         }
     }
 
-  final implicit val igluAttachToSchema: ExtractSchemaMap[JValue] with ToSchema[JValue] with ExtractSchemaMap[JValue] =
+  implicit final val igluAttachToSchema
+    : ExtractSchemaMap[JValue] with ToSchema[JValue] with ExtractSchemaMap[JValue] =
     new ToSchema[JValue] with ExtractSchemaMap[JValue] {
 
       def extractSchemaMap(entity: JValue): Either[ParseError, SchemaMap] =
         (entity \ "self").extractOpt[SchemaKey].map(key => SchemaMap(key)) match {
           case Some(map) => Right(map)
-          case None => Left(ParseError.InvalidSchema)
+          case None      => Left(ParseError.InvalidSchema)
         }
 
-      def checkSchemaUri(entity: JValue): Either[ParseError, Unit] = {
+      def checkSchemaUri(entity: JValue): Either[ParseError, Unit] =
         (entity \ "$schema").extractOpt[String] match {
-          case Some(schemaUri) if schemaUri ==  SelfDescribingSchema.SelfDescribingUri.toString => Right(())
+          case Some(schemaUri) if schemaUri == SelfDescribingSchema.SelfDescribingUri.toString =>
+            Right(())
           case _ => Left(ParseError.InvalidMetaschema)
         }
-      }
 
       def getContent(schema: JValue): JValue =
         Json4sIgluCodecs.removeMetaFields(schema)
@@ -60,16 +61,16 @@ trait instances {
 
   // Container-specific instances
 
-  final implicit val igluNormalizeDataJValue: NormalizeData[JValue] =
+  implicit final val igluNormalizeDataJValue: NormalizeData[JValue] =
     instance => Extraction.decompose(instance)
 
-  final implicit val igluNormalizeSchemaJValue: NormalizeSchema[JValue] =
+  implicit final val igluNormalizeSchemaJValue: NormalizeSchema[JValue] =
     schema => Extraction.decompose(schema)
 
-  final implicit val igluStringifyDataJValue: StringifyData[JValue] =
+  implicit final val igluStringifyDataJValue: StringifyData[JValue] =
     container => compact(container.normalize(igluNormalizeDataJValue))
 
-  final implicit val igluStringifySchemaJValue: StringifySchema[JValue] =
+  implicit final val igluStringifySchemaJValue: StringifySchema[JValue] =
     container => compact(container.normalize(igluNormalizeSchemaJValue))
 }
 
