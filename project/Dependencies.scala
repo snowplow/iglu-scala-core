@@ -16,7 +16,7 @@ object Dependencies {
   object V {
     // Scala third party
     val circe  = "0.14.1"
-    val cats   = "2.0.0"
+    val cats   = "2.6.1"
     val json4s = "3.6.7"
 
     // Testing
