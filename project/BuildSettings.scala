@@ -57,8 +57,8 @@ object BuildSettings {
 
   // Make package (build) metadata available within source code.
   lazy val scalifiedSettings = Seq(
-    sourceGenerators in Compile += Def.task {
-      val file = (sourceManaged in Compile).value / "settings.scala"
+    Compile / sourceGenerators += Def.task {
+      val file = (Compile / sourceManaged).value / "settings.scala"
       IO.write(
         file,
         """package com.snowplowanalytics.iglu.core.generated
@@ -165,7 +165,7 @@ object BuildSettings {
   lazy val publishSettings = bintraySettings ++ Seq[Setting[_]](
     publishMavenStyle := true,
     publishArtifact := true,
-    publishArtifact in Test := false,
+    Test / publishArtifact := false,
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     bintrayOrganization := Some("snowplow"),
     bintrayRepository := "snowplow-maven",
@@ -197,9 +197,9 @@ object BuildSettings {
   val mimaSettings = Seq(
     mimaPreviousArtifacts := mimaPreviousVersions.map { organization.value %% name.value % _ },
     mimaBinaryIssueFilters ++= Seq(),
-    test in Test := {
+    Test / test := {
       mimaReportBinaryIssues.value
-      (test in Test).value
+      (Test / test).value
     }
   )
 
@@ -207,8 +207,8 @@ object BuildSettings {
     coverageMinimum := 50,
     coverageFailOnMinimum := true,
     coverageHighlighting := false,
-    (test in Test) := {
-      coverageReport.dependsOn(test in Test).value
+    (Test / test) := {
+      coverageReport.dependsOn(Test / test).value
     }
   )
 
@@ -217,10 +217,10 @@ object BuildSettings {
     ghpagesNoJekyll := false,
     gitRemoteRepo := "git@github.com:snowplow-incubator/iglu-scala-core.git",
     gitBranch := Some("gh-pages"),
-    siteSubdirName in ScalaUnidoc := version.value,
-    preprocessVars in Preprocess := Map("VERSION" -> version.value),
-    addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), siteSubdirName in ScalaUnidoc),
-    excludeFilter in ghpagesCleanSite := new FileFilter {
+    ScalaUnidoc / siteSubdirName := version.value,
+    Preprocess / preprocessVars := Map("VERSION" -> version.value),
+    addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, ScalaUnidoc / siteSubdirName),
+    ghpagesCleanSite / excludeFilter := new FileFilter {
       def accept(f: File) = true
     }
   )
