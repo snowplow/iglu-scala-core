@@ -20,7 +20,7 @@ object Dependencies {
     val json4s = "3.6.11"
 
     // Testing
-    val specs2 = "4.7.1"
+    val specs2 = "4.12.3"
   }
 
   val circe  = "io.circe"      %% "circe-core"     % V.circe
