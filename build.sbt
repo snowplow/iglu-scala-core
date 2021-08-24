@@ -17,7 +17,15 @@ ThisBuild / shellPrompt := { state =>
   Project.extract(state).get(sbt.Keys.name) + " > "
 }
 
-lazy val igluCore = (project in file("."))
+lazy val root = (project in file("."))
+  .aggregate(igluCore, igluCoreCirce, igluCoreJson4s)
+  .settings(
+    Seq(
+      publish / skip := true
+    )
+  )
+
+lazy val igluCore = (project in file("iglu-core"))
   .enablePlugins(MimaPlugin)
   .settings(coreBuildSettings)
   .settings(
@@ -29,7 +37,7 @@ lazy val igluCore = (project in file("."))
   )
 
 lazy val igluCoreCirce = (project in file("iglu-core-circe"))
-  .dependsOn(igluCore)
+  .dependsOn(igluCore % "test->test;compile->compile")
   .enablePlugins(MimaPlugin)
   .settings(circeBuildSettings)
   .settings(
@@ -44,7 +52,7 @@ lazy val igluCoreCirce = (project in file("iglu-core-circe"))
   )
 
 lazy val igluCoreJson4s = (project in file("iglu-core-json4s"))
-  .dependsOn(igluCore)
+  .dependsOn(igluCore % "test->test;compile->compile")
   .enablePlugins(MimaPlugin)
   .settings(json4sBuildSettings)
   .settings(
