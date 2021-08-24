@@ -17,7 +17,7 @@ package com.snowplowanalytics.iglu.core
   * "vendor/name" OR "vendor/name/model" group.
   *
   * Starts with the first schema in the series.
-  * The correct order can be validated by [[https://github.com/snowplow-incubator/schema-ddl]].
+  * The correct order can be validated by [[https://github.com/snowplow/schema-ddl]].
   * If the producer is Iglu Server, it's usually acceptable to trust the order.
   */
 final case class SchemaList private (schemas: List[SchemaKey]) extends AnyVal {
