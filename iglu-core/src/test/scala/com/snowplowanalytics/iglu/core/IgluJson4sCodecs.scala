@@ -62,7 +62,10 @@ object IgluJson4sCodecs {
               case SelfDescribingSchema(self, schema: JValue) =>
                 JObject(
                   ("self", Extraction.decompose(self.schemaKey)),
-                  ("$schema", Extraction.decompose(SelfDescribingSchema.SelfDescribingUri.toString))
+                  (
+                    s"$$schema",
+                    Extraction.decompose(SelfDescribingSchema.SelfDescribingUri.toString)
+                  )
                 ).merge(schema)
             }
           )

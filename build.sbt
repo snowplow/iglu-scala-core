@@ -19,6 +19,7 @@ ThisBuild / shellPrompt := { state =>
 
 lazy val root = (project in file("."))
   .aggregate(igluCore, igluCoreCirce, igluCoreJson4s)
+  .settings(commonBuildSettings)
   .settings(
     Seq(
       publish / skip := true
