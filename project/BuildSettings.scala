@@ -138,7 +138,7 @@ object BuildSettings {
   val ghPagesSettings = Seq(
     ghpagesPushSite := ghpagesPushSite.dependsOn(makeSite).value,
     ghpagesNoJekyll := false,
-    gitRemoteRepo := "git@github.com:snowplow-incubator/iglu-scala-core.git",
+    gitRemoteRepo := "git@github.com:snowplow/iglu-scala-core.git",
     gitBranch := Some("gh-pages"),
     ScalaUnidoc / siteSubdirName := version.value,
     Preprocess / preprocessVars := Map("VERSION" -> version.value),
