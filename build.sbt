@@ -13,7 +13,7 @@
 
 import BuildSettings._
 
-shellPrompt in ThisBuild := { state =>
+ThisBuild / shellPrompt := { state =>
   Project.extract(state).get(sbt.Keys.name) + " > "
 }
 
