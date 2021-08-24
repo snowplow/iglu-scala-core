@@ -209,7 +209,7 @@ class ContainersSpec extends Specification {
       """
 
     val expected: String =
-      """{"type":"object","properties":{"name":{"type":"string"},"value":{"type":"string"}},"self":{"vendor":"com.acme","name":"keyvalue","format":"jsonschema","version":"1-1-0"},"$schema":"http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#"}"""
+      s"""{"type":"object","properties":{"name":{"type":"string"},"value":{"type":"string"}},"self":{"vendor":"com.acme","name":"keyvalue","format":"jsonschema","version":"1-1-0"},"$$schema":"http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#"}"""
 
     val result = SelfDescribingSchema(self, schema)
     result.asString must beEqualTo(expected)

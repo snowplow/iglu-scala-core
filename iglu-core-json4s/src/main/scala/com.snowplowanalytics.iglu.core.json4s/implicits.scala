@@ -48,7 +48,7 @@ trait implicits {
         }
 
       def checkSchemaUri(entity: JValue): Either[ParseError, Unit] =
-        (entity \ "$schema").extractOpt[String] match {
+        (entity \ s"$$schema").extractOpt[String] match {
           case Some(schemaUri) if schemaUri == SelfDescribingSchema.SelfDescribingUri.toString =>
             Right(())
           case _ => Left(ParseError.InvalidMetaschema)
