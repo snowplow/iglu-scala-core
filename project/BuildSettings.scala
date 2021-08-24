@@ -200,7 +200,7 @@ object BuildSettings {
   )
 
   val scoverageSettings = Seq(
-    coverageMinimum := 50,
+    coverageMinimumStmtTotal := 50,
     coverageFailOnMinimum := true,
     coverageHighlighting := false,
     (Test / test) := {
