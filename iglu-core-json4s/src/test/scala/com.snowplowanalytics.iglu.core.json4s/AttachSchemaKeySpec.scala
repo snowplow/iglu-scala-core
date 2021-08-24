@@ -64,83 +64,83 @@ class AttachSchemaKeySpec extends Specification {
   def e2 = {
 
     val schema: JValue = parse(
-      """
-        |{
-        |  "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
-        |  "type": "object",
-        |  	"properties": {
-        |  		"latitude": {
-        |  			"type": "number"
-        |  		},
-        |  		"longitude": {
-        |  			"type": "number"
-        |  		},
-        |  		"latitudeLongitudeAccuracy": {
-        |  			"type": ["number", "null"]
-        |  		},
-        |  		"altitude": {
-        |  			"type": ["number", "null"]
-        |  		},
-        |  		"altitudeAccuracy": {
-        |  			"type": ["number", "null"]
-        |  		},
-        |  		"bearing": {
-        |  			"type": ["number", "null"]
-        |  		},
-        |  		"speed": {
-        |  			"type": ["number", "null"]
-        |  		},
-        |  		"timestamp": {
-        |  			"type": ["integer", "null"]
-        |  		}
-        |  	},
-        |  	"required": ["latitude", "longitude"],
-        |  	"additionalProperties": false
-        |}
+      s"""
+         |{
+         |  "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
+         |  "type": "object",
+         |  	"properties": {
+         |  		"latitude": {
+         |  			"type": "number"
+         |  		},
+         |  		"longitude": {
+         |  			"type": "number"
+         |  		},
+         |  		"latitudeLongitudeAccuracy": {
+         |  			"type": ["number", "null"]
+         |  		},
+         |  		"altitude": {
+         |  			"type": ["number", "null"]
+         |  		},
+         |  		"altitudeAccuracy": {
+         |  			"type": ["number", "null"]
+         |  		},
+         |  		"bearing": {
+         |  			"type": ["number", "null"]
+         |  		},
+         |  		"speed": {
+         |  			"type": ["number", "null"]
+         |  		},
+         |  		"timestamp": {
+         |  			"type": ["integer", "null"]
+         |  		}
+         |  	},
+         |  	"required": ["latitude", "longitude"],
+         |  	"additionalProperties": false
+         |}
       """.stripMargin
     )
 
     val expected: JValue = parse(
-      """
-        |{
-        | "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
-        |	"self": {
-        |		"vendor": "com.snowplowanalytics.snowplow",
-        |		"name": "geolocation_context",
-        |		"format": "jsonschema",
-        |		"version": "1-1-0"
-        |	},
-        |
-        |	"type": "object",
-        |	"properties": {
-        |		"latitude": {
-        |			"type": "number"
-        |		},
-        |		"longitude": {
-        |			"type": "number"
-        |		},
-        |		"latitudeLongitudeAccuracy": {
-        |			"type": ["number", "null"]
-        |		},
-        |		"altitude": {
-        |			"type": ["number", "null"]
-        |		},
-        |		"altitudeAccuracy": {
-        |			"type": ["number", "null"]
-        |		},
-        |		"bearing": {
-        |			"type": ["number", "null"]
-        |		},
-        |		"speed": {
-        |			"type": ["number", "null"]
-        |		},
-        |		"timestamp": {
-        |			"type": ["integer", "null"]
-        |		}
-        |	},
-        |	"required": ["latitude", "longitude"],
-        |	"additionalProperties": false
-        |}
+      s"""
+         |{
+         | "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
+         |	"self": {
+         |		"vendor": "com.snowplowanalytics.snowplow",
+         |		"name": "geolocation_context",
+         |		"format": "jsonschema",
+         |		"version": "1-1-0"
+         |	},
+         |
+         |	"type": "object",
+         |	"properties": {
+         |		"latitude": {
+         |			"type": "number"
+         |		},
+         |		"longitude": {
+         |			"type": "number"
+         |		},
+         |		"latitudeLongitudeAccuracy": {
+         |			"type": ["number", "null"]
+         |		},
+         |		"altitude": {
+         |			"type": ["number", "null"]
+         |		},
+         |		"altitudeAccuracy": {
+         |			"type": ["number", "null"]
+         |		},
+         |		"bearing": {
+         |			"type": ["number", "null"]
+         |		},
+         |		"speed": {
+         |			"type": ["number", "null"]
+         |		},
+         |		"timestamp": {
+         |			"type": ["integer", "null"]
+         |		}
+         |	},
+         |	"required": ["latitude", "longitude"],
+         |	"additionalProperties": false
+         |}
       """.stripMargin
     )
 

@@ -70,21 +70,21 @@ class ContainersSpec extends Specification {
     import IgluCoreCommon.Json4SAttachSchemaMapComplex
 
     val result: JValue = parse(
-      """
-        |{
-        | "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
-        |	"self": {
-        |		"vendor": "com.acme",
-        |		"name": "keyvalue",
-        |		"format": "jsonschema",
-        |		"version": "1-1-0"
-        |	},
-        |	"type": "object",
-        |	"properties": {
-        |		"name": { "type": "string" },
-        |		"value": { "type": "string" }
-        |	}
-        |}
+      s"""
+         |{
+         | "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
+         |	"self": {
+         |		"vendor": "com.acme",
+         |		"name": "keyvalue",
+         |		"format": "jsonschema",
+         |		"version": "1-1-0"
+         |	},
+         |	"type": "object",
+         |	"properties": {
+         |		"name": { "type": "string" },
+         |		"value": { "type": "string" }
+         |	}
+         |}
       """.stripMargin
     )
 
@@ -151,9 +151,9 @@ class ContainersSpec extends Specification {
       """.stripMargin)
 
     val expected: JValue = parse(
-      """
+      s"""
         {
-          "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
+          "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
         	"self": {
         		"vendor": "com.acme",
         		"name": "keyvalue",
@@ -213,7 +213,7 @@ class ContainersSpec extends Specification {
       """.stripMargin)
 
     val expected: String =
-      """{"self":{"vendor":"com.acme","name":"keyvalue","format":"jsonschema","version":"1-1-0"},"$schema":"http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#","type":"object","properties":{"name":{"type":"string"},"value":{"type":"string"}}}"""
+      s"""{"self":{"vendor":"com.acme","name":"keyvalue","format":"jsonschema","version":"1-1-0"},"$$schema":"http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#","type":"object","properties":{"name":{"type":"string"},"value":{"type":"string"}}}"""
 
     val result = SelfDescribingSchema(self, schema)
     result.asString must beEqualTo(expected)
@@ -223,21 +223,21 @@ class ContainersSpec extends Specification {
     import IgluCoreCommon.Json4SAttachSchemaMapComplex
 
     val result: JValue = parse(
-      """
-        |{
-        | "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self/schema/jsonschema/1-0-0#",
-        |	"self": {
-        |		"vendor": "com.acme",
-        |		"name": "keyvalue",
-        |		"format": "jsonschema",
-        |		"version": "1-1-0"
-        |	},
-        |	"type": "object",
-        |	"properties": {
-        |		"name": { "type": "string" },
-        |		"value": { "type": "string" }
-        |	}
-        |}
+      s"""
+         |{
+         | "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self/schema/jsonschema/1-0-0#",
+         |	"self": {
+         |		"vendor": "com.acme",
+         |		"name": "keyvalue",
+         |		"format": "jsonschema",
+         |		"version": "1-1-0"
+         |	},
+         |	"type": "object",
+         |	"properties": {
+         |		"name": { "type": "string" },
+         |		"value": { "type": "string" }
+         |	}
+         |}
       """.stripMargin
     )
 
