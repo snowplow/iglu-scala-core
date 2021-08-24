@@ -52,7 +52,7 @@ trait implicits {
           JsonObject.fromMap {
             schema
               .asObject
-              .map(_.toMap.filter { case (key, _) => !(key == "self" || key == "$schema") })
+              .map(_.toMap.filter { case (key, _) => !(key == "self" || key == s"$$schema") })
               .getOrElse(Map.empty)
           }
         }
