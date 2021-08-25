@@ -167,13 +167,14 @@ class DecodersSpec extends Specification {
 
   def e7 = {
     import cats.syntax.option._
-    val nov = json"""{"vendor": "com.acme", "name": "name", "format": "json"}"""
+
+    val nov = json""""iglu:com.acme/name/json/*-*-*""""
     nov.as[SchemaCriterion] must beRight(SchemaCriterion("com.acme", "name", "json"))
-    val model = json"""{"vendor": "com.acme", "name": "name", "format": "json", "model": 1}"""
+    val model = json""""iglu:com.acme/name/json/1-*-*""""
     model.as[SchemaCriterion] must beRight(SchemaCriterion("com.acme", "name", "json", 1.some))
-    val rev = json"""{"vendor": "com.acme", "name": "name", "format": "json", "revision": 1}"""
+    val rev = json""""iglu:com.acme/name/json/*-1-*""""
     rev.as[SchemaCriterion] must beRight(SchemaCriterion("com.acme", "name", "json", None, 1.some))
-    val add = json"""{"vendor": "com.acme", "name": "name", "format": "json", "addition": 1}"""
+    val add = json""""iglu:com.acme/name/json/*-*-1""""
     add.as[SchemaCriterion] must beRight(
       SchemaCriterion("com.acme", "name", "json", None, None, 1.some)
     )
