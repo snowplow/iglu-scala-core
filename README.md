@@ -22,7 +22,7 @@ $ sbt compile
 In order to include Iglu Scala Core into your project, add following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.snowplowanalytics" % "iglu-core" % "1.0.0"
+libraryDependencies += "com.snowplowanalytics" % "iglu-core" % "1.0.1"
 ```
 
 ## Find out more
@@ -33,7 +33,7 @@ libraryDependencies += "com.snowplowanalytics" % "iglu-core" % "1.0.0"
 
 ## Copyright and license
 
-Iglu Scala Core is copyright 2016-2020 Snowplow Analytics Ltd.
+Iglu Scala Core is copyright 2016-2021 Snowplow Analytics Ltd.
 
 Licensed under the **[Apache License, Version 2.0][license]** (the "License");
 you may not use this software except in compliance with the License.
