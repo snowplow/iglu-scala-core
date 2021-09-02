@@ -148,11 +148,14 @@ object BuildSettings {
     }
   )
 
-  lazy val commonBuildSettings: Seq[sbt.Setting[_]] = commonProjectSettings ++ resolverSettings ++ publishSettings ++ 
-    mimaSettings ++ scoverageSettings
-  lazy val coreBuildSettings: Seq[sbt.Setting[_]] =
-    (coreProjectSettings ++ scalifiedSettings ++ commonBuildSettings).diff(scoverageSettings)
-  lazy val circeBuildSettings: Seq[sbt.Setting[_]]  = circeProjectSettings ++ commonBuildSettings
-  lazy val json4sBuildSettings: Seq[sbt.Setting[_]] = json4sProjectSettings ++ commonBuildSettings
-  lazy val docsBuildSettings: Seq[sbt.Setting[_]] = docsProjectSettings ++ ghPagesSettings ++ commonBuildSettings
+  lazy val commonBuildSettings: Seq[sbt.Setting[_]] = 
+    commonProjectSettings ++ resolverSettings ++ publishSettings
+  lazy val coreBuildSettings: Seq[sbt.Setting[_]] = 
+    commonBuildSettings ++ coreProjectSettings ++ mimaSettings ++ scalifiedSettings
+  lazy val circeBuildSettings: Seq[sbt.Setting[_]]  = 
+    commonBuildSettings ++ circeProjectSettings ++ mimaSettings ++ scoverageSettings
+  lazy val json4sBuildSettings: Seq[sbt.Setting[_]] = 
+    commonBuildSettings ++ json4sProjectSettings ++ mimaSettings ++ scoverageSettings
+  lazy val docsBuildSettings: Seq[sbt.Setting[_]] = 
+    commonBuildSettings ++ docsProjectSettings ++ ghPagesSettings
 }
