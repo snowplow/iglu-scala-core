@@ -40,22 +40,22 @@ object BuildSettings {
     ThisBuild / dynverVTagPrefix := false // Otherwise git tags required to have v-prefix
   )
 
-  lazy val coreProjectSettings: Seq[sbt.Setting[_]] = commonProjectSettings ++ Seq(
+  lazy val coreProjectSettings: Seq[sbt.Setting[_]] = Seq(
     name := "iglu-core",
     description := "Core entities for Iglu"
   )
 
-  lazy val circeProjectSettings: Seq[sbt.Setting[_]] = commonProjectSettings ++ Seq(
+  lazy val circeProjectSettings: Seq[sbt.Setting[_]] = Seq(
     name := "iglu-core-circe",
     description := "Iglu Core type classes instances for Circe"
   )
 
-  lazy val json4sProjectSettings: Seq[sbt.Setting[_]] = commonProjectSettings ++ Seq(
+  lazy val json4sProjectSettings: Seq[sbt.Setting[_]] = Seq(
     name := "iglu-core-json4s",
     description := "Iglu Core type classes instances for Json4s"
   )
 
-  lazy val docsProjectSettings: Seq[sbt.Setting[_]] = commonProjectSettings ++ Seq(
+  lazy val docsProjectSettings: Seq[sbt.Setting[_]] = Seq(
     name := "docs",
     description := "Scaladoc publishing"
   )
@@ -148,11 +148,11 @@ object BuildSettings {
     }
   )
 
-  lazy val commonBuildSettings: Seq[sbt.Setting[_]] = resolverSettings ++ publishSettings ++ 
+  lazy val commonBuildSettings: Seq[sbt.Setting[_]] = commonProjectSettings ++ resolverSettings ++ publishSettings ++ 
     mimaSettings ++ scoverageSettings
   lazy val coreBuildSettings: Seq[sbt.Setting[_]] =
     (coreProjectSettings ++ scalifiedSettings ++ commonBuildSettings).diff(scoverageSettings)
   lazy val circeBuildSettings: Seq[sbt.Setting[_]]  = circeProjectSettings ++ commonBuildSettings
   lazy val json4sBuildSettings: Seq[sbt.Setting[_]] = json4sProjectSettings ++ commonBuildSettings
-  lazy val docsBuildSettings: Seq[sbt.Setting[_]] = docsProjectSettings ++ ghPagesSettings
+  lazy val docsBuildSettings: Seq[sbt.Setting[_]] = docsProjectSettings ++ ghPagesSettings ++ commonBuildSettings
 }
