@@ -33,7 +33,7 @@ libraryDependencies += "com.snowplowanalytics" % "iglu-core" % "1.0.1"
 
 ## Copyright and license
 
-Iglu Scala Core is copyright 2016-2021 Snowplow Analytics Ltd.
+Iglu Scala Core is copyright 2016-2022 Snowplow Analytics Ltd.
 
 Licensed under the **[Apache License, Version 2.0][license]** (the "License");
 you may not use this software except in compliance with the License.
