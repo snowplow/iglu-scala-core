@@ -1,3 +1,8 @@
+Version 1.1.0 (2022-04-27)
+--------------------------
+Extend Copyright to 2022 (#88)
+Add Json Schema V4 text (#87)
+
 Version 1.0.1 (2021-08-28)
 --------------------------
 Protect against Integer overflow (#63)
