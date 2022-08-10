@@ -15,17 +15,19 @@ import sbt._
 object Dependencies {
   object V {
     // Scala third party
-    val circe  = "0.14.1"
-    val cats   = "2.6.1"
-    val json4s = "3.6.11"
+    val circe           = "0.14.1"
+    val cats            = "2.6.1"
+    val json4s          = "3.6.11"
+    val jacksonDatabind = "2.13.2.1" // Fixing version to address security vulnerability
 
     // Testing
     val specs2 = "4.12.3"
   }
 
-  val circe  = "io.circe"      %% "circe-core"     % V.circe
-  val cats   = "org.typelevel" %% "cats-core"      % V.cats
-  val json4s = "org.json4s"    %% "json4s-jackson" % V.json4s
+  val circe            = "io.circe"                   %% "circe-core"      % V.circe
+  val cats             = "org.typelevel"              %% "cats-core"       % V.cats
+  val json4s           = "org.json4s"                 %% "json4s-jackson"  % V.json4s
+  val jacksonDatabind  = "com.fasterxml.jackson.core" % "jackson-databind" % V.jacksonDatabind
 
   // Testing
   val specs2       = "org.specs2" %% "specs2-core"    % V.specs2 % "test"
