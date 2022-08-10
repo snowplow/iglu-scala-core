@@ -59,6 +59,7 @@ lazy val igluCoreJson4s = (project in file("iglu-core-json4s"))
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.json4s,
+      Dependencies.jacksonDatabind,
       // Testing
       Dependencies.specs2
     )
