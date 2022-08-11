@@ -21,7 +21,7 @@ object Dependencies {
     val jacksonDatabind = "2.13.2.1" // Fixing version to address security vulnerability
 
     // Testing
-    val specs2 = "4.12.3"
+    val specs2 = "4.15.0"
   }
 
   val circe            = "io.circe"                   %% "circe-core"      % V.circe
