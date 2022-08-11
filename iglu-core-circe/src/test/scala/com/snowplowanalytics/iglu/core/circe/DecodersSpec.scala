@@ -159,7 +159,7 @@ class DecodersSpec extends Specification {
         }
       """
 
-    val expected = "DecodingFailure at .$schema: Attempt to decode value on failed cursor"
+    val expected = "DecodingFailure at .$schema: Missing required field"
 
     result.as[SelfDescribingSchema[Json]].leftMap(_.show) must beLeft(expected)
 
