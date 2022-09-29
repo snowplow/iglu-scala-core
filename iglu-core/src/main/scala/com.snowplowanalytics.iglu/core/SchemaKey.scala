@@ -90,7 +90,7 @@ object SchemaKey {
     * }}}
     */
   val ordering: Ordering[SchemaKey] =
-    Ordering.by { key: SchemaKey =>
+    Ordering.by { (key: SchemaKey) =>
       (key.vendor, key.name, key.format, key.version)
     }
 

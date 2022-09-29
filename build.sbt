@@ -18,7 +18,7 @@ ThisBuild / shellPrompt := { state =>
 }
 
 lazy val root = (project in file("."))
-  .aggregate(igluCore, igluCoreCirce, igluCoreJson4s)
+  .aggregate(igluCore, igluCoreCirce)
   .settings(commonBuildSettings)
   .settings(
     Seq(
@@ -33,7 +33,7 @@ lazy val igluCore = (project in file("iglu-core"))
     libraryDependencies ++= Seq(
       // Testing
       Dependencies.specs2,
-      Dependencies.json4sTest
+      Dependencies.circeParser
     )
   )
 
@@ -52,20 +52,7 @@ lazy val igluCoreCirce = (project in file("iglu-core-circe"))
     )
   )
 
-lazy val igluCoreJson4s = (project in file("iglu-core-json4s"))
-  .dependsOn(igluCore % "test->test;compile->compile")
-  .enablePlugins(MimaPlugin)
-  .settings(json4sBuildSettings)
-  .settings(
-    libraryDependencies ++= Seq(
-      Dependencies.json4s,
-      Dependencies.jacksonDatabind,
-      // Testing
-      Dependencies.specs2
-    )
-  )
-
 lazy val docs = (project in file("docs"))
   .enablePlugins(SiteScaladocPlugin, GhpagesPlugin, ScalaUnidocPlugin, PreprocessPlugin)
   .settings(docsBuildSettings)
-  .aggregate(igluCore, igluCoreCirce, igluCoreJson4s)
+  .aggregate(igluCore, igluCoreCirce)

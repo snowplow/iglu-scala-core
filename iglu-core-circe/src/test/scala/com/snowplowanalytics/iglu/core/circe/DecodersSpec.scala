@@ -91,7 +91,7 @@ class DecodersSpec extends Specification {
         ["iglu:com.acme/example/jsonschema/1-0-0", "iglu:com.acme/example/jsonschema/1-0-1"]
       """
 
-    val expected = SchemaList(
+    val expected = SchemaList.parseUnsafe(
       List(
         SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1, 0, 0)),
         SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1, 0, 1))

@@ -178,7 +178,7 @@ class AttachSchemaKeySpec extends Specification {
 
   import org.specs2.matcher.Matcher
 
-  def beJson(expected: Json): Matcher[Json] = { actual: Json =>
+  def beJson(expected: Json): Matcher[Json] = { (actual: Json) =>
     (
       actual == expected,
       "actual:\n" + actual.spaces2 + "\n" + "expected:\n" + expected.spaces2 + "\n"
