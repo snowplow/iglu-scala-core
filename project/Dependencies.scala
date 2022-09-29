@@ -17,21 +17,16 @@ object Dependencies {
     // Scala third party
     val circe           = "0.14.3"
     val cats            = "2.9.0"
-    val json4s          = "3.6.12"
-    val jacksonDatabind = "2.13.2.1" // Fixing version to address security vulnerability
 
     // Testing
-    val specs2 = "4.15.0"
+    val specs2 = "4.17.0"
   }
 
   val circe            = "io.circe"                   %% "circe-core"      % V.circe
   val cats             = "org.typelevel"              %% "cats-core"       % V.cats
-  val json4s           = "org.json4s"                 %% "json4s-jackson"  % V.json4s
-  val jacksonDatabind  = "com.fasterxml.jackson.core" % "jackson-databind" % V.jacksonDatabind
 
   // Testing
   val specs2       = "org.specs2" %% "specs2-core"    % V.specs2 % "test"
   val circeParser  = "io.circe"   %% "circe-parser"   % V.circe  % "test"
   val circeLiteral = "io.circe"   %% "circe-literal"  % V.circe  % "test"
-  val json4sTest   = "org.json4s" %% "json4s-jackson" % V.json4s % "test"
 }

@@ -10,6 +10,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
+
 import sbt._
 import Keys._
 
@@ -31,11 +32,15 @@ import sbtunidoc.ScalaUnidocPlugin.autoImport._
 
 
 object BuildSettings {
+  val scala212 = "2.12.17"
+  val scala213 = "2.13.10"
+  val scala3 = "3.2.0"
+
   // Basic project settings
   lazy val commonProjectSettings: Seq[sbt.Setting[_]] = Seq(
     organization := "com.snowplowanalytics",
-    scalaVersion := "2.13.6",
-    crossScalaVersions := Seq("2.12.14", "2.13.6"),
+    scalaVersion := scala213,
+    crossScalaVersions := Seq(scala213, scala212, scala3),
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     ThisBuild / dynverVTagPrefix := false // Otherwise git tags required to have v-prefix
   )
@@ -120,10 +125,10 @@ object BuildSettings {
     mimaPreviousArtifacts := mimaPreviousVersions.map { organization.value %% name.value % _ },
     ThisBuild / mimaFailOnNoPrevious := false,
     mimaBinaryIssueFilters ++= Seq(),
-    Test / test := {
+    /*Test / test := {
       mimaReportBinaryIssues.value
       (Test / test).value
-    }
+    }*/
   )
 
   val scoverageSettings = Seq(

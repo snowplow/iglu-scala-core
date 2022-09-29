@@ -12,9 +12,7 @@
  */
 package com.snowplowanalytics.iglu.core
 
-import org.json4s._
-import org.json4s.jackson.JsonMethods.parse
-
+import io.circe.Json
 import typeclasses._
 
 import org.specs2.Specification
@@ -33,9 +31,9 @@ class ContainersSpec extends Specification {
   """
 
   def e1 = {
-    import IgluCoreCommon.Json4SAttachSchemaKeyData
+    import IgluCoreCommon.CirceAttachSchemaKeyData
 
-    val result: JValue = parse(
+    val result: Json = parse(
       """
         |{
         | "schema": "iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0",
@@ -67,9 +65,9 @@ class ContainersSpec extends Specification {
   }
 
   def e2 = {
-    import IgluCoreCommon.Json4SAttachSchemaMapComplex
+    import IgluCoreCommon.CirceAttachSchemaMapComplex
 
-    val result: JValue = parse(
+    val result: Json = parse(
       s"""
          |{
          | "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
@@ -103,7 +101,7 @@ class ContainersSpec extends Specification {
   }
 
   def e3 = {
-    import IgluCoreCommon.Json4SNormalizeData
+    import IgluCoreCommon.CirceNormalizeData
 
     val schema = SchemaKey(
       "com.snowplowanalytics.snowplow",
@@ -119,7 +117,7 @@ class ContainersSpec extends Specification {
                        |}
       """.stripMargin)
 
-    val expected: JValue = parse(
+    val expected: Json = parse(
       """
         |{
         | "schema": "iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0",
@@ -137,7 +135,7 @@ class ContainersSpec extends Specification {
   }
 
   def e4 = {
-    import IgluCoreCommon.Json4SNormalizeSchema
+    import IgluCoreCommon.CirceNormalizeSchema
 
     val self   = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1, 1, 0))
     val schema = parse("""
@@ -150,7 +148,7 @@ class ContainersSpec extends Specification {
                          |}
       """.stripMargin)
 
-    val expected: JValue = parse(
+    val expected: Json = parse(
       s"""
         {
           "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
@@ -174,7 +172,7 @@ class ContainersSpec extends Specification {
   }
 
   def e5 = {
-    implicit val stringify: StringifyData[JValue] = IgluCoreCommon.StringifyData
+    implicit val stringify: StringifyData[Json] = IgluCoreCommon.StringifyData
 
     val schema = SchemaKey(
       "com.snowplowanalytics.snowplow",
@@ -182,7 +180,7 @@ class ContainersSpec extends Specification {
       "jsonschema",
       SchemaVer.Full(1, 1, 0)
     )
-    val data: JValue = parse("""
+    val data: Json = parse("""
                                |{
                                |  "latitude": 32.2,
                                |  "longitude": 53.23,
@@ -199,10 +197,10 @@ class ContainersSpec extends Specification {
   }
 
   def e6 = {
-    implicit val stringify: StringifySchema[JValue] = IgluCoreCommon.StringifySchema
+    implicit val stringify: StringifySchema[Json] = IgluCoreCommon.StringifySchema
 
     val self           = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1, 1, 0))
-    val schema: JValue = parse("""
+    val schema: Json = parse("""
                                  |{
                                  |	"type": "object",
                                  |	"properties": {
@@ -213,16 +211,16 @@ class ContainersSpec extends Specification {
       """.stripMargin)
 
     val expected: String =
-      s"""{"self":{"vendor":"com.acme","name":"keyvalue","format":"jsonschema","version":"1-1-0"},"$$schema":"http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#","type":"object","properties":{"name":{"type":"string"},"value":{"type":"string"}}}"""
+      s"""{"$$schema":"http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#","self":{"vendor":"com.acme","name":"keyvalue","format":"jsonschema","version":"1-1-0"},"type":"object","properties":{"name":{"type":"string"},"value":{"type":"string"}}}"""
 
     val result = SelfDescribingSchema(self, schema)
     result.asString must beEqualTo(expected)
   }
 
   def e7 = {
-    import IgluCoreCommon.Json4SAttachSchemaMapComplex
+    import IgluCoreCommon.CirceAttachSchemaMapComplex
 
-    val result: JValue = parse(
+    val result: Json = parse(
       s"""
          |{
          | "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self/schema/jsonschema/1-0-0#",
@@ -245,9 +243,9 @@ class ContainersSpec extends Specification {
   }
 
   def e8 = {
-    import IgluCoreCommon.Json4SAttachSchemaMapComplex
+    import IgluCoreCommon.CirceAttachSchemaMapComplex
 
-    val result: JValue = parse("""
+    val result: Json = parse("""
                                  |{
                                  |	"self": {
                                  |		"vendor": "com.acme",
@@ -265,4 +263,6 @@ class ContainersSpec extends Specification {
 
     SelfDescribingSchema.parse(result) must beLeft(ParseError.InvalidMetaschema: ParseError)
   }
+
+  private def parse(input: String): Json = io.circe.parser.parse(input).fold(throw _, identity)
 }

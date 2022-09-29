@@ -95,7 +95,7 @@ object SchemaVer {
     * in ascending order.
     */
   implicit val ordering: Ordering[SchemaVer] =
-    Ordering.by { schemaVer: SchemaVer =>
+    Ordering.by { (schemaVer: SchemaVer) =>
       (schemaVer.getModel, schemaVer.getRevision, schemaVer.getAddition)
     }
 
@@ -104,7 +104,7 @@ object SchemaVer {
     * in ascending order.
     */
   implicit val orderingFull: Ordering[Full] =
-    Ordering.by { schemaVer: SchemaVer.Full =>
+    Ordering.by { (schemaVer: SchemaVer.Full) =>
       (schemaVer.model, schemaVer.revision, schemaVer.addition)
     }
 

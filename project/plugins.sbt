@@ -1,9 +1,13 @@
-addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat"    % "0.1.20")
-addSbtPlugin("com.typesafe"              % "sbt-mima-plugin" % "0.9.2")
-addSbtPlugin("org.scoverage"             % "sbt-scoverage"   % "1.8.2")
-addSbtPlugin("org.scalameta"             % "sbt-scalafmt"    % "2.4.3")
+addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat"    % "0.4.1")
+addSbtPlugin("com.typesafe"              % "sbt-mima-plugin" % "1.1.1")
+addSbtPlugin("org.scoverage"             % "sbt-scoverage"   % "2.0.4")
+addSbtPlugin("org.scalameta"             % "sbt-scalafmt"    % "2.4.6")
 addSbtPlugin("com.typesafe.sbt"          % "sbt-site"        % "1.4.1")
 addSbtPlugin("com.typesafe.sbt"          % "sbt-ghpages"     % "0.6.3")
 addSbtPlugin("com.eed3si9n"              % "sbt-unidoc"      % "0.4.3")
-addSbtPlugin("org.scoverage"             % "sbt-coveralls"   % "1.3.1")
+addSbtPlugin("org.scoverage"             % "sbt-coveralls"   % "1.3.2")
 addSbtPlugin("com.geirsson"              % "sbt-ci-release"  % "1.5.7")
+
+
+//hack to fix sbt-site
+libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always

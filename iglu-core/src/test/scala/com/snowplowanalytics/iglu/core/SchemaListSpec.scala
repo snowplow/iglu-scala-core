@@ -32,14 +32,14 @@ class SchemaListSpec extends Specification {
       SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1, 1, 0))
     )
 
-    SchemaList.parseStrings(input) must beRight(SchemaList(expected))
+    SchemaList.parseStrings(input) must beRight(SchemaList.parseUnsafe(expected))
   }
 
   def e2 = {
     val input    = List("iglu:com.acme/example/jsonschema/1-0-0")
     val expected = List(SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(1, 0, 0)))
 
-    SchemaList.parseStrings(input) must beRight(SchemaList(expected))
+    SchemaList.parseStrings(input) must beRight(SchemaList.parseUnsafe(expected))
   }
 
   def e3 = {
@@ -83,6 +83,6 @@ class SchemaListSpec extends Specification {
       SchemaKey("com.acme", "example", "jsonschema", SchemaVer.Full(2, 0, 1))
     )
 
-    SchemaList.parseStrings(input) must beRight(SchemaList(expected))
+    SchemaList.parseStrings(input) must beRight(SchemaList.parseUnsafe(expected))
   }
 }

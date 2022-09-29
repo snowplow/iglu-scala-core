@@ -12,9 +12,7 @@
  */
 package com.snowplowanalytics.iglu.core
 
-import org.json4s._
-import org.json4s.jackson.JsonMethods.parse
-
+import io.circe.Json
 import org.specs2.Specification
 
 class AttachSchemaKeySpec extends Specification {
@@ -26,9 +24,9 @@ class AttachSchemaKeySpec extends Specification {
   """
 
   def e1 = {
-    import IgluCoreCommon.Json4SNormalizeData
+    import IgluCoreCommon.CirceNormalizeData
 
-    val data: JValue = parse("""
+    val data: Json = parse("""
                                |{
                                |  "latitude": 32.2,
                                |  "longitude": 53.23,
@@ -36,7 +34,7 @@ class AttachSchemaKeySpec extends Specification {
                                |}
       """.stripMargin)
 
-    val expected: JValue = parse(
+    val expected: Json = parse(
       """
         |{
         | "schema": "iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0",
@@ -59,9 +57,9 @@ class AttachSchemaKeySpec extends Specification {
   }
 
   def e2 = {
-    import IgluCoreCommon.Json4SNormalizeSchema
+    import IgluCoreCommon.CirceNormalizeSchema
 
-    val schema: JValue = parse(
+    val schema: Json = parse(
       """
         |{
         |  "type": "object",
@@ -97,7 +95,7 @@ class AttachSchemaKeySpec extends Specification {
       """.stripMargin
     )
 
-    val expected: JValue = parse(
+    val expected: Json = parse(
       s"""
          |{
          | "$$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
@@ -149,14 +147,14 @@ class AttachSchemaKeySpec extends Specification {
         SchemaVer.Full(1, 1, 0)
       )
     )
-    val result = Json4SNormalizeSchema.normalize(SelfDescribingSchema(map, schema))
+    val result = CirceNormalizeSchema.normalize(SelfDescribingSchema(map, schema))
     result must beEqualTo(expected)
   }
 
   def e3 = {
-    import IgluCoreCommon.{Json4SAttachSchemaMapComplex, Json4SNormalizeSchema}
+    import IgluCoreCommon.{CirceAttachSchemaMapComplex, CirceNormalizeSchema}
 
-    val schema: JValue = parse("""
+    val schema: Json = parse("""
                                  |{
                                  |  "type": "object",
                                  |  	"properties": {
@@ -175,7 +173,9 @@ class AttachSchemaKeySpec extends Specification {
       "jsonschema",
       SchemaVer.Full(1, 1, 0)
     )
-    val result = Json4SNormalizeSchema.normalize(SelfDescribingSchema(map, schema))
+    val result = CirceNormalizeSchema.normalize(SelfDescribingSchema(map, schema))
     SchemaMap.extract(result) must beRight(map)
   }
+
+  private def parse(input: String): Json = io.circe.parser.parse(input).fold(throw _, identity)
 }

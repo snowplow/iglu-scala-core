@@ -12,55 +12,70 @@
  */
 package com.snowplowanalytics.iglu.core
 
-import org.json4s._
-import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods.compact
-
 import com.snowplowanalytics.iglu.core.typeclasses._
+import io.circe.{Decoder, DecodingFailure, Encoder, Json, JsonObject}
+import io.circe.syntax._
 
 /**
   * This module contains examples of common traits and type class instances
-  * based on Json4s library
+  * based on Circe library
   */
 object IgluCoreCommon {
+  implicit private val schemaKeyDecoder: Decoder[SchemaKey] = Decoder.instance(c =>
+    for {
+      vendor <- c.get[String]("vendor")
+      name   <- c.get[String]("name")
+      format <- c.get[String]("format")
+      version <- c
+        .get[String]("version")
+        .flatMap(ver => SchemaVer.parseFull(ver).left.map(er => DecodingFailure(er.code, c.history))
+        )
+    } yield SchemaKey(vendor, name, format, version)
+  )
 
-  implicit val formats: Formats = IgluJson4sCodecs.formats
+  implicit private val schemaKeyEncoder: Encoder[SchemaKey] = Encoder.instance(key =>
+    Json.obj(
+      "vendor" := key.vendor,
+      "name" := key.name,
+      "format" := key.format,
+      "version" := key.version.asString
+    )
+  )
 
   ////////////////////////
   // ExtractFrom Json4s //
   ////////////////////////
 
   /** Example common trait for [[ExtractSchemaKey]] *data* objects */
-  trait Json4SExtractSchemaKeyData extends ExtractSchemaKey[JValue] {
-    def extractSchemaKey(entity: JValue): Either[ParseError, SchemaKey] =
-      entity \ "schema" match {
-        case JString(schema) => SchemaKey.fromUri(schema)
-        case _               => Left(ParseError.InvalidData)
-      }
+  trait CirceExtractSchemaKeyData extends ExtractSchemaKey[Json] {
+    def extractSchemaKey(entity: Json): Either[ParseError, SchemaKey] =
+      entity
+        .hcursor
+        .get[String]("schema")
+        .left
+        .map(_ => ParseError.InvalidData)
+        .flatMap(SchemaKey.fromUri)
   }
 
   /**
     * Example of [[ExtractSchemaKey]] instance for json4s JSON *data*
     */
-  implicit object Json4SExtractSchemaKeyData extends Json4SExtractSchemaKeyData
+  implicit object CirceExtractSchemaKeyData extends CirceExtractSchemaKeyData
 
   /** Example common trait for [[ExtractSchemaKey]] *Schemas* objects */
-  trait Json4SExtractSchemaKeySchema extends ExtractSchemaKey[JValue] {
+  trait CirceExtractSchemaKeySchema extends ExtractSchemaKey[Json] {
 
     /**
       * Extract SchemaKey usning serialization formats defined at [[IgluJson4sCodecs]]
       */
-    def extractSchemaKey(entity: JValue): Either[ParseError, SchemaKey] =
-      (entity \ "self").extractOpt[SchemaKey] match {
-        case None       => Left(ParseError.InvalidSchema)
-        case Some(self) => Right(self)
-      }
+    def extractSchemaKey(entity: Json): Either[ParseError, SchemaKey] =
+      schemaKeyDecoder.at("self").decodeJson(entity).left.map(_ => ParseError.InvalidData)
   }
 
   /**
     * Example of [[ExtractSchemaKey]] instance for json4s JSON *Schemas*
     */
-  implicit object Json4SExtractSchemaKeySchema extends Json4SExtractSchemaKeySchema
+  implicit object CirceExtractSchemaKeySchema extends CirceExtractSchemaKeySchema
 
   /////////////////////
   // AttachTo Json4s //
@@ -68,28 +83,23 @@ object IgluCoreCommon {
 
   // Schemas
 
-  implicit object Json4SAttachSchemaKeySchema extends ExtractSchemaKey[JValue] {
-    def extractSchemaKey(entity: JValue): Either[ParseError, SchemaKey] =
-      (entity \ "self").extractOpt[SchemaKey] match {
-        case Some(self) => Right(self)
-        case None       => Left(ParseError.InvalidSchema)
-      }
+  implicit object CirceAttachSchemaKeySchema extends ExtractSchemaKey[Json] {
+    def extractSchemaKey(entity: Json): Either[ParseError, SchemaKey] =
+      schemaKeyDecoder.at("self").decodeJson(entity).left.map(_ => ParseError.InvalidSchema)
   }
 
-  implicit object Json4SAttachSchemaMapComplex
-      extends ExtractSchemaMap[JValue]
-      with ToSchema[JValue] {
-    def extractSchemaMap(entity: JValue): Either[ParseError, SchemaMap] = {
-      implicit val formats: Formats = IgluJson4sCodecs.formats
-      (entity \ "self").extractOpt[SchemaKey].map(key => SchemaMap(key)) match {
-        case Some(map) => Right(map)
-        case None      => Left(ParseError.InvalidSchema)
-      }
-    }
+  implicit object CirceAttachSchemaMapComplex extends ExtractSchemaMap[Json] with ToSchema[Json] {
+    def extractSchemaMap(entity: Json): Either[ParseError, SchemaMap] =
+      schemaKeyDecoder
+        .at("self")
+        .decodeJson(entity)
+        .left
+        .map(_ => ParseError.InvalidSchema)
+        .map(SchemaMap.apply)
 
-    def checkSchemaUri(entity: JValue): Either[ParseError, Unit] =
-      (entity \ s"$$schema").extractOpt[String] match {
-        case Some(schemaUri) if schemaUri == SelfDescribingSchema.SelfDescribingUri.toString =>
+    def checkSchemaUri(entity: Json): Either[ParseError, Unit] =
+      entity.hcursor.get[String]("$schema") match {
+        case Right(schemaUri) if schemaUri == SelfDescribingSchema.SelfDescribingUri.toString =>
           Right(())
         case _ => Left(ParseError.InvalidMetaschema)
       }
@@ -98,25 +108,27 @@ object IgluCoreCommon {
       * Remove key with `self` description
       * `getContent` required to be implemented here because it extends [[ToSchema]]
       */
-    def getContent(json: JValue): JValue =
-      removeMetaFields(json)
+    def getContent(json: Json): Json =
+      json.asObject.map(_.remove("$schema").remove("self").asJson).getOrElse(json)
   }
 
   // Data
 
-  implicit object Json4SAttachSchemaKeyData
-      extends ExtractSchemaKey[JValue]
-      with ToData[JValue]
-      with Json4SExtractSchemaKeyData {
+  implicit object CirceAttachSchemaKeyData
+      extends ExtractSchemaKey[Json]
+      with ToData[Json]
+      with CirceExtractSchemaKeyData {
 
-    def getContent(json: JValue): Either[ParseError, JValue] =
-      json \ "data" match {
-        case data: JObject => Right(data)
-        case _             => Left(ParseError.InvalidData)
-      }
+    def getContent(json: Json): Either[ParseError, Json] =
+      json
+        .hcursor
+        .get[JsonObject]("data")
+        .left
+        .map(_ => ParseError.InvalidData: ParseError)
+        .map(_.asJson)
 
-    def attachSchemaKey(schemaKey: SchemaKey, instance: JValue): JValue =
-      ("schema" -> schemaKey.toSchemaUri) ~ ("data" -> instance)
+    def attachSchemaKey(schemaKey: SchemaKey, instance: Json): Json =
+      Json.obj("schema" := schemaKey.toSchemaUri, "data" := instance)
   }
 
   //////////////////////////
@@ -155,40 +167,30 @@ object IgluCoreCommon {
   // Normalize //
   ///////////////
 
-  implicit object Json4SNormalizeSchema extends NormalizeSchema[JValue] {
-    def normalize(schema: SelfDescribingSchema[JValue]): JValue =
-      Extraction.decompose(schema)
+  implicit object CirceNormalizeSchema extends NormalizeSchema[Json] {
+    def normalize(schema: SelfDescribingSchema[Json]): Json =
+      schema
+        .schema
+        .deepMerge(
+          Json.obj(
+            s"$$schema" := SelfDescribingSchema.SelfDescribingUri,
+            "self" := schema.self.schemaKey
+          )
+        )
   }
 
-  implicit object Json4SNormalizeData extends NormalizeData[JValue] {
-    def normalize(instance: SelfDescribingData[JValue]): JValue =
-      Extraction.decompose(instance)
+  implicit object CirceNormalizeData extends NormalizeData[Json] {
+    def normalize(instance: SelfDescribingData[Json]): Json =
+      CirceAttachSchemaKeyData.attachSchemaKey(instance.schema, instance.data)
   }
 
-  object StringifySchema extends StringifySchema[JValue] {
-    def asString(container: SelfDescribingSchema[JValue]): String =
-      compact(container.normalize(Json4SNormalizeSchema))
+  object StringifySchema extends StringifySchema[Json] {
+    def asString(container: SelfDescribingSchema[Json]): String =
+      container.normalize(CirceNormalizeSchema).noSpaces
   }
 
-  object StringifyData extends StringifyData[JValue] {
-    def asString(container: SelfDescribingData[JValue]): String =
-      compact(container.normalize(Json4SNormalizeData))
+  object StringifyData extends StringifyData[Json] {
+    def asString(container: SelfDescribingData[Json]): String =
+      container.normalize(CirceNormalizeData).noSpaces
   }
-
-  /////////
-  // Aux //
-  /////////
-
-  def removeMetaFields(json: JValue): JValue = json match {
-    case JObject(fields) =>
-      fields.filterNot {
-        case ("self", JObject(keys)) => intersectsWithSchemakey(keys)
-        case ("$schema", _)          => true
-        case _                       => false
-      }
-    case jvalue => jvalue
-  }
-
-  private def intersectsWithSchemakey(fields: List[JField]): Boolean =
-    fields.map(_._1).toSet.diff(Set("name", "vendor", "format", "version")).isEmpty
 }
