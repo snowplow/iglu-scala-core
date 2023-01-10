@@ -1,3 +1,10 @@
+Version 1.1.2 (2023-01-10)
+--------------------------
+Update license to 2023 (#96)
+Rename license file for GitHub (#91)
+Bump cats to 2.9.0 (#95)
+Bump circe to 0.14.3 (#94)
+
 Version 1.1.1 (2022-08-17)
 --------------------------
 Bump specs2 to 4.15.0 (#90)
