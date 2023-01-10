@@ -16,7 +16,7 @@ object Dependencies {
   object V {
     // Scala third party
     val circe           = "0.14.3"
-    val cats            = "2.8.0"
+    val cats            = "2.9.0"
     val json4s          = "3.6.12"
     val jacksonDatabind = "2.13.2.1" // Fixing version to address security vulnerability
 
