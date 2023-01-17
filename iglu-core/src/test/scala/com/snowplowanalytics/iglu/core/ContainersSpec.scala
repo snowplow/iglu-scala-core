@@ -181,11 +181,11 @@ class ContainersSpec extends Specification {
       SchemaVer.Full(1, 1, 0)
     )
     val data: Json = parse("""
-                               |{
-                               |  "latitude": 32.2,
-                               |  "longitude": 53.23,
-                               |  "speed": 40
-                               |}
+                             |{
+                             |  "latitude": 32.2,
+                             |  "longitude": 53.23,
+                             |  "speed": 40
+                             |}
       """.stripMargin)
 
     val expected: String =
@@ -199,15 +199,15 @@ class ContainersSpec extends Specification {
   def e6 = {
     implicit val stringify: StringifySchema[Json] = IgluCoreCommon.StringifySchema
 
-    val self           = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1, 1, 0))
+    val self         = SchemaMap("com.acme", "keyvalue", "jsonschema", SchemaVer.Full(1, 1, 0))
     val schema: Json = parse("""
-                                 |{
-                                 |	"type": "object",
-                                 |	"properties": {
-                                 |		"name": { "type": "string" },
-                                 |		"value": { "type": "string" }
-                                 | }
-                                 |}
+                               |{
+                               |	"type": "object",
+                               |	"properties": {
+                               |		"name": { "type": "string" },
+                               |		"value": { "type": "string" }
+                               | }
+                               |}
       """.stripMargin)
 
     val expected: String =
@@ -246,19 +246,19 @@ class ContainersSpec extends Specification {
     import IgluCoreCommon.CirceAttachSchemaMapComplex
 
     val result: Json = parse("""
-                                 |{
-                                 |	"self": {
-                                 |		"vendor": "com.acme",
-                                 |		"name": "keyvalue",
-                                 |		"format": "jsonschema",
-                                 |		"version": "1-1-0"
-                                 |	},
-                                 |	"type": "object",
-                                 |	"properties": {
-                                 |		"name": { "type": "string" },
-                                 |		"value": { "type": "string" }
-                                 |	}
-                                 |}
+                               |{
+                               |	"self": {
+                               |		"vendor": "com.acme",
+                               |		"name": "keyvalue",
+                               |		"format": "jsonschema",
+                               |		"version": "1-1-0"
+                               |	},
+                               |	"type": "object",
+                               |	"properties": {
+                               |		"name": { "type": "string" },
+                               |		"value": { "type": "string" }
+                               |	}
+                               |}
       """.stripMargin)
 
     SelfDescribingSchema.parse(result) must beLeft(ParseError.InvalidMetaschema: ParseError)

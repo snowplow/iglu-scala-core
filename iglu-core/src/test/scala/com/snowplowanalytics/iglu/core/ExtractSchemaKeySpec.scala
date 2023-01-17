@@ -32,10 +32,10 @@ class ExtractSchemaKeySpec extends Specification {
     import IgluCoreCommon.CirceExtractSchemaKeyData
 
     val json: Json = parse("""
-                               |{
-                               |  "schema": "iglu:com.acme.useless/null/jsonschema/2-0-3",
-                               |  "data": null
-                               |}
+                             |{
+                             |  "schema": "iglu:com.acme.useless/null/jsonschema/2-0-3",
+                             |  "data": null
+                             |}
       """.stripMargin)
 
     SchemaKey.extract(json) must beRight(
@@ -47,10 +47,10 @@ class ExtractSchemaKeySpec extends Specification {
     import IgluCoreCommon.CirceAttachSchemaKeyData
 
     val json: Json = parse("""
-                               |{
-                               |  "schema": "iglu:com.acme.useless/null/jsonschema/2-0-3",
-                               |  "data": null
-                               |}
+                             |{
+                             |  "schema": "iglu:com.acme.useless/null/jsonschema/2-0-3",
+                             |  "data": null
+                             |}
       """.stripMargin)
 
     SchemaKey.extract(json) must beRight(
@@ -62,19 +62,19 @@ class ExtractSchemaKeySpec extends Specification {
     import IgluCoreCommon.CirceAttachSchemaMapComplex
 
     val json: Json = parse("""
-                               |{
-                               |	"self": {
-                               |		"vendor": "com.acme",
-                               |		"name": "keyvalue",
-                               |		"format": "jsonschema",
-                               |		"version": "1-1-0"
-                               |	},
-                               |	"type": "object",
-                               |	"properties": {
-                               |		"name": { "type": "string" },
-                               |		"value": { "type": "string" }
-                               |	}
-                               |}
+                             |{
+                             |	"self": {
+                             |		"vendor": "com.acme",
+                             |		"name": "keyvalue",
+                             |		"format": "jsonschema",
+                             |		"version": "1-1-0"
+                             |	},
+                             |	"type": "object",
+                             |	"properties": {
+                             |		"name": { "type": "string" },
+                             |		"value": { "type": "string" }
+                             |	}
+                             |}
       """.stripMargin)
 
     SchemaMap.extract(json) must beRight(
@@ -87,19 +87,19 @@ class ExtractSchemaKeySpec extends Specification {
 
     // SchemaVer cannot have 0 as MODEL
     val json: Json = parse("""
-                               |{
-                               |	"self": {
-                               |		"vendor": "com.acme",
-                               |		"name": "keyvalue",
-                               |		"format": "jsonschema",
-                               |		"version": "0-1-0"
-                               |	},
-                               |	"type": "object",
-                               |	"properties": {
-                               |		"name": { "type": "string" },
-                               |		"value": { "type": "string" }
-                               |	}
-                               |}
+                             |{
+                             |	"self": {
+                             |		"vendor": "com.acme",
+                             |		"name": "keyvalue",
+                             |		"format": "jsonschema",
+                             |		"version": "0-1-0"
+                             |	},
+                             |	"type": "object",
+                             |	"properties": {
+                             |		"name": { "type": "string" },
+                             |		"value": { "type": "string" }
+                             |	}
+                             |}
       """.stripMargin)
 
     SchemaKey.extract(json) must beLeft
@@ -110,10 +110,10 @@ class ExtractSchemaKeySpec extends Specification {
 
     // SchemaVer cannot have preceding 0 in REVISION
     val json: Json = parse("""
-                               |{
-                               |  "schema": "iglu:com.acme.useless/null/jsonschema/2-01-3",
-                               |  "data": null
-                               |}
+                             |{
+                             |  "schema": "iglu:com.acme.useless/null/jsonschema/2-01-3",
+                             |  "data": null
+                             |}
       """.stripMargin)
 
     SchemaKey.extract(json) must beLeft

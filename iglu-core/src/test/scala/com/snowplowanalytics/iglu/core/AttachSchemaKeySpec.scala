@@ -27,11 +27,11 @@ class AttachSchemaKeySpec extends Specification {
     import IgluCoreCommon.CirceNormalizeData
 
     val data: Json = parse("""
-                               |{
-                               |  "latitude": 32.2,
-                               |  "longitude": 53.23,
-                               |  "speed": 40
-                               |}
+                             |{
+                             |  "latitude": 32.2,
+                             |  "longitude": 53.23,
+                             |  "speed": 40
+                             |}
       """.stripMargin)
 
     val expected: Json = parse(
@@ -155,16 +155,16 @@ class AttachSchemaKeySpec extends Specification {
     import IgluCoreCommon.{CirceAttachSchemaMapComplex, CirceNormalizeSchema}
 
     val schema: Json = parse("""
-                                 |{
-                                 |  "type": "object",
-                                 |  	"properties": {
-                                 |  		"latitude": {
-                                 |  			"type": "number"
-                                 |  		},
-                                 |  		"longitude": {
-                                 |  			"type": "number"
-                                 |  		}
-                                 |}}
+                               |{
+                               |  "type": "object",
+                               |  	"properties": {
+                               |  		"latitude": {
+                               |  			"type": "number"
+                               |  		},
+                               |  		"longitude": {
+                               |  			"type": "number"
+                               |  		}
+                               |}}
       """.stripMargin)
 
     val map = SchemaMap(
