@@ -27,10 +27,12 @@ class SchemaKeySpec extends Specification {
     fail to parse with missing ADDITION $e8
     fail to parse partial schema key $e9
     fail to parse if key is URL-encoded $e10
-    fail to parse schema key when one of the version comonents is outside the Int range $e10
+    fail to parse schema key when one of the version components is outside the Int range $e11
 
   Specification for SchemaKey
     sort entities with SchemaKey $e6
+    vendorAsSnakeCase convert vendor to snake case $e7
+    nameAsSnakeCase convert name to snake case $e12
   """
 
   def e1 = {
@@ -199,4 +201,13 @@ class SchemaKeySpec extends Specification {
     SchemaKey.fromUri(uri) must beLeft
   }
 
+  def e7 =
+    SchemaKey("com.ac-mE", "test", "jsonschema", SchemaVer.Full(1, 0, 0)).vendorAsSnakeCase must beEqualTo(
+      "com_ac_me"
+    )
+
+  def e12 =
+    SchemaKey("com.acme", "te.s-tNAme", "jsonschema", SchemaVer.Full(1, 0, 0)).nameAsSnakeCase must beEqualTo(
+      "te_s_t_name"
+    )
 }
