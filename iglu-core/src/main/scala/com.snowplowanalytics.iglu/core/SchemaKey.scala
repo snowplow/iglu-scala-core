@@ -41,14 +41,14 @@ final case class SchemaKey(vendor: String, name: String, format: String, version
     s"$vendor/$name/$format/${version.asString}"
 
   /**
-   * Convert dots & dashes in schema vendor to underscore
-   */
+    * Convert dots & dashes in schema vendor to underscore
+    */
   def vendorAsSnakeCase: String =
     vendor.replaceAll("""[\.\-]""", "_").toLowerCase
 
   /**
-   * Convert PascalCase in schema name to snake_case
-   */
+    * Convert PascalCase in schema name to snake_case
+    */
   def nameAsSnakeCase: String =
     name.replaceAll("""[\.\-]""", "_").replaceAll("([^A-Z_])([A-Z])", "$1_$2").toLowerCase
 
