@@ -40,6 +40,18 @@ final case class SchemaKey(vendor: String, name: String, format: String, version
   def toPath: String =
     s"$vendor/$name/$format/${version.asString}"
 
+  /**
+   * Convert dots & dashes in schema vendor to underscore
+   */
+  def vendorAsSnakeCase: String =
+    vendor.replaceAll("""[\.\-]""", "_").toLowerCase
+
+  /**
+   * Convert PascalCase in schema name to snake_case
+   */
+  def nameAsSnakeCase: String =
+    name.replaceAll("""[\.\-]""", "_").replaceAll("([^A-Z_])([A-Z])", "$1_$2").toLowerCase
+
   /** Lossy conversion to [[PartialSchemaKey]]. */
   def asPartial: PartialSchemaKey =
     PartialSchemaKey(vendor, name, format, version)
