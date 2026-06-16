@@ -1,3 +1,9 @@
+Version 1.1.5 (2026-03-25)
+--------------------------
+Migrate publishing to Sonatype Central Portal (#4)
+Add length check to SchemaKey.fromUri (#2)
+Add sync workflow for iglu-scala-core (#1)
+
 Version 1.1.4 (2025-04-17)
 --------------------------
 Add vendorAsSnakeCase and nameAsSnakeCase (#101)

@@ -27,12 +27,22 @@ class SchemaKeySpec extends Specification {
     fail to parse with missing ADDITION $e8
     fail to parse partial schema key $e9
     fail to parse if key is URL-encoded $e10
-    fail to parse schema key when one of the version components is outside the Int range $e11
+    fail to parse when model exceeds Int.MaxValue $e11
+    fail to parse when revision exceeds Int.MaxValue $e17
+    fail to parse when addition exceeds Int.MaxValue $e18
+    parse successfully when all version components are exactly Int.MaxValue $e19
 
   Specification for SchemaKey
     sort entities with SchemaKey $e6
     vendorAsSnakeCase convert vendor to snake case $e7
     nameAsSnakeCase convert name to snake case $e12
+
+  Specification for 128-character field length limit
+    fail to parse with vendor exceeding 128 characters $e13
+    fail to parse with name exceeding 128 characters $e14
+    fail to parse with format exceeding 128 characters $e15
+    parse successfully when vendor, name, and format are exactly 128 characters $e16
+
   """
 
   def e1 = {
@@ -197,7 +207,7 @@ class SchemaKeySpec extends Specification {
   }
 
   def e11 = {
-    val uri = "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/111111111111114-0-0"
+    val uri = "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/2147483648-0-0"
     SchemaKey.fromUri(uri) must beLeft
   }
 
@@ -210,4 +220,51 @@ class SchemaKeySpec extends Specification {
     SchemaKey("com.acme", "te.s-tNAme", "jsonschema", SchemaVer.Full(1, 0, 0)).nameAsSnakeCase must beEqualTo(
       "te_s_t_name"
     )
+
+  def e13 = {
+    val longVendor = "a" * 129
+    val uri        = s"iglu:$longVendor/mobile_context/jsonschema/1-0-0"
+    SchemaKey.fromUri(uri) must beLeft
+  }
+
+  def e14 = {
+    val longName = "a" * 129
+    val uri      = s"iglu:com.snowplowanalytics.snowplow/$longName/jsonschema/1-0-0"
+    SchemaKey.fromUri(uri) must beLeft
+  }
+
+  def e15 = {
+    val longFormat = "a" * 129
+    val uri        = s"iglu:com.snowplowanalytics.snowplow/mobile_context/$longFormat/1-0-0"
+    SchemaKey.fromUri(uri) must beLeft
+  }
+
+  def e16 = {
+    val maxField = "a" * 128
+    val uri      = s"iglu:$maxField/$maxField/$maxField/1-0-0"
+    SchemaKey.fromUri(uri) must beRight
+  }
+
+  def e17 = {
+    val uri = "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-2147483648-0"
+    SchemaKey.fromUri(uri) must beLeft
+  }
+
+  def e18 = {
+    val uri = "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-2147483648"
+    SchemaKey.fromUri(uri) must beLeft
+  }
+
+  def e19 = {
+    val uri =
+      s"iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/2147483647-2147483647-2147483647"
+    SchemaKey.fromUri(uri) must beRight(
+      SchemaKey(
+        "com.snowplowanalytics.snowplow",
+        "mobile_context",
+        "jsonschema",
+        SchemaVer.Full(Int.MaxValue, Int.MaxValue, Int.MaxValue)
+      )
+    )
+  }
 }

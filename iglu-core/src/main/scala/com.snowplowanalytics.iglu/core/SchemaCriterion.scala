@@ -117,9 +117,9 @@ object SchemaCriterion {
 
   /** Canonical regular expression to extract [[SchemaCriterion]]. */
   val criterionRegex = ("^iglu:" + // Protocol
-    "([a-zA-Z0-9-_.]+)/" + // Vendor
-    "([a-zA-Z0-9-_]+)/" + // Name
-    "([a-zA-Z0-9-_]+)/" + // Format
+    "([a-zA-Z0-9-_.]{1,128})/" + // Vendor
+    "([a-zA-Z0-9-_]{1,128})/" + // Name
+    "([a-zA-Z0-9-_]{1,128})/" + // Format
     "([1-9][0-9]*|\\*)-" + // MODEL (cannot start with zero)
     "((?:0|[1-9][0-9]*)|\\*)-" + // REVISION
     "((?:0|[1-9][0-9]*)|\\*)$").r // ADDITION

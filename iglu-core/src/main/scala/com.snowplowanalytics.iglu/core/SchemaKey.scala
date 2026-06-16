@@ -77,17 +77,17 @@ object SchemaKey {
 
   /** Canonical regular expression for a [[SchemaKey]]. */
   val schemaUriRegex: Regex = ("^iglu:" + // Protocol
-    "([a-zA-Z0-9-_.]+)/" + // Vendor
-    "([a-zA-Z0-9-_]+)/" + // Name
-    "([a-zA-Z0-9-_]+)/" + // Format
+    "([a-zA-Z0-9-_.]{1,128})/" + // Vendor
+    "([a-zA-Z0-9-_]{1,128})/" + // Name
+    "([a-zA-Z0-9-_]{1,128})/" + // Format
     "([1-9][0-9]*" + // MODEL (cannot start with 0)
     "(?:-(?:0|[1-9][0-9]*)){2})$").r // REVISION and ADDITION
 
   /** A regular expression to extract [[SchemaVer]] within a single group. */
   private val schemaUriRigidRegex: Regex = ("^iglu:" + // Protocol
-    "([a-zA-Z0-9-_.]+)/" + // Vendor
-    "([a-zA-Z0-9-_]+)/" + // Name
-    "([a-zA-Z0-9-_]+)/" + // Format
+    "([a-zA-Z0-9-_.]{1,128})/" + // Vendor
+    "([a-zA-Z0-9-_]{1,128})/" + // Name
+    "([a-zA-Z0-9-_]{1,128})/" + // Format
     "([0-9]*(?:-(?:[0-9]*)){2})$").r // SchemaVer
 
   /**

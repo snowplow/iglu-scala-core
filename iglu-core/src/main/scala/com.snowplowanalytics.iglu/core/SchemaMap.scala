@@ -32,16 +32,16 @@ object SchemaMap {
     *
     * TODO: Is this needed?
     */
-  val schemaPathRegex = ("^([a-zA-Z0-9-_.]+)/" +
-    "([a-zA-Z0-9-_]+)/" +
-    "([a-zA-Z0-9-_]+)/" +
+  val schemaPathRegex = ("^([a-zA-Z0-9-_.]{1,128})/" +
+    "([a-zA-Z0-9-_]{1,128})/" +
+    "([a-zA-Z0-9-_]{1,128})/" +
     "([1-9][0-9]*" +
     "(?:-(?:0|[1-9][0-9]*)){2})$").r
 
   /** A regular expression to extract the [[SchemaVer]] separately. */
-  private val schemaPathRigidRegex = ("^([a-zA-Z0-9-_.]+)/" +
-    "([a-zA-Z0-9-_]+)/" +
-    "([a-zA-Z0-9-_]+)/" +
+  private val schemaPathRigidRegex = ("^([a-zA-Z0-9-_.]{1,128})/" +
+    "([a-zA-Z0-9-_]{1,128})/" +
+    "([a-zA-Z0-9-_]{1,128})/" +
     "([0-9]*(?:-(?:[0-9]*)){2})$").r
 
   def apply(vendor: String, name: String, format: String, version: SchemaVer.Full): SchemaMap =

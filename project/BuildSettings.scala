@@ -23,18 +23,20 @@ import com.typesafe.tools.mima.plugin.MimaKeys._
 // Scoverage plugin
 import scoverage.ScoverageKeys._
 
+// Sonatype plugin
+import xerial.sbt.Sonatype.autoImport._
+
 // GHPages plugin
-import com.typesafe.sbt.sbtghpages.GhpagesPlugin.autoImport._
+import com.github.sbt.sbtghpages.GhpagesPlugin.autoImport._
 import com.typesafe.sbt.site.SitePlugin.autoImport._
-import com.typesafe.sbt.SbtGit.GitKeys.{gitBranch, gitRemoteRepo}
+import com.github.sbt.git.SbtGit.GitKeys.{gitBranch, gitRemoteRepo}
 import com.typesafe.sbt.site.preprocess.PreprocessPlugin.autoImport._
 import sbtunidoc.ScalaUnidocPlugin.autoImport._
 
-
 object BuildSettings {
-  val scala212 = "2.12.17"
-  val scala213 = "2.13.10"
-  val scala3 = "3.2.0"
+  val scala212 = "2.12.21"
+  val scala213 = "2.13.18"
+  val scala3   = "3.3.7"
 
   // Basic project settings
   lazy val commonProjectSettings: Seq[sbt.Setting[_]] = Seq(
@@ -102,6 +104,7 @@ object BuildSettings {
   lazy val publishSettings = Seq[Setting[_]](
     publishArtifact := true,
     Test / publishArtifact := false,
+    sonatypeCredentialHost := "central.sonatype.com",
     pomIncludeRepository := { _ =>
       false
     },
@@ -154,21 +157,21 @@ object BuildSettings {
     gitRemoteRepo := "git@github.com:snowplow/iglu-scala-core.git",
     gitBranch := Some("gh-pages"),
     ScalaUnidoc / siteSubdirName := version.value,
-    Preprocess / preprocessVars := Map("VERSION" -> version.value),
+    Preprocess  / preprocessVars := Map("VERSION" -> version.value),
     addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, ScalaUnidoc / siteSubdirName),
     ghpagesCleanSite / excludeFilter := new FileFilter {
       def accept(f: File) = true
     }
   )
 
-  lazy val commonBuildSettings: Seq[sbt.Setting[_]] = 
+  lazy val commonBuildSettings: Seq[sbt.Setting[_]] =
     commonProjectSettings ++ resolverSettings ++ publishSettings
-  lazy val coreBuildSettings: Seq[sbt.Setting[_]] = 
+  lazy val coreBuildSettings: Seq[sbt.Setting[_]] =
     commonBuildSettings ++ coreProjectSettings ++ mimaSettings ++ scalifiedSettings
-  lazy val circeBuildSettings: Seq[sbt.Setting[_]]  = 
+  lazy val circeBuildSettings: Seq[sbt.Setting[_]] =
     commonBuildSettings ++ circeProjectSettings ++ mimaSettings ++ scoverageSettings
-  lazy val json4sBuildSettings: Seq[sbt.Setting[_]] = 
+  lazy val json4sBuildSettings: Seq[sbt.Setting[_]] =
     commonBuildSettings ++ json4sProjectSettings ++ mimaSettings ++ scoverageSettings
-  lazy val docsBuildSettings: Seq[sbt.Setting[_]] = 
+  lazy val docsBuildSettings: Seq[sbt.Setting[_]] =
     commonBuildSettings ++ docsProjectSettings ++ ghPagesSettings
 }

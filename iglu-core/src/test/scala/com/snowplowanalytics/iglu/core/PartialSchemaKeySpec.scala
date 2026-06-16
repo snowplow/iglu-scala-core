@@ -18,6 +18,12 @@ class PartialSchemaKeySpec extends Specification {
   def is = s2"""
   fromUri parses full schema key as PartialSchemaKey $e1
   fromUri parses partial schema key $e2
+
+  Specification for 128-character field length limit
+    fail to parse with vendor exceeding 128 characters $e3
+    fail to parse with name exceeding 128 characters $e4
+    fail to parse with format exceeding 128 characters $e5
+    parse successfully when vendor, name, and format are exactly 128 characters $e6
   """
 
   def e1 = {
@@ -33,5 +39,25 @@ class PartialSchemaKeySpec extends Specification {
       SchemaVer.Partial(Some(1), None, None)
     )
     PartialSchemaKey.fromUri("iglu:com.acme.foo/event/jsonschema/1-?-?") must beRight(expected)
+  }
+
+  def e3 = {
+    val longVendor = "a" * 129
+    PartialSchemaKey.fromUri(s"iglu:$longVendor/event/jsonschema/1-0-0") must beLeft
+  }
+
+  def e4 = {
+    val longName = "a" * 129
+    PartialSchemaKey.fromUri(s"iglu:com.acme.foo/$longName/jsonschema/1-0-0") must beLeft
+  }
+
+  def e5 = {
+    val longFormat = "a" * 129
+    PartialSchemaKey.fromUri(s"iglu:com.acme.foo/event/$longFormat/1-0-0") must beLeft
+  }
+
+  def e6 = {
+    val maxField = "a" * 128
+    PartialSchemaKey.fromUri(s"iglu:$maxField/$maxField/$maxField/1-0-0") must beRight
   }
 }
