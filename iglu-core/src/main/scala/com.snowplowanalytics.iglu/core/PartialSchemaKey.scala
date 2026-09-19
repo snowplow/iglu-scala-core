@@ -62,9 +62,17 @@ object PartialSchemaKey {
     * @param schemaUri An Iglu schema URI.
     * @return A [[PartialSchemaKey]] or an error.
     */
-  def fromUri(schemaUri: String): Either[ParseError, PartialSchemaKey] = schemaUri match {
-    case schemaUriRegex(vnd, n, f, m, r, a) =>
-      SchemaVer.parse(s"$m-$r-$a").map(PartialSchemaKey(vnd, n, f, _))
-    case _ => Left(ParseError.InvalidIgluUri)
-  }
+  def fromUri(schemaUri: String): Either[ParseError, PartialSchemaKey] =
+    Parser.uriPrefix(schemaUri) match {
+      case Some(prefix) =>
+        val version =
+          Parser.version(schemaUri, prefix.versionFrom, schemaUri.length, Parser.PartialWildcard)
+        if (version.isFull)
+          Right(PartialSchemaKey(prefix.vendor, prefix.name, prefix.format, version.toFull))
+        else if (version.isKnownOrWildcard)
+          Right(PartialSchemaKey(prefix.vendor, prefix.name, prefix.format, version.toPartial))
+        else if (version.hasWildcardShape) Left(ParseError.InvalidSchemaVer)
+        else Left(ParseError.InvalidIgluUri)
+      case None => Left(ParseError.InvalidIgluUri)
+    }
 }

@@ -115,7 +115,14 @@ final case class SchemaCriterion(
 /** Companion object, which contains custom constructors for [[SchemaCriterion]]. */
 object SchemaCriterion {
 
-  /** Canonical regular expression to extract [[SchemaCriterion]]. */
+  /**
+    * Canonical regular expression to extract [[SchemaCriterion]].
+    *
+    * Matching is necessary but not sufficient. No regex can express the range of an `Int`,
+    * so [[parse]] also rejects a MODEL, REVISION or ADDITION that this matches but that no
+    * `Int` can hold: `iglu:com.acme/event/jsonschema/2147483648-0-0` matches and does not
+    * parse. Anything pre-validating a criterion with this regex has to expect that.
+    */
   val criterionRegex = ("^iglu:" + // Protocol
     "([a-zA-Z0-9-_.]{1,128})/" + // Vendor
     "([a-zA-Z0-9-_]{1,128})/" + // Name
@@ -132,13 +139,25 @@ object SchemaCriterion {
     * An Iglu schema URI is the default for schema lookup.
     *
     * @param criterion The string to convert to a [[SchemaCriterion]].
-    * @return A [[SchemaCriterion]] if the string satisfies the format.
+    * @return A [[SchemaCriterion]] if the string satisfies [[criterionRegex]] and every
+    *         version component it pins fits in an `Int`.
     */
   def parse(criterion: String): Option[SchemaCriterion] =
-    criterion match {
-      case criterionRegex(vendor, name, format, m, r, a) =>
-        Some(SchemaCriterion(vendor, name, format, parseInt(m), parseInt(r), parseInt(a)))
-      case _ => None
+    Parser.uriPrefix(criterion).flatMap { prefix =>
+      val version =
+        Parser.version(criterion, prefix.versionFrom, criterion.length, Parser.CriterionWildcard)
+      if (version.isKnownOrWildcard)
+        Some(
+          SchemaCriterion(
+            prefix.vendor,
+            prefix.name,
+            prefix.format,
+            version.modelOption,
+            version.revisionOption,
+            version.additionOption
+          )
+        )
+      else None
     }
 
   /**
@@ -179,15 +198,4 @@ object SchemaCriterion {
     */
   def apply(vendor: String, name: String, format: String, model: Int): SchemaCriterion =
     SchemaCriterion(vendor, name, format, Some(model), None, None)
-
-  /**
-    * Try to parse a string as a number.
-    * Helper method for [[parse]].
-    */
-  private def parseInt(number: String): Option[Int] =
-    try {
-      Some(number.toInt)
-    } catch {
-      case _: NumberFormatException => None
-    }
 }

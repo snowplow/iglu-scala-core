@@ -18,6 +18,7 @@ import Keys._
 import sbtdynver.DynVerPlugin.autoImport._
 
 // Mima plugin
+import com.typesafe.tools.mima.core._
 import com.typesafe.tools.mima.plugin.MimaKeys._
 
 // Scoverage plugin
@@ -123,7 +124,8 @@ object BuildSettings {
   // clear `mimaBinaryIssueFilters` and `mimaPreviousVersions`.
   // Otherwise, add previous version to the set without
   // removing older versions.
-  val mimaPreviousVersions = Set("1.0.0", "1.0.1", "1.0.0", "1.1.1", "1.1.2")
+  val mimaPreviousVersions =
+    Set("1.0.0", "1.0.1", "1.1.1", "1.1.2", "1.1.3", "1.1.4", "1.1.5")
   val mimaSettings = Seq(
     mimaPreviousArtifacts := {
       CrossVersion.partialVersion(scalaVersion.value) match {
@@ -135,7 +137,18 @@ object BuildSettings {
       }
     },
     ThisBuild / mimaFailOnNoPrevious := false,
-    mimaBinaryIssueFilters ++= Seq(),
+    mimaBinaryIssueFilters ++= Seq(
+      // A private helper object, deleted when SchemaVer stopped parsing versions with a
+      // regex. Scala compiles a private nested object to a public class, so MiMa sees it
+      // go, but no caller outside SchemaVer could ever have referred to it.
+      ProblemFilters.exclude[MissingClassProblem](
+        "com.snowplowanalytics.iglu.core.SchemaVer$IntString$"
+      ),
+      // Parser is private[core], but Scala compiles that to a public class, so from the
+      // release that first ships it MiMa would guard a type no caller outside this
+      // package can reach.
+      ProblemFilters.exclude[Problem]("com.snowplowanalytics.iglu.core.Parser*")
+    ),
     Test / test := {
       mimaReportBinaryIssues.value
       (Test / test).value

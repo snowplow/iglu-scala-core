@@ -36,6 +36,7 @@ class SchemaKeySpec extends Specification {
     sort entities with SchemaKey $e6
     vendorAsSnakeCase convert vendor to snake case $e7
     nameAsSnakeCase convert name to snake case $e12
+    vendorAsSnakeCase leave other punctuation untouched $e20
 
   Specification for 128-character field length limit
     fail to parse with vendor exceeding 128 characters $e13
@@ -219,6 +220,11 @@ class SchemaKeySpec extends Specification {
   def e12 =
     SchemaKey("com.acme", "te.s-tNAme", "jsonschema", SchemaVer.Full(1, 0, 0)).nameAsSnakeCase must beEqualTo(
       "te_s_t_name"
+    )
+
+  def e20 =
+    SchemaKey("com.ac$me", "test", "jsonschema", SchemaVer.Full(1, 0, 0)).vendorAsSnakeCase must beEqualTo(
+      "com_ac$me"
     )
 
   def e13 = {

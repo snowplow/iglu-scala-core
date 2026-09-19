@@ -39,7 +39,9 @@ class SchemaCriterionSpec extends Specification {
     parse successfully when vendor, name, and format are exactly 128 characters $e14
 
   Specification for version component overflow behaviour
-    a model exceeding Int.MaxValue is treated as a wildcard $e15
+    fail to parse criterion with MODEL exceeding Int.MaxValue $e15
+    fail to parse criterion with REVISION exceeding Int.MaxValue $e16
+    fail to parse criterion with ADDITION exceeding Int.MaxValue $e17
     """
 
   def e1 = {
@@ -122,20 +124,19 @@ class SchemaCriterionSpec extends Specification {
   }
 
   def e15 =
-    // parseInt catches NumberFormatException and returns None, so an overflowing model
-    // is silently treated as a wildcard rather than causing the parse to fail entirely
     SchemaCriterion.parse(
       "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/2147483648-0-0"
-    ) must beSome(
-      SchemaCriterion(
-        "com.snowplowanalytics.snowplow",
-        "mobile_context",
-        "jsonschema",
-        None,
-        Some(0),
-        Some(0)
-      )
-    )
+    ) must beNone
+
+  def e16 =
+    SchemaCriterion.parse(
+      "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-2147483648-0"
+    ) must beNone
+
+  def e17 =
+    SchemaCriterion.parse(
+      "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-2147483648"
+    ) must beNone
 
   def e4 = {
     val criterion =

@@ -112,51 +112,32 @@ object SchemaVer {
     * Parse the MODEL, REVISION, and ADDITION components of a [[SchemaVer]],
     * which can be potentially unknown.
     */
-  def parse(version: String): Either[ParseError, SchemaVer] =
-    parseFull(version) match {
-      case Left(ParseError.InvalidSchemaVer) =>
-        version match {
-          case schemaVerPartialRegex(IntString(m), IntString(r), IntString(a)) =>
-            Right(SchemaVer.Partial(m, r, a))
-          case _ => Left(ParseError.InvalidSchemaVer)
-        }
-      case other => other
-    }
+  def parse(version: String): Either[ParseError, SchemaVer] = {
+    val parsed = Parser.version(version, 0, version.length, Parser.PartialWildcard)
+    if (parsed.isFull) Right(parsed.toFull)
+    else if (parsed.isKnownOrWildcard) Right(parsed.toPartial)
+    else Left(ParseError.InvalidSchemaVer)
+  }
 
   /**
     * Parse the MODEL, REVISION, and ADDITION components of a [[SchemaVer.Full]],
     * which are always known.
     */
-  def parseFull(version: String): Either[ParseError, SchemaVer.Full] = version match {
-    case schemaVerFullRegex(m, r, a) =>
-      try {
-        Right(SchemaVer.Full(m.toInt, r.toInt, a.toInt))
-      } catch {
-        case _: NumberFormatException =>
-          Left(ParseError.InvalidSchemaVer)
-      }
-    case _ =>
-      Left(ParseError.InvalidSchemaVer)
+  def parseFull(version: String): Either[ParseError, SchemaVer.Full] = {
+    val parsed = Parser.fullVersion(version, 0, version.length)
+    if (parsed.isFull) Right(parsed.toFull) else Left(ParseError.InvalidSchemaVer)
   }
 
   /**
     * Check if a string is a valid [[SchemaVer]].
     *
+    * This only checks the shape, exactly as [[schemaVerFullRegex]] does. A component
+    * that is too large for an `Int` has a valid shape, so this can return `true` for a
+    * version that [[parseFull]] rejects.
+    *
     * @param version The string to be checked.
     * @return `true` if the string is a valid [[SchemaVer]].
     */
   def isValid(version: String): Boolean =
-    version.matches(schemaVerFullRegex.toString)
-
-  private object IntString {
-    def unapply(arg: String): Option[Option[Int]] =
-      if (arg == "?") Some(None)
-      else {
-        try {
-          Some(Some(arg.toInt))
-        } catch {
-          case _: NumberFormatException => None
-        }
-      }
-  }
+    Parser.fullVersion(version, 0, version.length).hasFullShape
 }

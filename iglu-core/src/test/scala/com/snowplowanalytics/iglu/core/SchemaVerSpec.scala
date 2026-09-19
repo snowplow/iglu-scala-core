@@ -21,6 +21,7 @@ class SchemaVerSpec extends Specification {
     extract correct SchemaVer $e2
     fail to validate zero in MODEL $e3
     fail to validate preceding zero in REVISION $e4
+    fail to validate SchemaVer with a trailing newline $e5
   """
 
   def e1 =
@@ -34,4 +35,7 @@ class SchemaVerSpec extends Specification {
 
   def e4 =
     SchemaVer.isValid("1-02-1") must beFalse
+
+  def e5 =
+    SchemaVer.isValid("1-0-0\n") must beFalse
 }

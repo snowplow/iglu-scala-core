@@ -38,12 +38,6 @@ object SchemaMap {
     "([1-9][0-9]*" +
     "(?:-(?:0|[1-9][0-9]*)){2})$").r
 
-  /** A regular expression to extract the [[SchemaVer]] separately. */
-  private val schemaPathRigidRegex = ("^([a-zA-Z0-9-_.]{1,128})/" +
-    "([a-zA-Z0-9-_]{1,128})/" +
-    "([a-zA-Z0-9-_]{1,128})/" +
-    "([0-9]*(?:-(?:[0-9]*)){2})$").r
-
   def apply(vendor: String, name: String, format: String, version: SchemaVer.Full): SchemaMap =
     SchemaMap(SchemaKey(vendor, name, format, version))
 
@@ -58,15 +52,17 @@ object SchemaMap {
     * @param schemaPath An Iglu schema path.
     * @return A [[SchemaMap]] or an error.
     */
-  def fromPath(schemaPath: String): Either[ParseError, SchemaMap] = schemaPath match {
-    case schemaPathRigidRegex(vnd, n, f, ver) =>
-      SchemaVer.parse(ver) match {
-        case Right(v: SchemaVer.Full)    => Right(SchemaMap(vnd, n, f, v))
-        case Right(_: SchemaVer.Partial) => Left(ParseError.InvalidSchemaVer)
-        case Left(other)                 => Left(other)
-      }
-    case _ => Left(ParseError.InvalidSchema)
-  }
+  def fromPath(schemaPath: String): Either[ParseError, SchemaMap] =
+    Parser.prefix(schemaPath, 0) match {
+      case Some(prefix) =>
+        val version = Parser.fullVersion(schemaPath, prefix.versionFrom, schemaPath.length)
+        if (version.isFull)
+          Right(SchemaMap(prefix.vendor, prefix.name, prefix.format, version.toFull))
+        else if (Parser.isVersionShaped(schemaPath, prefix.versionFrom, schemaPath.length))
+          Left(ParseError.InvalidSchemaVer)
+        else Left(ParseError.InvalidSchema)
+      case None => Left(ParseError.InvalidSchema)
+    }
 
   /** Try to get `SchemaMap` from `E` as */
   def extract[E: ExtractSchemaMap](e: E): Either[ParseError, SchemaMap] =

@@ -44,13 +44,15 @@ final case class SchemaKey(vendor: String, name: String, format: String, version
     * Convert dots & dashes in schema vendor to underscore
     */
   def vendorAsSnakeCase: String =
-    vendor.replaceAll("""[\.\-]""", "_").toLowerCase
+    SchemaKey.dotOrDashRegex.replaceAllIn(vendor, "_").toLowerCase
 
   /**
     * Convert PascalCase in schema name to snake_case
     */
-  def nameAsSnakeCase: String =
-    name.replaceAll("""[\.\-]""", "_").replaceAll("([^A-Z_])([A-Z])", "$1_$2").toLowerCase
+  def nameAsSnakeCase: String = {
+    val underscored = SchemaKey.dotOrDashRegex.replaceAllIn(name, "_")
+    SchemaKey.pascalCaseRegex.replaceAllIn(underscored, "$1_$2").toLowerCase
+  }
 
   /** Lossy conversion to [[PartialSchemaKey]]. */
   def asPartial: PartialSchemaKey =
@@ -83,12 +85,11 @@ object SchemaKey {
     "([1-9][0-9]*" + // MODEL (cannot start with 0)
     "(?:-(?:0|[1-9][0-9]*)){2})$").r // REVISION and ADDITION
 
-  /** A regular expression to extract [[SchemaVer]] within a single group. */
-  private val schemaUriRigidRegex: Regex = ("^iglu:" + // Protocol
-    "([a-zA-Z0-9-_.]{1,128})/" + // Vendor
-    "([a-zA-Z0-9-_]{1,128})/" + // Name
-    "([a-zA-Z0-9-_]{1,128})/" + // Format
-    "([0-9]*(?:-(?:[0-9]*)){2})$").r // SchemaVer
+  /** A regular expression matching the dots and dashes replaced by snake casing. */
+  private val dotOrDashRegex: Regex = """[\.\-]""".r
+
+  /** A regular expression matching the PascalCase boundaries split by snake casing. */
+  private val pascalCaseRegex: Regex = "([^A-Z_])([A-Z])".r
 
   /**
     * A Default `Ordering` instance for a [[SchemaKey]],
@@ -116,14 +117,17 @@ object SchemaKey {
     * @param schemaUri An Iglu schema URI.
     * @return A [[SchemaKey]] or an error.
     */
-  def fromUri(schemaUri: String): Either[ParseError, SchemaKey] = schemaUri match {
-    case schemaUriRigidRegex(vnd, n, f, ver) =>
-      SchemaVer.parse(ver) match {
-        case Right(full: SchemaVer.Full) => Right(SchemaKey(vnd, n, f, full))
-        case _                           => Left(ParseError.InvalidSchemaVer)
-      }
-    case _ => Left(ParseError.InvalidIgluUri)
-  }
+  def fromUri(schemaUri: String): Either[ParseError, SchemaKey] =
+    Parser.uriPrefix(schemaUri) match {
+      case Some(prefix) =>
+        val version = Parser.fullVersion(schemaUri, prefix.versionFrom, schemaUri.length)
+        if (version.isFull)
+          Right(SchemaKey(prefix.vendor, prefix.name, prefix.format, version.toFull))
+        else if (Parser.isVersionShaped(schemaUri, prefix.versionFrom, schemaUri.length))
+          Left(ParseError.InvalidSchemaVer)
+        else Left(ParseError.InvalidIgluUri)
+      case None => Left(ParseError.InvalidIgluUri)
+    }
 
   /**
     * Extract a [[SchemaKey]] from an entity with base type `E`,
